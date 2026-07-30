@@ -9,12 +9,12 @@ const TestimonialCard = ({ testimonial, isActive, index, total }) => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className={`glass rounded-3xl p-8 md:p-12 max-w-4xl mx-auto ${isActive ? 'block' : 'hidden'}`}
+      className={`bg-white rounded-2xl p-8 md:p-12 max-w-4xl mx-auto shadow-soft border border-neutral-200 ${isActive ? 'block' : 'hidden'}`}
     >
       <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Student Image/Avatar */}
         <div className="flex-shrink-0">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-4xl md:text-5xl shadow-xl shadow-primary-500/30">
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-brand-600 flex items-center justify-center text-4xl md:text-5xl text-white">
             {testimonial.name.charAt(0)}
           </div>
         </div>
@@ -23,35 +23,35 @@ const TestimonialCard = ({ testimonial, isActive, index, total }) => {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-4">
             {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className="text-premium-gold" />
+              <FaStar key={i} className="text-accent-400" />
             ))}
           </div>
 
-          <FaQuoteLeft className="text-3xl text-primary-500/30 mb-4" />
+          <FaQuoteLeft className="text-3xl text-brand-200 mb-4" />
           
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-6 italic">
+          <p className="text-lg md:text-xl text-neutral-700 leading-relaxed mb-6 italic">
             "{testimonial.story}"
           </p>
 
-          <div className="border-t border-white/10 pt-6">
-            <h4 className="text-xl font-bold text-white mb-2">{testimonial.name}</h4>
-            <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+          <div className="border-t border-neutral-200 pt-6">
+            <h4 className="text-xl font-bold text-neutral-900 mb-2">{testimonial.name}</h4>
+            <div className="flex flex-wrap gap-4 text-sm text-neutral-600">
               <span className="flex items-center gap-2">
-                <FaGraduationCap className="text-primary-400" />
+                <FaGraduationCap className="text-brand-600" />
                 {testimonial.course}
               </span>
               <span className="flex items-center gap-2">
-                <FaUniversity className="text-primary-400" />
+                <FaUniversity className="text-brand-600" />
                 {testimonial.college}
               </span>
               <span className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-primary-400" />
+                <FaMapMarkerAlt className="text-brand-600" />
                 {testimonial.location}
               </span>
             </div>
             {testimonial.loan && (
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">
-                <span className="w-2 h-2 rounded-full bg-green-400" />
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success-100 text-success-700 text-sm">
+                <span className="w-2 h-2 rounded-full bg-success-600" />
                 BSCC Loan Approved
               </div>
             )}
@@ -117,12 +117,8 @@ const SuccessStories = () => {
   };
 
   return (
-    <section id="success" className="py-24 relative overflow-hidden bg-gradient-to-b from-premium-charcoal to-premium-navy">
-      {/* Background */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent-500/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+    <section id="success" className="py-24 bg-neutral-50">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -131,13 +127,13 @@ const SuccessStories = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-primary-400 font-medium text-sm tracking-wider uppercase mb-4 block">
+          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
             Success Stories
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            <span className="text-gradient">Students Who Made It</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+            Students Who Made It
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
             Real stories from students who transformed their futures with our guidance
           </p>
         </motion.div>
@@ -160,9 +156,9 @@ const SuccessStories = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={prevTestimonial}
-              className="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-all"
+              className="w-12 h-12 rounded-full bg-white border border-neutral-200 shadow-soft flex items-center justify-center hover:bg-neutral-50 transition-all"
             >
-              <FaArrowLeft className="text-white" />
+              <FaArrowLeft className="text-neutral-700" />
             </motion.button>
 
             <div className="flex gap-2">
@@ -171,7 +167,7 @@ const SuccessStories = () => {
                   key={index}
                   onClick={() => setCurrentIndex(index)}
                   className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentIndex ? 'bg-primary-500 w-8' : 'bg-white/30'
+                    index === currentIndex ? 'bg-brand-600 w-8' : 'bg-neutral-300'
                   }`}
                 />
               ))}
@@ -181,9 +177,9 @@ const SuccessStories = () => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={nextTestimonial}
-              className="w-12 h-12 rounded-full glass flex items-center justify-center hover:bg-white/20 transition-all"
+              className="w-12 h-12 rounded-full bg-white border border-neutral-200 shadow-soft flex items-center justify-center hover:bg-neutral-50 transition-all"
             >
-              <FaArrowRight className="text-white" />
+              <FaArrowRight className="text-neutral-700" />
             </motion.button>
           </div>
         </div>
@@ -205,10 +201,10 @@ const SuccessStories = () => {
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
-              className="glass rounded-2xl p-6 text-center card-hover"
+              className="bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 text-center card-hover"
             >
-              <h3 className="text-3xl font-bold text-gradient-gold mb-2">{stat.value}</h3>
-              <p className="text-sm text-gray-400">{stat.label}</p>
+              <h3 className="text-3xl font-bold text-brand-600 mb-2">{stat.value}</h3>
+              <p className="text-sm text-neutral-600">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -221,10 +217,13 @@ const SuccessStories = () => {
           transition={{ duration: 0.8 }}
           className="text-center mt-12"
         >
-          <p className="text-gray-400 mb-6">Want to be our next success story?</p>
-          <button className="btn-premium">
+          <p className="text-neutral-600 mb-6">Want to be our next success story?</p>
+          <a
+            href="#contact"
+            className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+          >
             Start Your Journey Today
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>

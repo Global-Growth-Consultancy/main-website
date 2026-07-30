@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-premium-navy text-white font-sans antialiased;
+    @apply bg-white text-neutral-900 font-sans antialiased;
     overflow-x: hidden;
   }
   
@@ -16,31 +16,11 @@
 }
 
 @layer utilities {
-  .glass {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20;
-  }
-  
-  .glass-dark {
-    @apply bg-black/30 backdrop-blur-xl border border-white/10;
-  }
-  
   .text-gradient {
-    @apply bg-gradient-to-r from-primary-400 via-primary-300 to-accent-400 bg-clip-text text-transparent;
-  }
-  
-  .text-gradient-gold {
-    @apply bg-gradient-to-r from-premium-gold via-yellow-300 to-premium-gold bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent;
   }
   
   .card-hover {
-    @apply transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-primary-500/20;
-  }
-  
-  .btn-premium {
-    @apply px-8 py-4 bg-gradient-to-r from-primary-600 to-primary-500 rounded-full font-semibold text-white shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50 transition-all duration-300 hover:scale-105;
-  }
-  
-  .btn-premium-outline {
-    @apply px-8 py-4 border-2 border-primary-500 rounded-full font-semibold text-primary-400 hover:bg-primary-500/10 transition-all duration-300;
+    @apply transition-all duration-300 hover:shadow-medium hover:-translate-y-1;
   }
 }

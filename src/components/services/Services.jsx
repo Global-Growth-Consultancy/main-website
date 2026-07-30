@@ -4,34 +4,30 @@ import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaPassport,
 
 const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 50 }}
+    initial={{ opacity: 0, y: 30 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.6, delay }}
-    className="glass rounded-3xl p-8 card-hover group relative overflow-hidden"
+    className="bg-white rounded-2xl p-8 shadow-soft border border-neutral-200 card-hover"
   >
-    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/20 to-transparent rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500" />
-    
-    <div className="relative z-10">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg shadow-primary-500/30">
-        <Icon className="text-3xl text-white" />
-      </div>
-      
-      <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-gradient transition-all duration-300">
-        {title}
-      </h3>
-      
-      <p className="text-gray-400 mb-6 leading-relaxed">{description}</p>
-      
-      <ul className="space-y-3">
-        {features.map((feature, index) => (
-          <li key={index} className="flex items-center gap-3 text-sm text-gray-300">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary-400" />
-            {feature}
-          </li>
-        ))}
-      </ul>
+    <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-6">
+      <Icon className="text-2xl text-brand-600" />
     </div>
+    
+    <h3 className="text-xl font-bold text-neutral-900 mb-3">
+      {title}
+    </h3>
+    
+    <p className="text-neutral-600 mb-6 leading-relaxed text-sm">{description}</p>
+    
+    <ul className="space-y-3">
+      {features.map((feature, index) => (
+        <li key={index} className="flex items-center gap-3 text-sm text-neutral-700">
+          <div className="w-1.5 h-1.5 rounded-full bg-brand-400" />
+          {feature}
+        </li>
+      ))}
+    </ul>
   </motion.div>
 );
 
@@ -112,13 +108,8 @@ const Services = () => {
   ];
 
   return (
-    <section id="services" className="py-24 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-premium-navy via-premium-charcoal to-premium-navy" />
-      <div className="absolute top-1/4 left-0 w-96 h-96 bg-primary-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-accent-500/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+    <section id="services" className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -127,13 +118,13 @@ const Services = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-primary-400 font-medium text-sm tracking-wider uppercase mb-4 block">
+          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
             What We Offer
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            <span className="text-gradient">Comprehensive Services</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+            Comprehensive Services
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
             From admission to loan processing, we provide end-to-end support for your educational journey
           </p>
         </motion.div>
@@ -153,10 +144,13 @@ const Services = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-center mt-16"
         >
-          <p className="text-gray-400 mb-6">Need personalized guidance for your specific situation?</p>
-          <button className="btn-premium">
+          <p className="text-neutral-600 mb-6">Need personalized guidance for your specific situation?</p>
+          <a
+            href="#contact"
+            className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+          >
             Schedule Free Consultation
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>

@@ -23,12 +23,8 @@ const UniversityPartners = () => {
   const duplicatedUniversities = [...universities, ...universities, ...universities];
 
   return (
-    <section id="colleges" className="py-24 relative overflow-hidden bg-premium-navy">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-premium-navy via-premium-charcoal to-premium-navy" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary-500/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+    <section id="colleges" className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -37,13 +33,13 @@ const UniversityPartners = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-primary-400 font-medium text-sm tracking-wider uppercase mb-4 block">
+          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
             Our Network
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            <span className="text-gradient">200+ Partner Institutions</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+            200+ Partner Institutions
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
             Direct partnerships with prestigious universities and colleges across India for priority admissions
           </p>
         </motion.div>
@@ -67,16 +63,16 @@ const UniversityPartners = () => {
               <motion.div
                 key={`${university.name}-${index}`}
                 whileHover={{ scale: 1.05 }}
-                className="flex-shrink-0 w-64 glass rounded-2xl p-6 card-hover cursor-pointer"
+                className="flex-shrink-0 w-64 bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 card-hover cursor-pointer"
               >
                 <div className="text-4xl mb-3 text-center">{university.logo}</div>
-                <h4 className="text-lg font-bold text-white text-center mb-2">{university.name}</h4>
+                <h4 className="text-lg font-bold text-neutral-900 text-center mb-2">{university.name}</h4>
                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
                   university.tier === 'Premier' 
-                    ? 'bg-premium-gold/20 text-premium-gold' 
+                    ? 'bg-accent-100 text-accent-700' 
                     : university.tier === 'Government'
-                    ? 'bg-primary-500/20 text-primary-400'
-                    : 'bg-accent-500/20 text-accent-400'
+                    ? 'bg-brand-100 text-brand-700'
+                    : 'bg-neutral-100 text-neutral-700'
                 }`}>
                   {university.tier}
                 </span>
@@ -98,32 +94,35 @@ const UniversityPartners = () => {
               title: "Premier Institutes",
               count: "50+",
               description: "IITs, NITs, and top central universities",
-              color: "from-premium-gold/20 to-premium-gold/5",
-              border: "border-premium-gold/30"
+              bg: "bg-accent-50",
+              border: "border-accent-200",
+              text: "text-accent-700"
             },
             {
               title: "Government Colleges",
               count: "100+",
               description: "State universities and government colleges",
-              color: "from-primary-500/20 to-primary-500/5",
-              border: "border-primary-500/30"
+              bg: "bg-brand-50",
+              border: "border-brand-200",
+              text: "text-brand-700"
             },
             {
               title: "Private Universities",
               count: "50+",
               description: "Top private universities and deemed universities",
-              color: "from-accent-500/20 to-accent-500/5",
-              border: "border-accent-500/30"
+              bg: "bg-neutral-50",
+              border: "border-neutral-200",
+              text: "text-neutral-700"
             }
           ].map((category, index) => (
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
-              className={`glass rounded-2xl p-8 card-hover bg-gradient-to-br ${category.color} border ${category.border}`}
+              className={`bg-white rounded-2xl p-8 shadow-soft border border-neutral-200 card-hover`}
             >
-              <h3 className="text-3xl font-bold text-white mb-2">{category.count}</h3>
-              <h4 className="text-xl font-semibold text-white mb-3">{category.title}</h4>
-              <p className="text-gray-400 text-sm">{category.description}</p>
+              <h3 className={`text-3xl font-bold ${category.text} mb-2`}>{category.count}</h3>
+              <h4 className="text-xl font-semibold text-neutral-900 mb-3">{category.title}</h4>
+              <p className="text-neutral-600 text-sm">{category.description}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -136,9 +135,12 @@ const UniversityPartners = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-center mt-12"
         >
-          <button className="btn-premium">
+          <a
+            href="#contact"
+            className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+          >
             View All Partner Colleges
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>

@@ -8,24 +8,24 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="glass rounded-2xl overflow-hidden mb-4"
+    className="bg-white rounded-2xl overflow-hidden mb-4 shadow-soft border border-neutral-200"
   >
     <button
       onClick={onClick}
-      className="w-full p-6 flex items-center justify-between text-left hover:bg-white/5 transition-all duration-300"
+      className="w-full p-6 flex items-center justify-between text-left hover:bg-neutral-50 transition-all duration-300"
     >
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-xl bg-primary-500/20 flex items-center justify-center flex-shrink-0">
-          <FaQuestionCircle className="text-primary-400" />
+        <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
+          <FaQuestionCircle className="text-brand-600" />
         </div>
-        <span className="text-lg font-semibold text-white">{question}</span>
+        <span className="text-lg font-semibold text-neutral-900">{question}</span>
       </div>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.3 }}
         className="flex-shrink-0"
       >
-        <FaChevronDown className="text-gray-400" />
+        <FaChevronDown className="text-neutral-500" />
       </motion.div>
     </button>
     
@@ -39,7 +39,7 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => (
           className="overflow-hidden"
         >
           <div className="px-6 pb-6 pt-2">
-            <p className="text-gray-400 leading-relaxed pl-14">{answer}</p>
+            <p className="text-neutral-600 leading-relaxed pl-14">{answer}</p>
           </div>
         </motion.div>
       )}
@@ -86,12 +86,8 @@ const FAQSection = () => {
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-gradient-to-b from-premium-charcoal to-premium-navy">
-      {/* Background */}
-      <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-primary-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-accent-500/5 rounded-full blur-3xl" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -100,13 +96,13 @@ const FAQSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-primary-400 font-medium text-sm tracking-wider uppercase mb-4 block">
+          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
             FAQ
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6">
-            <span className="text-gradient">Common Questions</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+            Common Questions
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
             Find answers to frequently asked questions about our services and the admission process
           </p>
         </motion.div>
@@ -132,20 +128,26 @@ const FAQSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <div className="glass rounded-3xl p-8 md:p-12 max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4">
+          <div className="bg-neutral-50 rounded-2xl p-8 md:p-12 max-w-3xl mx-auto border border-neutral-200">
+            <h3 className="text-2xl font-bold text-neutral-900 mb-4">
               Still Have Questions?
             </h3>
-            <p className="text-gray-400 mb-8">
+            <p className="text-neutral-600 mb-8">
               Can't find the answer you're looking for? Our team is here to help.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button className="btn-premium">
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+              >
                 Schedule a Call
-              </button>
-              <button className="btn-premium-outline">
+              </a>
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center px-6 py-3 border border-neutral-300 text-neutral-700 font-medium rounded-lg hover:bg-neutral-50 transition-colors duration-200"
+              >
                 Send us a Message
-              </button>
+              </a>
             </div>
           </div>
         </motion.div>

@@ -11,22 +11,10 @@ import AboutSection from "./components/about/AboutSection";
 import FAQSection from "./components/faq/FAQSection";
 import ContactSection from "./components/contact/ContactSection";
 import PremiumFooter from "./components/footer/PremiumFooter";
-import SmoothScroll from "./components/shared/SmoothScroll";
-import CustomCursor from "./components/shared/CustomCursor";
-import LoadingScreen from "./components/shared/LoadingScreen";
-import ScrollProgress from "./components/shared/ScrollProgress";
-import ParticleBackground from "./components/shared/ParticleBackground";
-import GradientMesh from "./components/shared/GradientMesh";
 
 const App = () => {
   return (
-    <div className="w-full min-h-screen bg-premium-navy">
-      <LoadingScreen />
-      <CustomCursor />
-      <ScrollProgress />
-      <GradientMesh />
-      <ParticleBackground />
-      <SmoothScroll />
+    <div className="w-full min-h-screen bg-white">
       <PremiumNavbar />
       
       <main>
