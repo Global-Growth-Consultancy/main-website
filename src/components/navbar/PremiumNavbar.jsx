@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaPhone, FaEnvelope, FaArrowRight } from "react-icons/fa";
-import { GiGraduationCap } from "react-icons/gi";
+import { FaBars, FaTimes, FaPhone, FaEnvelope, FaArrowRight, FaGraduationCap } from "react-icons/fa";
 
 const PremiumNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,7 +38,7 @@ const PremiumNavbar = () => {
             {/* Logo */}
             <a href="#" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center">
-                <GiGraduationCap className="text-xl text-white" />
+                <FaGraduationCap className="text-xl text-white" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-neutral-900">GGC</h1>
@@ -109,7 +108,7 @@ const PremiumNavbar = () => {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center">
-                    <GiGraduationCap className="text-xl text-white" />
+                    <FaGraduationCap className="text-xl text-white" />
                   </div>
                   <div>
                     <h1 className="text-lg font-bold text-neutral-900">GGC</h1>
