@@ -7,20 +7,18 @@ const DreamFusionEngine = lazy(() => import("./DreamFusionEngine"));
 
 const PremiumHero = () => {
   const { scrollY } = useScroll();
-  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
-  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   return (
     <section className="relative min-h-screen flex items-center bg-premium-navy overflow-hidden">
-      {/* Animated Background */}
-      <motion.div
-        style={{ y: y1 }}
-        className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-3xl opacity-50"
+      {/* Ambient background — static, cheap, refined (no blur filters) */}
+      <div
+        className="absolute -top-40 -right-32 w-[640px] h-[640px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle at center, rgba(56,189,248,0.14), transparent 62%)" }}
       />
-      <motion.div
-        style={{ y: y2 }}
-        className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-500/10 rounded-full blur-3xl"
+      <div
+        className="absolute -bottom-44 -left-32 w-[520px] h-[520px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle at center, rgba(251,191,36,0.1), transparent 62%)" }}
       />
 
       {/* Subtle grid backdrop */}
@@ -34,28 +32,6 @@ const PremiumHero = () => {
           WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)",
         }}
       />
-
-      {/* Floating Particles */}
-      {Array.from({ length: 16 }).map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-2 h-2 bg-brand-500/30 rounded-full"
-          initial={{
-            x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
-            y: Math.random() * 800,
-            opacity: 0,
-          }}
-          animate={{
-            y: [null, -100 - Math.random() * 200],
-            opacity: [0, 0.5, 0],
-          }}
-          transition={{
-            duration: 3 + Math.random() * 2,
-            repeat: Infinity,
-            delay: Math.random() * 2,
-          }}
-        />
-      ))}
 
       {/* Content */}
       <motion.div style={{ opacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -144,7 +120,10 @@ const PremiumHero = () => {
 
           {/* Right Content - Dream Fusion Engine */}
           <ScrollReveal direction="right" delay={0.2} className="relative">
-            <div className="absolute -inset-8 bg-gradient-to-br from-brand-500/10 via-transparent to-accent-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div
+              className="absolute -inset-6 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle at 50% 45%, rgba(56,189,248,0.1), rgba(139,92,246,0.05) 45%, transparent 70%)" }}
+            />
             <Suspense
               fallback={
                 <div className="relative w-full h-[400px] md:h-[540px] flex items-center justify-center">

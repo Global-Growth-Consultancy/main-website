@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect } from "react";
 import PremiumNavbar from "./components/navbar/PremiumNavbar";
 import PremiumHero from "./components/hero/PremiumHero";
 import TrustStatistics from "./components/stats/TrustStatistics";
@@ -16,8 +16,6 @@ import SmoothScrollWrapper from "./components/shared/SmoothScrollWrapper";
 import ScrollProgress from "./components/shared/ScrollProgress";
 import CustomCursor from "./components/shared/CustomCursor";
 import WhatsAppFloat from "./components/shared/WhatsAppFloat";
-
-const ParticleBackground = lazy(() => import("./components/shared/ParticleBackground"));
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,10 +37,7 @@ const App = () => {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <div className="w-full min-h-screen bg-premium-navy bg-noise relative">
-        <Suspense fallback={null}>
-          <ParticleBackground />
-        </Suspense>
+      <div className="w-full min-h-screen bg-premium-navy relative">
         <ScrollProgress />
         <CustomCursor />
         <PremiumNavbar />

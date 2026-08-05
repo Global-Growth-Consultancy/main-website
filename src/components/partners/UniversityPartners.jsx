@@ -90,7 +90,6 @@ const UniversityPartners = () => {
               transition={{ duration: 0.7, delay: index * 0.1 }}
               className="text-center group"
             >
-              <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
               <h3 className={`text-4xl font-display font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent mb-2`}>
                 {category.count}
               </h3>

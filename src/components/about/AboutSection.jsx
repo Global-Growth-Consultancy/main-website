@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart, FaCheckCircle } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
-const ValueCard = ({ icon: Icon, title, description, delay, index }) => (
+const ValueCard = ({ icon: Icon, title, description, delay }) => (
   <LuxCard
     initial={{ opacity: 0 }}
     whileInView={{ opacity: 1 }}
@@ -11,7 +11,6 @@ const ValueCard = ({ icon: Icon, title, description, delay, index }) => (
     transition={{ duration: 0.7, delay }}
     className="group"
   >
-    <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
     <div className="lux-icon mb-4">
       <Icon className="text-2xl" />
     </div>

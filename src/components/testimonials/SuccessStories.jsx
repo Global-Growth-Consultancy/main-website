@@ -14,8 +14,6 @@ const TestimonialCard = ({ testimonial, isActive }) => {
     >
       <LuxCard className="p-8 md:p-12 max-w-4xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8 items-start relative">
-          <span className="lux-ghost-number">★</span>
-
           {/* Student Image/Avatar */}
           <div className="flex-shrink-0">
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl p-[1px] bg-gradient-to-br from-brand-400 via-accent-400 to-brand-600 shadow-[0_16px_40px_-16px_rgba(56,189,248,0.5)]">

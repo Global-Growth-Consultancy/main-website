@@ -1,36 +1,16 @@
-import React, { forwardRef, useRef, useCallback } from "react";
+import React, { forwardRef } from "react";
 import { motion } from "framer-motion";
 
 /**
- * LuxCard — premium, futuristic card.
- * Adds a mouse-following spotlight (via --mx/--my CSS vars), gradient
- * border, layered depth and hover lift. Renders a motion.div so entrance
- * animation props (initial / whileInView / viewport / transition) can be
- * passed straight through. Avoid `whileHover` transform props: the CSS
- * handles the hover lift. Accepts a forwarded ref (same element).
+ * LuxCard — quiet-luxury card. Hairline border, soft gradient fill,
+ * gentle hover lift + cool glow (all handled by `.card-lux` CSS, no
+ * transform props here so framer-motion and CSS never fight). Renders
+ * a motion.div so entrance props (initial / whileInView / viewport /
+ * transition) pass straight through. Accepts a forwarded ref.
  */
 const LuxCard = forwardRef(function LuxCard({ className = "", children, ...props }, ref) {
-  const rect = useRef(null);
-
-  const handleMouseEnter = useCallback((e) => {
-    rect.current = e.currentTarget.getBoundingClientRect();
-  }, []);
-
-  const handleMouseMove = useCallback((e) => {
-    const el = ref && ref.current;
-    if (!el || !rect.current) return;
-    el.style.setProperty("--mx", `${e.clientX - rect.current.left}px`);
-    el.style.setProperty("--my", `${e.clientY - rect.current.top}px`);
-  }, [ref]);
-
   return (
-    <motion.div
-      ref={ref}
-      onMouseEnter={handleMouseEnter}
-      onMouseMove={handleMouseMove}
-      className={`card-lux ${className}`}
-      {...props}
-    >
+    <motion.div ref={ref} className={`card-lux ${className}`} {...props}>
       {children}
     </motion.div>
   );

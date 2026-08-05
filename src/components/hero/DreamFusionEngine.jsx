@@ -1,7 +1,30 @@
-import React, { Suspense, useMemo, useRef } from 'react';
+import React, { Suspense, useMemo, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Text, Float, PerspectiveCamera, MeshDistortMaterial, Stars } from '@react-three/drei';
+import { Text, PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
+
+// ---------------------------------------------------------------
+// Visibility hook — pauses the render loop while off-screen so the
+// canvas costs nothing once you scroll past the hero.
+// ---------------------------------------------------------------
+const useInViewport = ({ rootMargin = "300px" } = {}) => {
+  const ref = useRef(null);
+  const [isInView, setIsInView] = useState(true);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { rootMargin }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [rootMargin]);
+
+  return [ref, isInView];
+};
 
 // ---------------------------------------------------------------
 // Glow texture (radial gradient) used for soft halo sprites
@@ -13,7 +36,7 @@ const makeGlowTexture = () => {
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
   gradient.addColorStop(0, 'rgba(255,255,255,1)');
-  gradient.addColorStop(0.3, 'rgba(255,255,255,0.55)');
+  gradient.addColorStop(0.3, 'rgba(255,255,255,0.5)');
   gradient.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 128, 128);
@@ -41,7 +64,7 @@ const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacit
 // The curve is pre-sampled into a lookup table once; per frame we
 // only index/lerp the table instead of running arc-length math.
 // ---------------------------------------------------------------
-const ParticleStream = ({ curve, count = 600, color, size = 0.1, speed = 0.14, opacity = 0.9 }) => {
+const ParticleStream = ({ curve, count = 400, color, size = 0.1, speed = 0.14, opacity = 0.9 }) => {
   const ref = useRef();
 
   const { positions, seeds } = useMemo(() => {
@@ -107,8 +130,8 @@ const ParticleStream = ({ curve, count = 600, color, size = 0.1, speed = 0.14, o
 // ---------------------------------------------------------------
 // Glowing energy conduit (the visible path tube)
 // ---------------------------------------------------------------
-const GlowTube = ({ curve, color, opacity = 0.32 }) => {
-  const geometry = useMemo(() => new THREE.TubeGeometry(curve, 90, 0.04, 8, false), [curve]);
+const GlowTube = ({ curve, color, opacity = 0.28 }) => {
+  const geometry = useMemo(() => new THREE.TubeGeometry(curve, 90, 0.035, 8, false), [curve]);
   const material = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
@@ -124,45 +147,36 @@ const GlowTube = ({ curve, color, opacity = 0.32 }) => {
 };
 
 // ---------------------------------------------------------------
-// Central fusion core where aspiration meets BSCC loan
+// Central fusion core — a polished, softly lit sphere. No wobble,
+// no distortion: calm, confident, cinematic.
 // ---------------------------------------------------------------
 const FusionCore = () => {
   const core = useRef();
-  const shell = useRef();
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (core.current) {
-      core.current.rotation.y = t * 0.5;
-      core.current.rotation.x = Math.sin(t * 0.3) * 0.2;
-      core.current.scale.setScalar(1 + Math.sin(t * 2) * 0.05);
-    }
-    if (shell.current) {
-      shell.current.rotation.y = t * 0.18;
-      shell.current.rotation.z = t * 0.12;
+      core.current.rotation.y = t * 0.25;
+      core.current.rotation.x = Math.sin(t * 0.2) * 0.06;
     }
   });
 
   return (
     <group position={[0, -0.2, 0]}>
       <mesh ref={core}>
-        <sphereGeometry args={[0.62, 48, 48]} />
-        <MeshDistortMaterial
-          color="#7c3aed"
-          emissive="#7c3aed"
-          emissiveIntensity={1.3}
-          distort={0.38}
-          speed={2.2}
-          roughness={0.15}
-          metalness={0.85}
+        <sphereGeometry args={[0.72, 48, 48]} />
+        <meshPhysicalMaterial
+          color="#2a2a5a"
+          emissive="#4338ca"
+          emissiveIntensity={0.5}
+          metalness={0.9}
+          roughness={0.28}
+          clearcoat={1}
+          clearcoatRoughness={0.25}
         />
       </mesh>
-      <mesh ref={shell}>
-        <icosahedronGeometry args={[1.3, 1]} />
-        <meshBasicMaterial color="#8b5cf6" wireframe transparent opacity={0.22} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </mesh>
-      <GlowSprite scale={5} color="#a855f7" opacity={0.45} />
-      <GlowSprite scale={2.1} color="#ffffff" opacity={0.75} />
+      <GlowSprite scale={4.5} color="#6366f1" opacity={0.35} />
+      <GlowSprite scale={1.8} color="#ffffff" opacity={0.6} />
     </group>
   );
 };
@@ -170,7 +184,7 @@ const FusionCore = () => {
 // ---------------------------------------------------------------
 // Orbiting rings (opportunity field around the core)
 // ---------------------------------------------------------------
-const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.5 }) => {
+const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.4 }) => {
   const ref = useRef();
   useFrame((state) => {
     if (ref.current) ref.current.rotation.z = state.clock.getElapsedTime() * speed;
@@ -186,27 +200,33 @@ const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.5 }) => {
 };
 
 // ---------------------------------------------------------------
-// Stage node (origin / destination of each stream)
+// Stage node (origin / destination of each stream) — gently floating
 // ---------------------------------------------------------------
-const EnergyNode = ({ position, color, label, size = 0.4 }) => {
+const EnergyNode = ({ position, color, label, size = 0.34 }) => {
+  const ref = useRef();
+  useFrame((state) => {
+    const t = state.clock.getElapsedTime();
+    if (ref.current) ref.current.position.y = position[1] + Math.sin(t * 0.9 + position[0]) * 0.06;
+  });
+
   return (
     <group position={position}>
-      <Float speed={2.2} rotationIntensity={0.5} floatIntensity={0.8}>
+      <group ref={ref}>
         <mesh>
           <sphereGeometry args={[size, 32, 32]} />
-          <MeshDistortMaterial
-            color={color}
+          <meshPhysicalMaterial
+            color="#15153a"
             emissive={color}
-            emissiveIntensity={1.1}
-            distort={0.35}
-            speed={1.8}
-            roughness={0.15}
+            emissiveIntensity={0.55}
             metalness={0.85}
+            roughness={0.3}
+            clearcoat={0.8}
+            clearcoatRoughness={0.3}
           />
         </mesh>
-      </Float>
-      <GlowSprite scale={size * 6.5} color={color} opacity={0.5} />
-      <Text position={[0, -size - 0.55, 0]} fontSize={0.26} color="#cbd5e1" anchorX="center" anchorY="middle" letterSpacing={0.12}>
+        <GlowSprite scale={size * 5.5} color={color} opacity={0.38} />
+      </group>
+      <Text position={[0, -size - 0.55, 0]} fontSize={0.26} color="#94a3b8" anchorX="center" anchorY="middle" letterSpacing={0.14}>
         {label}
       </Text>
     </group>
@@ -214,36 +234,33 @@ const EnergyNode = ({ position, color, label, size = 0.4 }) => {
 };
 
 // ---------------------------------------------------------------
-// Graduation cap — the final outcome, made of primitive shapes
+// Graduation cap — the final outcome. Restrained and still; a quiet
+// mark of achievement rather than a bobbing mascot.
 // ---------------------------------------------------------------
 const GraduationCap = ({ position }) => {
   const ref = useRef();
   useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.position.y = Math.sin(t * 1.5) * 0.15;
-      ref.current.rotation.y = t * 0.6;
-    }
+    if (ref.current) ref.current.rotation.y = state.clock.getElapsedTime() * 0.12;
   });
   return (
     <group ref={ref} position={position}>
       <mesh>
-        <boxGeometry args={[1.5, 0.14, 1.5]} />
-        <meshStandardMaterial color="#0b1220" emissive="#10b981" emissiveIntensity={0.7} metalness={0.9} roughness={0.2} />
+        <boxGeometry args={[1.4, 0.12, 1.4]} />
+        <meshPhysicalMaterial color="#0b1220" emissive="#10b981" emissiveIntensity={0.35} metalness={0.9} roughness={0.25} clearcoat={0.6} />
       </mesh>
       <mesh position={[0, 0.22, 0]} rotation={[0, Math.PI / 4, 0]}>
-        <coneGeometry args={[1.05, 0.4, 4]} />
-        <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={0.9} metalness={0.6} roughness={0.3} />
+        <coneGeometry args={[0.98, 0.36, 4]} />
+        <meshPhysicalMaterial color="#10b981" emissive="#10b981" emissiveIntensity={0.45} metalness={0.6} roughness={0.35} />
       </mesh>
-      <mesh position={[0.75, -0.28, 0.75]}>
+      <mesh position={[0.72, -0.26, 0.72]}>
         <cylinderGeometry args={[0.03, 0.03, 0.5, 8]} />
-        <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.8} />
+        <meshBasicMaterial color="#fbbf24" transparent opacity={0.9} />
       </mesh>
-      <mesh position={[0.75, -0.56, 0.75]}>
+      <mesh position={[0.72, -0.54, 0.72]}>
         <sphereGeometry args={[0.09, 16, 16]} />
-        <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={1.1} />
+        <meshBasicMaterial color="#fbbf24" />
       </mesh>
-      <GlowSprite scale={4.2} color="#34d399" opacity={0.35} />
+      <GlowSprite scale={3.4} color="#34d399" opacity={0.22} />
     </group>
   );
 };
@@ -259,8 +276,6 @@ const DreamScene = () => {
   const group = useRef();
   const { viewport } = useThree();
 
-  // Content bounds (world units, generous half-extents that cover nodes,
-  // labels, cap and glow sprites) and the vertical center of the art.
   const fit = useMemo(() => {
     const HALF_W = 5.3;
     const HALF_H = 4.5;
@@ -303,48 +318,50 @@ const DreamScene = () => {
 
   useFrame((state) => {
     if (group.current) {
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.08, 0.04);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.05, 0.04);
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.06, 0.04);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.04, 0.04);
     }
   });
 
   return (
     <group ref={group} scale={fit.scale} position={[0, fit.y, 0]}>
-      <ambientLight intensity={0.55} />
-      <pointLight position={[6, 6, 8]} intensity={1.6} color="#38bdf8" />
-      <pointLight position={[-6, 6, 4]} intensity={1.2} color="#fbbf24" />
-      <pointLight position={[0, -4, 2]} intensity={0.6} color="#a855f7" />
+      <ambientLight intensity={0.6} />
+      <pointLight position={[6, 6, 8]} intensity={1.4} color="#38bdf8" />
+      <pointLight position={[-6, 6, 4]} intensity={1.0} color="#fbbf24" />
+      <pointLight position={[0, -4, 2]} intensity={0.5} color="#6366f1" />
 
-      <Stars radius={30} depth={25} count={1500} factor={2.4} saturation={0} fade speed={1} />
+      <Stars radius={30} depth={25} count={1200} factor={2} saturation={0} fade speed={0.6} />
 
       <GlowTube curve={pathA} color="#38bdf8" />
       <GlowTube curve={pathB} color="#fbbf24" />
       <GlowTube curve={pathC} color="#34d399" />
 
-      <ParticleStream curve={pathA} count={600} color="#38bdf8" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathB} count={600} color="#fbbf24" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathC} count={450} color="#34d399" size={0.09} speed={0.12} />
+      <ParticleStream curve={pathA} count={400} color="#38bdf8" size={0.1} speed={0.14} />
+      <ParticleStream curve={pathB} count={400} color="#fbbf24" size={0.1} speed={0.14} />
+      <ParticleStream curve={pathC} count={300} color="#34d399" size={0.09} speed={0.12} />
 
       <EnergyNode position={[-4.4, 1.7, 0]} color="#38bdf8" label="ASPIRATION" />
-      <EnergyNode position={[0.5, 4.0, -1.2]} color="#fbbf24" label="BSCC LOAN" size={0.42} />
+      <EnergyNode position={[0.5, 4.0, -1.2]} color="#fbbf24" label="BSCC LOAN" size={0.38} />
       <EnergyNode position={[4.4, 1.9, 0]} color="#34d399" label="SUCCESS" />
 
       <FusionCore />
       <GraduationCap position={[4.4, 3.05, 0]} />
 
-      <OrbitRing radius={1.5} color="#8b5cf6" tilt={[Math.PI / 2.6, 0.2, 0]} speed={0.6} />
-      <OrbitRing radius={1.95} color="#38bdf8" tilt={[Math.PI / 2.2, -0.4, 0.3]} speed={-0.4} />
+      <OrbitRing radius={1.5} color="#8b5cf6" tilt={[Math.PI / 2.6, 0.2, 0]} speed={0.5} opacity={0.35} />
+      <OrbitRing radius={1.95} color="#38bdf8" tilt={[Math.PI / 2.2, -0.4, 0.3]} speed={-0.35} opacity={0.3} />
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Public wrapper
+// Public wrapper — pauses the render loop whenever it is off-screen.
 // ---------------------------------------------------------------
 const DreamFusionEngine = () => {
+  const [containerRef, isInView] = useInViewport();
+
   return (
-    <div className="relative w-full h-[380px] sm:h-[460px] md:h-[540px] select-none">
-      <Canvas dpr={[1, 1.75]} gl={{ antialias: true, powerPreference: 'high-performance' }}>
+    <div ref={containerRef} className="relative w-full h-[380px] sm:h-[460px] md:h-[540px] select-none">
+      <Canvas dpr={[1, 1.75]} frameloop={isInView ? "always" : "never"} gl={{ antialias: true, powerPreference: 'high-performance' }}>
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={55} />
         <Suspense fallback={null}>
           <DreamScene />

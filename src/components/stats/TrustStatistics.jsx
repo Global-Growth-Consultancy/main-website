@@ -3,7 +3,7 @@ import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { FaUsers, FaCheckCircle, FaAward, FaHandshake, FaUniversity } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
-const StatCard = ({ icon: Icon, value, label, description, delay, index }) => {
+const StatCard = ({ icon: Icon, value, label, description, delay }) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef();
@@ -42,7 +42,6 @@ const StatCard = ({ icon: Icon, value, label, description, delay, index }) => {
       transition={{ duration: 0.7, delay }}
       className="h-full group"
     >
-      <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
       <div className="lux-icon mb-6">
         <Icon className="text-2xl" />
       </div>

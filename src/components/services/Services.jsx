@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight } from "react-icons/fa";
+import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
-const ServiceCard = ({ icon: Icon, title, description, features, delay, index }) => (
+const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
   <LuxCard
     initial={{ opacity: 0 }}
     whileInView={{ opacity: 1 }}
@@ -11,16 +11,12 @@ const ServiceCard = ({ icon: Icon, title, description, features, delay, index })
     transition={{ duration: 0.7, delay }}
     className="h-full group"
   >
-    <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
     <div className="lux-icon mb-6">
       <Icon className="text-2xl" />
     </div>
 
-    <h3 className="text-xl font-display font-bold text-white mb-3 flex items-center gap-3">
+    <h3 className="text-xl font-display font-bold text-white mb-3">
       {title}
-      <span className="lux-arrow opacity-0 group-hover:opacity-100 -ml-1">
-        <FaArrowRight className="text-xs" />
-      </span>
     </h3>
 
     <p className="text-neutral-400 mb-6 leading-relaxed text-sm">{description}</p>

@@ -30,7 +30,6 @@ const ProcessStep = ({ step, title, description, delay }) => (
     transition={{ duration: 0.7, delay }}
     className="h-full group"
   >
-    <span className="lux-ghost-number">{step}</span>
     <div className="flex items-start gap-6">
       <div className="lux-step flex-shrink-0">{step}</div>
       <div className="flex-1 pt-1">
