@@ -160,30 +160,55 @@ const AboutPage = () => {
         </div>
       </section>
 
-      {/* Milestones */}
+      {/* Milestones — animated vertical timeline */}
       <section className="py-16 sm:py-20 bg-premium-charcoal">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
             <span className="eyebrow mb-4 block">Our Journey</span>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white tracking-tight">
               Milestones on the Road to Trust
             </h2>
+            <p className="text-neutral-400 mt-4 max-w-2xl mx-auto">
+              From a single counseling desk to a state-wide movement — the moments that built GGC.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {milestones.map((milestone, index) => (
-              <LuxCard
-                key={index}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.7, delay: index * 0.08 }}
-                className="group"
-              >
-                <span className="lux-step mb-4">{milestone.year}</span>
-                <h4 className="text-xl font-display font-bold text-white mb-2">{milestone.title}</h4>
-                <p className="text-neutral-400 text-sm leading-relaxed">{milestone.description}</p>
-              </LuxCard>
-            ))}
+
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-5 md:left-1/2 md:-translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-500/0 via-brand-500/40 to-brand-500/0" />
+
+            <div className="space-y-10 md:space-y-14">
+              {milestones.map((milestone, index) => {
+                const isLeft = index % 2 === 0;
+                return (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-60px" }}
+                    transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+                    className={`relative pl-16 md:pl-0 md:w-1/2 ${
+                      isLeft ? "md:pr-14 md:text-right" : "md:ml-auto md:pl-14"
+                    }`}
+                  >
+                    {/* Node dot */}
+                    <div
+                      className={`absolute top-6 left-2.5 md:top-8 w-6 h-6 rounded-full border border-brand-400/50 bg-premium-navy flex items-center justify-center ${
+                        isLeft ? "md:left-auto md:-right-3" : "md:-left-3"
+                      }`}
+                    >
+                      <span className="w-2.5 h-2.5 rounded-full bg-brand-400 shadow-[0_0_12px_2px_rgba(56,189,248,0.6)]" />
+                    </div>
+
+                    <LuxCard className="group">
+                      <span className="lux-step mb-3">{milestone.year}</span>
+                      <h4 className="text-xl font-display font-bold text-white mb-2">{milestone.title}</h4>
+                      <p className="text-neutral-400 text-sm leading-relaxed">{milestone.description}</p>
+                    </LuxCard>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>

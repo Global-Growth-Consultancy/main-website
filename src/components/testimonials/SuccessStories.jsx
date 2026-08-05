@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight, FaGraduationCap, FaUniversity, FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
+import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight, FaGraduationCap, FaUniversity, FaMapMarkerAlt, FaCheckCircle, FaPause, FaPlay } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
 const TestimonialCard = ({ testimonial, isActive }) => {
@@ -72,6 +72,7 @@ const TestimonialCard = ({ testimonial, isActive }) => {
 
 const SuccessStories = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   const testimonials = [
     {
@@ -116,6 +117,16 @@ const SuccessStories = () => {
     }
   ];
 
+  // Auto-advance the carousel every 7s, pausing while the user hovers
+  // or interacts so nobody misses a story.
+  useEffect(() => {
+    if (isPaused) return undefined;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [isPaused, testimonials.length]);
+
   const nextTestimonial = () => {
     setCurrentIndex((prev) => (prev + 1) % testimonials.length);
   };
@@ -145,7 +156,11 @@ const SuccessStories = () => {
         </motion.div>
 
         {/* Testimonials Carousel */}
-        <div className="relative mb-12">
+        <div
+          className="relative mb-12"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           <AnimatePresence mode="wait">
             <TestimonialCard
               key={currentIndex}
@@ -154,12 +169,27 @@ const SuccessStories = () => {
             />
           </AnimatePresence>
 
+          {/* Auto-advance progress */}
+          <div className="flex justify-center gap-1.5 mt-6">
+            {testimonials.map((_, index) => (
+              <div key={index} className="w-10 h-0.5 rounded-full bg-white/10 overflow-hidden">
+                <motion.div
+                  className="h-full bg-brand-500"
+                  initial={{ width: "0%" }}
+                  animate={{ width: index === currentIndex && !isPaused ? "100%" : index < currentIndex ? "100%" : "0%" }}
+                  transition={index === currentIndex && !isPaused ? { duration: 7, ease: "linear" } : { duration: 0.2 }}
+                />
+              </div>
+            ))}
+          </div>
+
           {/* Navigation Buttons */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={prevTestimonial}
+              aria-label="Previous story"
               className="w-12 h-12 rounded-full bg-surface-100 border border-white/10 shadow-soft flex items-center justify-center hover:bg-surface-200 transition-all"
             >
               <FaArrowLeft className="text-white" />
@@ -170,8 +200,9 @@ const SuccessStories = () => {
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
+                  aria-label={`Go to story ${index + 1}`}
                   className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentIndex ? 'bg-brand-600 w-8' : 'bg-neutral-600'
+                    index === currentIndex ? 'bg-brand-600 w-8' : 'bg-neutral-600 hover:bg-neutral-500'
                   }`}
                 />
               ))}
@@ -180,7 +211,18 @@ const SuccessStories = () => {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              onClick={() => setIsPaused((p) => !p)}
+              aria-label={isPaused ? "Play stories" : "Pause stories"}
+              className="w-12 h-12 rounded-full bg-surface-100 border border-white/10 shadow-soft flex items-center justify-center hover:bg-surface-200 transition-all"
+            >
+              {isPaused ? <FaPlay className="text-brand-400 text-sm" /> : <FaPause className="text-white text-sm" />}
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={nextTestimonial}
+              aria-label="Next story"
               className="w-12 h-12 rounded-full bg-surface-100 border border-white/10 shadow-soft flex items-center justify-center hover:bg-surface-200 transition-all"
             >
               <FaArrowRight className="text-white" />

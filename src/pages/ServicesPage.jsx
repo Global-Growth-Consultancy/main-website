@@ -9,6 +9,8 @@ import PageHero from "../components/layout/PageHero";
 import LuxCard from "../components/shared/LuxCard";
 import ScrollReveal from "../components/shared/ScrollReveal";
 import AnimatedProcessTimeline from "../components/process/AnimatedProcessTimeline";
+import StreamRoadmap from "../components/services/StreamRoadmap";
+import GGCAdvantage from "../components/services/GGCAdvantage";
 
 const services = [
   {
@@ -202,6 +204,12 @@ const ServicesPage = () => {
 
       {/* Process */}
       <AnimatedProcessTimeline />
+
+      {/* Interactive stream roadmap */}
+      <StreamRoadmap />
+
+      {/* GGC vs DIY comparison */}
+      <GGCAdvantage />
 
       {/* CTA */}
       <section className="py-16 sm:py-20 bg-premium-navy">

@@ -129,6 +129,21 @@ const CollegesPage = () => {
               A Clear, Guided Path to Your Seat
             </h2>
           </div>
+
+          {/* Stepper rail (desktop) */}
+          <div className="hidden lg:block relative mb-12 max-w-4xl mx-auto">
+            <div className="absolute left-0 right-0 top-5 h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent" />
+            <div className="relative grid grid-cols-5 gap-6">
+              {admissionSteps.map((step, index) => (
+                <div key={index} className="flex justify-center">
+                  <span className="lux-step relative z-10 shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]">
+                    {index + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
             {admissionSteps.map((step, index) => (
               <LuxCard
@@ -139,8 +154,10 @@ const CollegesPage = () => {
                 transition={{ duration: 0.7, delay: index * 0.08 }}
                 className="card-lux--tight group"
               >
-                <div className="lux-step mb-4">{index + 1}</div>
-                <step.icon className="text-2xl text-brand-400 mb-3" />
+                <div className="flex items-center justify-between mb-3">
+                  <step.icon className="text-2xl text-brand-400" />
+                  <span className="lux-step !min-w-8 !h-8 !text-xs lg:hidden">{index + 1}</span>
+                </div>
                 <h4 className="text-base font-display font-bold text-white mb-2">{step.title}</h4>
                 <p className="text-xs text-neutral-400 leading-relaxed">{step.description}</p>
               </LuxCard>
