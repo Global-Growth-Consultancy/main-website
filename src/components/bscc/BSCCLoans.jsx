@@ -2,42 +2,43 @@ import React from "react";
 import { motion } from "framer-motion";
 import { FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset, FaWhatsapp } from "react-icons/fa";
 import BSCCVisualizer from "./BSCCVisualizer";
+import LuxCard from "../shared/LuxCard";
 
 const FeatureItem = ({ icon: Icon, title, description }) => (
-  <motion.div
-    initial={{ opacity: 0, x: -20 }}
-    whileInView={{ opacity: 1, x: 0 }}
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    className="flex items-start gap-4 p-4 rounded-xl glass border border-white/10 shadow-soft"
+    transition={{ duration: 0.7 }}
+    className="card-lux--tight flex items-start gap-4 group"
   >
-    <div className="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-      <Icon className="text-xl text-brand-400" />
+    <div className="lux-icon !w-12 !h-12 flex-shrink-0">
+      <Icon className="text-xl" />
     </div>
     <div>
       <h4 className="font-semibold text-white mb-1">{title}</h4>
       <p className="text-sm text-neutral-400">{description}</p>
     </div>
-  </motion.div>
+  </LuxCard>
 );
 
 const ProcessStep = ({ step, title, description, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-    className="relative"
+    transition={{ duration: 0.7, delay }}
+    className="h-full group"
   >
+    <span className="lux-ghost-number">{step}</span>
     <div className="flex items-start gap-6">
-      <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center flex-shrink-0">
-        <span className="text-xl font-bold text-white">{step}</span>
-      </div>
-      <div className="flex-1 pt-2">
-        <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
-        <p className="text-neutral-400">{description}</p>
+      <div className="lux-step flex-shrink-0">{step}</div>
+      <div className="flex-1 pt-1">
+        <h4 className="text-xl font-display font-bold text-white mb-2">{title}</h4>
+        <p className="text-neutral-400 leading-relaxed">{description}</p>
       </div>
     </div>
-  </motion.div>
+  </LuxCard>
 );
 
 const BSCCLoans = () => {
@@ -152,19 +153,21 @@ const BSCCLoans = () => {
               ))}
             </div>
 
-            <div className="mt-8 p-6 rounded-2xl bg-brand-500/20 border border-brand-500/30">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center">
-                  <FaCheckCircle className="text-2xl text-white" />
+            <div className="mt-8">
+              <LuxCard className="group">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="lux-icon !w-12 !h-12">
+                    <FaCheckCircle className="text-xl" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-white">70-80% Success Rate</h4>
+                    <p className="text-sm text-neutral-400">Through BSCC Scheme</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-white">70-80% Success Rate</h4>
-                  <p className="text-sm text-neutral-400">Through BSCC Scheme</p>
-                </div>
-              </div>
-              <p className="text-neutral-300 text-sm">
-                Our expertise in BSCC applications ensures maximum approval rate for eligible students
-              </p>
+                <p className="text-neutral-300 text-sm">
+                  Our expertise in BSCC applications ensures maximum approval rate for eligible students
+                </p>
+              </LuxCard>
             </div>
           </motion.div>
 
@@ -174,38 +177,39 @@ const BSCCLoans = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
           >
-            <h3 className="text-2xl font-bold text-white mb-6">Eligibility Criteria</h3>
-            <ul className="space-y-4">
-              {eligibility.map((item, index) => (
-                <motion.li
-                  key={index}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-3 text-neutral-300"
-                >
-                  <div className="w-6 h-6 rounded-full bg-success-500/20 flex items-center justify-center flex-shrink-0">
-                    <FaCheckCircle className="text-sm text-success-400" />
-                  </div>
-                  {item}
-                </motion.li>
-              ))}
-            </ul>
+            <LuxCard className="h-full">
+              <h3 className="text-2xl font-display font-bold text-white mb-6">Eligibility Criteria</h3>
+              <ul className="space-y-4">
+                {eligibility.map((item, index) => (
+                  <motion.li
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-3 text-neutral-300 group-hover:translate-x-1 transition-transform duration-300"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-success-500/20 flex items-center justify-center flex-shrink-0">
+                      <FaCheckCircle className="text-sm text-success-400" />
+                    </div>
+                    {item}
+                  </motion.li>
+                ))}
+              </ul>
 
-            <motion.a
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
-              href="https://wa.me/917739973470?text=Hi%20GGC!%20I%20want%20to%20check%20my%20eligibility%20for%20the%20BSCC%20education%20loan."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full mt-8 px-6 py-3.5 bg-gradient-to-r from-success-500 to-success-400 text-white font-semibold rounded-xl hover:from-success-400 hover:to-success-500 transition-all duration-300 shadow-lg shadow-success-500/25 hover:shadow-success-500/40 flex items-center justify-center gap-3"
-            >
-              <FaWhatsapp className="text-lg" />
-              Check Your Eligibility on WhatsApp
-            </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                href="https://wa.me/917739973470?text=Hi%20GGC!%20I%20want%20to%20check%20my%20eligibility%20for%20the%20BSCC%20education%20loan."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full mt-8 px-6 py-3.5 bg-gradient-to-r from-success-500 to-success-400 text-white font-semibold rounded-xl hover:from-success-400 hover:to-success-500 transition-all duration-300 shadow-lg shadow-success-500/25 hover:shadow-success-500/40 flex items-center justify-center gap-3"
+              >
+                <FaWhatsapp className="text-lg" />
+                Check Your Eligibility on WhatsApp
+              </motion.a>
+            </LuxCard>
           </motion.div>
         </div>
 
@@ -236,11 +240,11 @@ const BSCCLoans = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <div className="glass rounded-3xl p-8 sm:p-12 border border-white/10 shadow-2xl relative overflow-hidden">
+          <LuxCard className="p-8 sm:p-12 relative overflow-hidden group">
             <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-accent-500/10 rounded-full blur-3xl" />
             <div className="relative">
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold text-white mb-4">
                 Ready to Apply for <span className="text-gradient-gold">BSCC Loan?</span>
               </h3>
               <p className="text-neutral-400 mb-8 max-w-2xl mx-auto leading-relaxed">
@@ -262,7 +266,7 @@ const BSCCLoans = () => {
                 </a>
               </div>
             </div>
-          </div>
+          </LuxCard>
         </motion.div>
       </div>
     </section>

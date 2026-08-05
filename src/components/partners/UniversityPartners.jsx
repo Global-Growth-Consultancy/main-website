@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import LuxCard from "../shared/LuxCard";
 
 const UniversityPartners = () => {
   const partnerLogos = [
@@ -40,14 +41,14 @@ const UniversityPartners = () => {
           <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
             {duplicatedLogos.map((logo, index) => (
               <div key={index} className="flex-shrink-0 w-44 pr-8">
-                <div className="glass rounded-2xl h-24 flex items-center justify-center px-4 card-hover border border-white/10">
+                <LuxCard className="card-lux--tight h-24 flex items-center justify-center group">
                   <img
                     src={logo.src}
                     alt={logo.alt}
                     loading="lazy"
-                    className="max-h-12 max-w-full object-contain opacity-70 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-300"
+                    className="max-h-12 max-w-full object-contain opacity-70 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-300"
                   />
-                </div>
+                </LuxCard>
               </div>
             ))}
           </div>
@@ -66,30 +67,37 @@ const UniversityPartners = () => {
               title: "Premier Institutes",
               count: "50+",
               description: "IITs, NITs, and top central universities",
-              text: "text-accent-400"
+              gradient: "from-brand-300 via-brand-400 to-accent-400"
             },
             {
               title: "Government Colleges",
               count: "100+",
               description: "State universities and government colleges",
-              text: "text-brand-400"
+              gradient: "from-white via-brand-300 to-brand-500"
             },
             {
               title: "Private Universities",
               count: "50+",
               description: "Top private universities and deemed universities",
-              text: "text-neutral-300"
+              gradient: "from-neutral-200 via-white to-brand-400"
             }
           ].map((category, index) => (
-            <motion.div
+            <LuxCard
               key={index}
-              whileHover={{ scale: 1.05 }}
-              className={`glass rounded-2xl p-8 shadow-soft border border-white/10 card-hover`}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: index * 0.1 }}
+              className="text-center group"
             >
-              <h3 className={`text-3xl font-bold ${category.text} mb-2`}>{category.count}</h3>
+              <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
+              <h3 className={`text-4xl font-display font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent mb-2`}>
+                {category.count}
+              </h3>
               <h4 className="text-xl font-semibold text-white mb-3">{category.title}</h4>
               <p className="text-neutral-400 text-sm">{category.description}</p>
-            </motion.div>
+              <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-500" />
+            </LuxCard>
           ))}
         </motion.div>
 

@@ -1,31 +1,36 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronDown, FaQuestionCircle } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
 const FAQItem = ({ question, answer, isOpen, onClick, index }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: index * 0.1 }}
-    className="glass rounded-2xl overflow-hidden mb-4 shadow-soft border border-white/10"
+    transition={{ duration: 0.6, delay: index * 0.05 }}
+    className="mb-4 overflow-hidden !p-0 group"
   >
     <button
       onClick={onClick}
-      className="w-full p-6 flex items-center justify-between text-left hover:bg-surface-100 transition-all duration-300"
+      className="w-full p-6 flex items-center justify-between text-left hover:bg-white/[0.02] transition-all duration-300"
     >
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-xl bg-brand-500/20 flex items-center justify-center flex-shrink-0">
-          <FaQuestionCircle className="text-brand-400" />
+        <div className="lux-step !min-w-10 !h-10 !text-base">
+          <FaQuestionCircle className="text-lg" />
         </div>
         <span className="text-lg font-semibold text-white">{question}</span>
       </div>
       <motion.div
         animate={{ rotate: isOpen ? 180 : 0 }}
         transition={{ duration: 0.3 }}
-        className="flex-shrink-0"
+        className={`flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full border transition-colors duration-300 ${
+          isOpen
+            ? 'border-brand-400/40 bg-brand-500/10 text-brand-300'
+            : 'border-white/10 text-neutral-400'
+        }`}
       >
-        <FaChevronDown className="text-neutral-400" />
+        <FaChevronDown className="text-sm" />
       </motion.div>
     </button>
     
@@ -44,7 +49,7 @@ const FAQItem = ({ question, answer, isOpen, onClick, index }) => (
         </motion.div>
       )}
     </AnimatePresence>
-  </motion.div>
+  </LuxCard>
 );
 
 const FAQSection = () => {
@@ -126,8 +131,8 @@ const FAQSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <div className="glass rounded-2xl p-8 md:p-12 max-w-3xl mx-auto border border-white/10">
-            <h3 className="text-2xl font-bold text-white mb-4">
+          <LuxCard className="p-8 md:p-12 max-w-3xl mx-auto group">
+            <h3 className="text-2xl font-display font-bold text-white mb-4">
               Still Have Questions?
             </h3>
             <p className="text-neutral-400 mb-8">
@@ -147,7 +152,7 @@ const FAQSection = () => {
                 Send us a Message
               </a>
             </div>
-          </div>
+          </LuxCard>
         </motion.div>
       </div>
     </section>

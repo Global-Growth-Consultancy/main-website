@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock, FaPaperPlane, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
 const ContactInfoCard = ({ icon: Icon, title, content, subContent, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-    className="glass rounded-2xl p-6 shadow-soft border border-white/10 card-hover"
+    transition={{ duration: 0.7, delay }}
+    className="group"
   >
-    <div className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-4">
-      <Icon className="text-2xl text-brand-400" />
+    <div className="lux-icon mb-4">
+      <Icon className="text-2xl" />
     </div>
     <h4 className="text-lg font-bold text-white mb-2">{title}</h4>
     <p className="text-neutral-300 mb-1">{content}</p>
     {subContent && <p className="text-neutral-400 text-sm">{subContent}</p>}
-  </motion.div>
+  </LuxCard>
 );
 
 const ContactSection = () => {
@@ -120,12 +121,12 @@ const ContactSection = () => {
             </div>
 
             {/* Map */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+            <LuxCard
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="glass rounded-2xl p-2 h-48 sm:h-64 overflow-hidden border border-white/10 relative"
+              className="!p-2 h-48 sm:h-64 overflow-hidden relative"
             >
               <iframe
                 title="GGC Location - Patna, Bihar"
@@ -139,7 +140,7 @@ const ContactSection = () => {
                 <FaMapMarkerAlt className="text-brand-400 text-xs" />
                 <span className="text-[11px] font-medium text-white">Patna, Bihar</span>
               </div>
-            </motion.div>
+            </LuxCard>
           </motion.div>
 
           {/* Contact Form */}
@@ -149,7 +150,7 @@ const ContactSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="glass rounded-2xl p-6 sm:p-8 shadow-soft border border-white/10">
+            <LuxCard className="!p-6 sm:!p-8">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Send us a Message</h3>
               
               {isSubmitted ? (
@@ -285,7 +286,7 @@ const ContactSection = () => {
                   </p>
                 </form>
               )}
-            </div>
+            </LuxCard>
           </motion.div>
         </div>
 

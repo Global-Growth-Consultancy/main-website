@@ -45,24 +45,35 @@ const PremiumNavbar = () => {
   const [activeSection, setActiveSection] = useState("Home");
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+    let ticking = false;
 
-      // Update active section based on scroll
-      const sections = navItems.map((item) => item.path.substring(1));
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(section.charAt(0).toUpperCase() + section.slice(1));
-            break;
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        const scrolled = window.scrollY > 20;
+        setIsScrolled((prev) => (prev === scrolled ? prev : scrolled));
+
+        // Update active section based on scroll
+        const sections = navItems.map((item) => item.path.substring(1));
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100 && rect.bottom >= 100) {
+              const name = section.charAt(0).toUpperCase() + section.slice(1);
+              setActiveSection((prev) => (prev === name ? prev : name));
+              break;
+            }
           }
         }
-      }
+
+        ticking = false;
+      });
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

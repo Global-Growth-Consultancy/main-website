@@ -1,44 +1,46 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck } from "react-icons/fa";
+import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
-const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
+const ServiceCard = ({ icon: Icon, title, description, features, delay, index }) => (
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-    whileHover={{ y: -8, scale: 1.02 }}
-    className="glass rounded-2xl p-8 shadow-soft border border-white/10 card-hover group cursor-pointer"
+    transition={{ duration: 0.7, delay }}
+    className="h-full group"
   >
-    <motion.div 
-      className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-6 group-hover:bg-brand-500/30 transition-colors duration-300"
-      whileHover={{ rotate: 360 }}
-      transition={{ duration: 0.6 }}
-    >
-      <Icon className="text-2xl text-brand-400 group-hover:text-brand-300 transition-colors duration-300" />
-    </motion.div>
-    
-    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-brand-400 transition-colors duration-300">
+    <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
+    <div className="lux-icon mb-6">
+      <Icon className="text-2xl" />
+    </div>
+
+    <h3 className="text-xl font-display font-bold text-white mb-3 flex items-center gap-3">
       {title}
+      <span className="lux-arrow opacity-0 group-hover:opacity-100 -ml-1">
+        <FaArrowRight className="text-xs" />
+      </span>
     </h3>
-    
-    <p className="text-neutral-400 mb-6 leading-relaxed text-sm group-hover:text-neutral-300 transition-colors duration-300">{description}</p>
-    
+
+    <p className="text-neutral-400 mb-6 leading-relaxed text-sm">{description}</p>
+
     <ul className="space-y-3">
-      {features.map((feature, index) => (
-        <motion.li 
-          key={index} 
-          className="flex items-center gap-3 text-sm text-neutral-300 group-hover:text-neutral-200 transition-colors duration-300"
-          whileHover={{ x: 5 }}
-          transition={{ duration: 0.2 }}
+      {features.map((feature, featureIndex) => (
+        <motion.li
+          key={featureIndex}
+          className="flex items-center gap-3 text-sm text-neutral-300 group-hover:translate-x-1 transition-transform duration-300"
+          initial={{ opacity: 0, x: 10 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: delay + featureIndex * 0.05 }}
         >
-          <div className="w-1.5 h-1.5 rounded-full bg-brand-400 group-hover:bg-brand-300 transition-colors duration-300" />
+          <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-brand-400 to-accent-400 shadow-[0_0_8px_rgba(56,189,248,0.8)] flex-shrink-0" />
           {feature}
         </motion.li>
       ))}
     </ul>
-  </motion.div>
+  </LuxCard>
 );
 
 const Services = () => {
@@ -140,7 +142,7 @@ const Services = () => {
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {services.map((service, index) => (
-            <ServiceCard key={index} {...service} />
+            <ServiceCard key={index} {...service} index={index} />
           ))}
         </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight, FaGraduationCap, FaUniversity, FaMapMarkerAlt } from "react-icons/fa";
+import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight, FaGraduationCap, FaUniversity, FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
 const TestimonialCard = ({ testimonial, isActive }) => {
   return (
@@ -9,55 +10,63 @@ const TestimonialCard = ({ testimonial, isActive }) => {
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className={`glass rounded-2xl p-8 md:p-12 max-w-4xl mx-auto shadow-soft border border-white/10 ${isActive ? 'block' : 'hidden'}`}
+      className={`${isActive ? 'block' : 'hidden'}`}
     >
-      <div className="flex flex-col md:flex-row gap-8 items-start">
-        {/* Student Image/Avatar */}
-        <div className="flex-shrink-0">
-          <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-brand-600 flex items-center justify-center text-4xl md:text-5xl text-white">
-            {testimonial.name.charAt(0)}
-          </div>
-        </div>
+      <LuxCard className="p-8 md:p-12 max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8 items-start relative">
+          <span className="lux-ghost-number">★</span>
 
-        {/* Content */}
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-4">
-            {[...Array(5)].map((_, i) => (
-              <FaStar key={i} className="text-accent-400" />
-            ))}
-          </div>
-
-          <FaQuoteLeft className="text-3xl text-brand-200 mb-4" />
-          
-          <p className="text-lg md:text-xl text-neutral-300 leading-relaxed mb-6 italic">
-            "{testimonial.story}"
-          </p>
-
-          <div className="border-t border-white/10 pt-6">
-            <h4 className="text-xl font-bold text-white mb-2">{testimonial.name}</h4>
-            <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
-              <span className="flex items-center gap-2">
-                <FaGraduationCap className="text-brand-400" />
-                {testimonial.course}
-              </span>
-              <span className="flex items-center gap-2">
-                <FaUniversity className="text-brand-400" />
-                {testimonial.college}
-              </span>
-              <span className="flex items-center gap-2">
-                <FaMapMarkerAlt className="text-brand-400" />
-                {testimonial.location}
-              </span>
-            </div>
-            {testimonial.loan && (
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success-500/20 text-success-400 text-sm">
-                <span className="w-2 h-2 rounded-full bg-success-400" />
-                BSCC Loan Approved
+          {/* Student Image/Avatar */}
+          <div className="flex-shrink-0">
+            <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl p-[1px] bg-gradient-to-br from-brand-400 via-accent-400 to-brand-600 shadow-[0_16px_40px_-16px_rgba(56,189,248,0.5)]">
+              <div className="w-full h-full rounded-2xl bg-gradient-to-br from-brand-700 to-premium-navy flex items-center justify-center text-4xl md:text-5xl font-display font-bold text-white">
+                {testimonial.name.charAt(0)}
               </div>
-            )}
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-4">
+              {[...Array(5)].map((_, i) => (
+                <FaStar key={i} className="text-accent-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.5)]" />
+              ))}
+            </div>
+
+            <div className="flex items-start gap-3 mb-4">
+              <FaQuoteLeft className="text-3xl text-brand-400 flex-shrink-0 mt-1 opacity-70" />
+              <p className="text-lg md:text-xl text-neutral-200 leading-relaxed italic">
+                "{testimonial.story}"
+              </p>
+            </div>
+
+            <div className="lux-divider mb-6" />
+            <div>
+              <h4 className="text-xl font-bold text-white mb-2">{testimonial.name}</h4>
+              <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
+                <span className="flex items-center gap-2">
+                  <FaGraduationCap className="text-brand-400" />
+                  {testimonial.course}
+                </span>
+                <span className="flex items-center gap-2">
+                  <FaUniversity className="text-brand-400" />
+                  {testimonial.college}
+                </span>
+                <span className="flex items-center gap-2">
+                  <FaMapMarkerAlt className="text-brand-400" />
+                  {testimonial.location}
+                </span>
+              </div>
+              {testimonial.loan && (
+                <div className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-success-500/30 bg-success-500/10 text-success-400 text-sm">
+                  <FaCheckCircle />
+                  BSCC Loan Approved
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </LuxCard>
     </motion.div>
   );
 };
@@ -194,14 +203,19 @@ const SuccessStories = () => {
             { value: "200+", label: "Colleges" },
             { value: "50Cr+", label: "Loans Approved" }
           ].map((stat, index) => (
-            <motion.div
+            <LuxCard
               key={index}
-              whileHover={{ scale: 1.05 }}
-              className="glass rounded-2xl p-6 shadow-soft border border-white/10 text-center card-hover"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: index * 0.1 }}
+              className="card-lux--tight text-center group"
             >
-              <h3 className="text-3xl font-bold text-brand-400 mb-2">{stat.value}</h3>
+              <h3 className="text-3xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
+                {stat.value}
+              </h3>
               <p className="text-sm text-neutral-400">{stat.label}</p>
-            </motion.div>
+            </LuxCard>
           ))}
         </motion.div>
 

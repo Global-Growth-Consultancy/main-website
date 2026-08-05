@@ -37,9 +37,11 @@ const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacit
 };
 
 // ---------------------------------------------------------------
-// Particle stream flowing along a curve (the student / loan / success flow)
+// Particle stream — LUT-sampled for maximum performance.
+// The curve is pre-sampled into a lookup table once; per frame we
+// only index/lerp the table instead of running arc-length math.
 // ---------------------------------------------------------------
-const ParticleStream = ({ curve, count = 700, color, size = 0.1, speed = 0.14, opacity = 0.9 }) => {
+const ParticleStream = ({ curve, count = 600, color, size = 0.1, speed = 0.14, opacity = 0.9 }) => {
   const ref = useRef();
 
   const { positions, seeds } = useMemo(() => {
@@ -55,15 +57,31 @@ const ParticleStream = ({ curve, count = 700, color, size = 0.1, speed = 0.14, o
     return { positions, seeds };
   }, [curve, count]);
 
+  const lut = useMemo(() => {
+    const n = 300;
+    const arr = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      const p = curve.getPointAt(i / (n - 1));
+      arr[i * 3] = p.x;
+      arr[i * 3 + 1] = p.y;
+      arr[i * 3 + 2] = p.z;
+    }
+    return arr;
+  }, [curve]);
+
   useFrame((state) => {
     const t = state.clock.getElapsedTime() * speed;
     const arr = ref.current.geometry.attributes.position.array;
+    const n = lut.length / 3;
     for (let i = 0; i < count; i++) {
-      const p = (seeds[i] + t) % 1;
-      const point = curve.getPointAt(p);
-      arr[i * 3] = point.x;
-      arr[i * 3 + 1] = point.y;
-      arr[i * 3 + 2] = point.z;
+      const f = (seeds[i] + t) % 1;
+      const idx = f * (n - 1);
+      const i0 = Math.floor(idx);
+      const i1 = i0 + 1 > n - 1 ? n - 1 : i0 + 1;
+      const a = idx - i0;
+      arr[i * 3] = lut[i0 * 3] + (lut[i1 * 3] - lut[i0 * 3]) * a;
+      arr[i * 3 + 1] = lut[i0 * 3 + 1] + (lut[i1 * 3 + 1] - lut[i0 * 3 + 1]) * a;
+      arr[i * 3 + 2] = lut[i0 * 3 + 2] + (lut[i1 * 3 + 2] - lut[i0 * 3 + 2]) * a;
     }
     ref.current.geometry.attributes.position.needsUpdate = true;
   });
@@ -232,11 +250,25 @@ const GraduationCap = ({ position }) => {
 
 // ---------------------------------------------------------------
 // Full scene: aspiration + loan converge into admission, bloom into success
+//
+// The scene is wrapped in a group whose scale is derived from the
+// LIVE viewport. It always fits the entire composition inside the
+// visible frustum for any container size / aspect ratio — no cropping.
 // ---------------------------------------------------------------
 const DreamScene = () => {
   const group = useRef();
   const { viewport } = useThree();
-  const scale = Math.min(viewport.width, viewport.height) / 9;
+
+  // Content bounds (world units, generous half-extents that cover nodes,
+  // labels, cap and glow sprites) and the vertical center of the art.
+  const fit = useMemo(() => {
+    const HALF_W = 5.3;
+    const HALF_H = 4.5;
+    const CENTER_Y = 1.1;
+    const MARGIN = 0.94;
+    const s = Math.min(viewport.width / (HALF_W * 2), viewport.height / (HALF_H * 2)) * MARGIN;
+    return { scale: s, y: -CENTER_Y * s };
+  }, [viewport.width, viewport.height]);
 
   const pathA = useMemo(
     () =>
@@ -271,13 +303,13 @@ const DreamScene = () => {
 
   useFrame((state) => {
     if (group.current) {
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.12, 0.04);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.08, 0.04);
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.08, 0.04);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.05, 0.04);
     }
   });
 
   return (
-    <group ref={group} scale={scale}>
+    <group ref={group} scale={fit.scale} position={[0, fit.y, 0]}>
       <ambientLight intensity={0.55} />
       <pointLight position={[6, 6, 8]} intensity={1.6} color="#38bdf8" />
       <pointLight position={[-6, 6, 4]} intensity={1.2} color="#fbbf24" />
@@ -289,9 +321,9 @@ const DreamScene = () => {
       <GlowTube curve={pathB} color="#fbbf24" />
       <GlowTube curve={pathC} color="#34d399" />
 
-      <ParticleStream curve={pathA} count={700} color="#38bdf8" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathB} count={700} color="#fbbf24" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathC} count={500} color="#34d399" size={0.09} speed={0.12} />
+      <ParticleStream curve={pathA} count={600} color="#38bdf8" size={0.1} speed={0.14} />
+      <ParticleStream curve={pathB} count={600} color="#fbbf24" size={0.1} speed={0.14} />
+      <ParticleStream curve={pathC} count={450} color="#34d399" size={0.09} speed={0.12} />
 
       <EnergyNode position={[-4.4, 1.7, 0]} color="#38bdf8" label="ASPIRATION" />
       <EnergyNode position={[0.5, 4.0, -1.2]} color="#fbbf24" label="BSCC LOAN" size={0.42} />
@@ -311,8 +343,8 @@ const DreamScene = () => {
 // ---------------------------------------------------------------
 const DreamFusionEngine = () => {
   return (
-    <div className="relative w-full h-[400px] md:h-[540px] select-none">
-      <Canvas dpr={[1, 2]}>
+    <div className="relative w-full h-[380px] sm:h-[460px] md:h-[540px] select-none">
+      <Canvas dpr={[1, 1.75]} gl={{ antialias: true, powerPreference: 'high-performance' }}>
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={55} />
         <Suspense fallback={null}>
           <DreamScene />

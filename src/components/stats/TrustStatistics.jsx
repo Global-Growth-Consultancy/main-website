@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { FaUsers, FaCheckCircle, FaAward, FaHandshake, FaUniversity } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
-const StatCard = ({ icon: Icon, value, label, description, delay }) => {
+const StatCard = ({ icon: Icon, value, label, description, delay, index }) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef();
@@ -30,31 +31,29 @@ const StatCard = ({ icon: Icon, value, label, description, delay }) => {
     }
   }, [isInView, isVisible, value]);
 
+  const suffix = typeof value === 'string' && value.includes('%') ? '%' : typeof value === 'string' && value.includes('Cr') ? 'Cr+' : '+';
+
   return (
-    <motion.div
+    <LuxCard
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6, delay }}
-      whileHover={{ y: -8, scale: 1.05 }}
-      className="glass rounded-2xl p-8 shadow-soft border border-white/10 card-hover group cursor-pointer"
+      transition={{ duration: 0.7, delay }}
+      className="h-full group"
     >
-      <motion.div 
-        className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-6 group-hover:bg-brand-500/30 transition-colors duration-300"
-        whileHover={{ rotate: 360 }}
-        transition={{ duration: 0.6 }}
-      >
-        <Icon className="text-2xl text-brand-400 group-hover:text-brand-300 transition-colors duration-300" />
-      </motion.div>
-      <h3 className="text-4xl md:text-5xl font-bold text-white mb-2 group-hover:text-brand-400 transition-colors duration-300">
-        {typeof value === 'string' && value.includes('+') ? `${count}+` : count}
-        {typeof value === 'string' && value.includes('%') ? '%' : ''}
-        {typeof value === 'string' && value.includes('Cr') ? 'Cr+' : ''}
+      <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
+      <div className="lux-icon mb-6">
+        <Icon className="text-2xl" />
+      </div>
+      <h3 className="text-5xl font-display font-bold bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-3">
+        {count}
+        <span className="text-brand-400">{suffix}</span>
       </h3>
-      <p className="text-lg font-semibold text-white mb-2 group-hover:text-brand-300 transition-colors duration-300">{label}</p>
-      <p className="text-neutral-400 text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-300">{description}</p>
-    </motion.div>
+      <p className="text-lg font-semibold text-white mb-2">{label}</p>
+      <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
+      <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+    </LuxCard>
   );
 };
 
@@ -63,7 +62,7 @@ const TrustBadge = ({ icon: Icon, text }) => (
     initial={{ opacity: 0, scale: 0.8 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
-    className="flex items-center gap-3 px-6 py-3 rounded-full bg-brand-500/20 border border-brand-500/30"
+    className="flex items-center gap-3 px-6 py-3 rounded-full border border-white/10 bg-white/[0.03] shadow-lg shadow-black/20 backdrop-blur-sm"
   >
     <Icon className="text-brand-400" />
     <span className="text-sm font-medium text-neutral-300">{text}</span>
@@ -135,6 +134,7 @@ const TrustStatistics = () => {
             <StatCard
               key={index}
               {...stat}
+              index={index}
               delay={index * 0.1}
             />
           ))}

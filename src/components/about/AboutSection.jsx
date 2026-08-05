@@ -1,21 +1,23 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart } from "react-icons/fa";
+import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart, FaCheckCircle } from "react-icons/fa";
+import LuxCard from "../shared/LuxCard";
 
-const ValueCard = ({ icon: Icon, title, description, delay }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
+const ValueCard = ({ icon: Icon, title, description, delay, index }) => (
+  <LuxCard
+    initial={{ opacity: 0 }}
+    whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.6, delay }}
-    className="glass rounded-2xl p-6 shadow-soft border border-white/10 card-hover"
+    transition={{ duration: 0.7, delay }}
+    className="group"
   >
-    <div className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-4">
-      <Icon className="text-2xl text-brand-400" />
+    <span className="lux-ghost-number">{String(index + 1).padStart(2, "0")}</span>
+    <div className="lux-icon mb-4">
+      <Icon className="text-2xl" />
     </div>
-    <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
+    <h4 className="text-xl font-display font-bold text-white mb-2">{title}</h4>
     <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
-  </motion.div>
+  </LuxCard>
 );
 
 const AboutSection = () => {
@@ -83,35 +85,37 @@ const AboutSection = () => {
 
         {/* Mission & Vision */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+          <LuxCard
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
+            className="group"
           >
-            <h3 className="text-2xl font-bold text-brand-400 mb-4">Our Mission</h3>
-            <p className="text-neutral-400 leading-relaxed">
+            <span className="eyebrow block mb-4">Our Mission</span>
+            <p className="text-neutral-300 leading-relaxed">
               To make quality education accessible to every deserving student in Bihar by providing expert guidance, 
               seamless admission support, and hassle-free education loan processing. We believe that financial constraints 
               should never be a barrier to pursuing one's dreams.
             </p>
-          </motion.div>
+            <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+          </LuxCard>
 
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+          <LuxCard
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
+            className="group"
           >
-            <h3 className="text-2xl font-bold text-brand-400 mb-4">Our Vision</h3>
-            <p className="text-neutral-400 leading-relaxed">
+            <span className="eyebrow block mb-4">Our Vision</span>
+            <p className="text-neutral-300 leading-relaxed">
               To become India's most trusted education consultancy, known for our integrity, expertise, and 
               unwavering commitment to student success. We aim to empower the youth of Bihar to compete at the 
               national level and build successful careers.
             </p>
-          </motion.div>
+            <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+          </LuxCard>
         </div>
 
         {/* Values Grid */}
@@ -125,7 +129,7 @@ const AboutSection = () => {
           <h3 className="text-3xl font-bold text-white text-center mb-8">Our Core Values</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {values.map((value, index) => (
-              <ValueCard key={index} {...value} delay={index * 0.1} />
+              <ValueCard key={index} {...value} index={index} delay={index * 0.1} />
             ))}
           </div>
         </motion.div>
@@ -139,14 +143,19 @@ const AboutSection = () => {
           className="grid grid-cols-2 md:grid-cols-4 gap-6"
         >
           {stats.map((stat, index) => (
-            <motion.div
+            <LuxCard
               key={index}
-              whileHover={{ scale: 1.05 }}
-              className="glass rounded-2xl p-6 shadow-soft border border-white/10 text-center card-hover"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: index * 0.1 }}
+              className="card-lux--tight text-center group"
             >
-              <h3 className="text-4xl font-bold text-brand-400 mb-2">{stat.value}</h3>
+              <h3 className="text-4xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
+                {stat.value}
+              </h3>
               <p className="text-sm text-neutral-400">{stat.label}</p>
-            </motion.div>
+            </LuxCard>
           ))}
         </motion.div>
 
@@ -158,8 +167,8 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="mt-16"
         >
-          <div className="glass rounded-2xl p-8 md:p-12 shadow-soft border border-white/10">
-            <h3 className="text-3xl font-bold text-white text-center mb-8">
+          <LuxCard className="p-8 md:p-12">
+            <h3 className="text-3xl font-display font-bold text-white text-center mb-8">
               Why Choose GGC?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -179,16 +188,16 @@ const AboutSection = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center gap-3"
+                  className="flex items-center gap-3 group/li"
                 >
                   <div className="w-6 h-6 rounded-full bg-success-500/20 flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-success-400" />
+                    <FaCheckCircle className="text-sm text-success-400" />
                   </div>
                   <span className="text-neutral-300">{item}</span>
                 </motion.div>
               ))}
             </div>
-          </div>
+          </LuxCard>
         </motion.div>
       </div>
     </section>

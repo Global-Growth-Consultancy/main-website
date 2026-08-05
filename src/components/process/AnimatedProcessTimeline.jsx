@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { FaSearch, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaGraduationCap } from 'react-icons/fa';
+import LuxCard from '../shared/LuxCard';
 
 const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isActive, onMouseEnter }) => {
   const ref = useRef();
@@ -24,10 +25,10 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
               rotate: isActive ? [0, 5, -5, 0] : 0,
             }}
             transition={{ duration: 0.5 }}
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-soft transition-all duration-300 ${
-              isActive 
-                ? 'bg-gradient-to-br from-brand-500 to-brand-600 shadow-brand-500/50' 
-                : 'bg-brand-500/20'
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center border border-transparent transition-all duration-300 ${
+              isActive
+                ? 'bg-gradient-to-br from-brand-500 to-brand-600 shadow-[0_0_36px_-8px_rgba(56,189,248,0.7)]'
+                : 'bg-gradient-to-br from-brand-500/15 to-accent-500/10 border-brand-500/20 shadow-lg shadow-black/20'
             }`}
           >
             <Icon className={`text-2xl transition-colors duration-300 ${isActive ? 'text-white' : 'text-brand-400'}`} />
@@ -49,7 +50,7 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
               initial={{ height: 0 }}
               animate={isInView ? { height: 96 } : { height: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 + 0.3 }}
-              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-brand-500 to-brand-600"
+              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
             />
           )}
         </div>
@@ -62,15 +63,11 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
                 scale: isActive ? [1, 1.2, 1] : 1,
               }}
               transition={{ duration: 0.3 }}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                isActive 
-                  ? 'bg-brand-600 text-white' 
-                  : 'bg-brand-500/20 text-brand-400'
-              }`}
+              className={`lux-step text-sm ${isActive ? '!bg-brand-600 !text-white !border-brand-400/50' : ''}`}
             >
               {step}
             </motion.span>
-            <h4 className={`text-xl font-bold transition-colors duration-300 ${isActive ? 'text-white' : 'text-neutral-300'}`}>
+            <h4 className={`text-xl font-display font-bold transition-colors duration-300 ${isActive ? 'text-white' : 'text-neutral-300'}`}>
               {title}
             </h4>
           </div>
@@ -216,8 +213,8 @@ const AnimatedProcessTimeline = () => {
           transition={{ duration: 0.8 }}
           className="text-center mt-16"
         >
-          <div className="glass rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-soft border border-white/10">
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <LuxCard className="p-8 md:p-12 max-w-3xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-4">
               Ready to Start Your Journey?
             </h3>
             <p className="text-neutral-400 mb-8">
@@ -229,7 +226,7 @@ const AnimatedProcessTimeline = () => {
             >
               Schedule Free Consultation
             </a>
-          </div>
+          </LuxCard>
         </motion.div>
       </div>
     </section>
