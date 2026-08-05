@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   FaInstagram,
@@ -12,7 +13,11 @@ import {
 const PremiumFooter = () => {
   const year = new Date().getFullYear();
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.__lenis) {
+      window.__lenis.scrollTo(0, { duration: 1.2 });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   const socials = [
@@ -21,13 +26,12 @@ const PremiumFooter = () => {
   ];
 
   const quickLinks = [
-    { label: "Home", href: "#" },
-    { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "BSCC Loans", href: "#bscc" },
-    { label: "Colleges", href: "#colleges" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Contact", href: "#contact" },
+    { label: "Home", to: "/" },
+    { label: "About", to: "/about" },
+    { label: "Services", to: "/services" },
+    { label: "BSCC Loans", to: "/bscc" },
+    { label: "Colleges", to: "/colleges" },
+    { label: "Contact", to: "/contact" },
   ];
 
   const services = [
@@ -49,7 +53,7 @@ const PremiumFooter = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
-            <a href="#" className="flex items-center gap-3 mb-5">
+            <Link to="/" className="flex items-center gap-3 mb-5">
               <img
                 src="/GGCWHITE.png"
                 alt="Global Growth Consultancy Logo"
@@ -59,7 +63,7 @@ const PremiumFooter = () => {
                 <p className="text-lg font-bold text-white leading-none">GGC</p>
                 <p className="text-[11px] text-neutral-400 mt-1">Global Growth Consultancy</p>
               </div>
-            </a>
+            </Link>
             <p className="text-neutral-400 mb-6 leading-relaxed text-sm">
               Bihar&apos;s premier education consultancy — guiding students to top colleges across India with
               guaranteed BSCC loan assistance.
@@ -86,13 +90,13 @@ const PremiumFooter = () => {
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.to}
                     className="text-neutral-400 hover:text-brand-300 transition-colors duration-200 text-sm group inline-flex items-center gap-2"
                   >
                     <span className="w-1 h-1 rounded-full bg-brand-500/50 group-hover:bg-brand-400 transition-colors" />
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -104,13 +108,13 @@ const PremiumFooter = () => {
             <ul className="space-y-2.5">
               {services.map((service) => (
                 <li key={service}>
-                  <a
-                    href="#services"
+                  <Link
+                    to="/services"
                     className="text-neutral-400 hover:text-brand-300 transition-colors duration-200 text-sm group inline-flex items-center gap-2"
                   >
                     <span className="w-1 h-1 rounded-full bg-brand-500/50 group-hover:bg-brand-400 transition-colors" />
                     {service}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -163,7 +167,7 @@ const PremiumFooter = () => {
             &copy; {year} Global Growth Consultancy. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-xs">
-            <a href="#contact" className="text-neutral-400 hover:text-brand-300 transition-colors">Free Consultation</a>
+            <Link to="/contact" className="text-neutral-400 hover:text-brand-300 transition-colors">Free Consultation</Link>
             <span className="text-neutral-600">•</span>
             <a href="tel:+917739973470" className="text-neutral-400 hover:text-brand-300 transition-colors">+91 77399 73470</a>
           </div>

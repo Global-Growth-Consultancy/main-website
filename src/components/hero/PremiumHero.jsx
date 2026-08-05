@@ -1,4 +1,5 @@
 import React, { Suspense, lazy } from "react";
+import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaShieldAlt } from "react-icons/fa";
 import ScrollReveal from "../shared/ScrollReveal";
@@ -83,19 +84,19 @@ const PremiumHero = () => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
-              <a
-                href="#contact"
+              <Link
+                to="/contact"
                 className="btn-premium glow-effect inline-flex items-center justify-center gap-2 text-sm sm:text-base px-6 py-3.5 group"
               >
                 <span>Get Free Consultation</span>
                 <FaArrowRight className="text-xs group-hover:translate-x-1 transition-transform" />
-              </a>
-              <a
-                href="#services"
+              </Link>
+              <Link
+                to="/services"
                 className="btn-premium-outline inline-flex items-center justify-center text-sm sm:text-base px-6 py-3.5"
               >
                 Explore Services
-              </a>
+              </Link>
             </div>
 
             {/* Trust Indicators */}

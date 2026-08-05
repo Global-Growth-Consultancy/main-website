@@ -9,8 +9,8 @@ const CustomCursor = () => {
 
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
-  const followerX = useSpring(x, { stiffness: 400, damping: 40, mass: 0.5 });
-  const followerY = useSpring(y, { stiffness: 400, damping: 40, mass: 0.5 });
+  const followerX = useSpring(x, { stiffness: 900, damping: 60, mass: 0.2 });
+  const followerY = useSpring(y, { stiffness: 900, damping: 60, mass: 0.2 });
 
   useEffect(() => {
     const cursor = cursorRef.current;
@@ -63,7 +63,7 @@ const CustomCursor = () => {
         ref={cursorRef}
         className="fixed w-4 h-4 rounded-full bg-primary-500 pointer-events-none z-[9999] hidden md:block mix-blend-difference -m-2"
         animate={{ scale: isClicking ? 0.8 : isHovering ? 1.5 : 1 }}
-        transition={{ type: "spring", stiffness: 500, damping: 28 }}
+        transition={{ type: "spring", stiffness: 800, damping: 40 }}
       />
 
       {/* Cursor follower — spring-driven, no timers, no re-renders */}

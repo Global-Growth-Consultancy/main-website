@@ -1,64 +1,27 @@
-import React, { useState, useEffect } from "react";
-import PremiumNavbar from "./components/navbar/PremiumNavbar";
-import PremiumHero from "./components/hero/PremiumHero";
-import TrustStatistics from "./components/stats/TrustStatistics";
-import Services from "./components/services/Services";
-import BSCCLoans from "./components/bscc/BSCCLoans";
-import UniversityPartners from "./components/partners/UniversityPartners";
-import SuccessStories from "./components/testimonials/SuccessStories";
-import AnimatedProcessTimeline from "./components/process/AnimatedProcessTimeline";
-import AboutSection from "./components/about/AboutSection";
-import FAQSection from "./components/faq/FAQSection";
-import ContactSection from "./components/contact/ContactSection";
-import PremiumFooter from "./components/footer/PremiumFooter";
-import LoadingScreen from "./components/shared/LoadingScreen";
-import SmoothScrollWrapper from "./components/shared/SmoothScrollWrapper";
-import ScrollProgress from "./components/shared/ScrollProgress";
-import CustomCursor from "./components/shared/CustomCursor";
-import WhatsAppFloat from "./components/shared/WhatsAppFloat";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import PageLayout from "./components/layout/PageLayout";
+import HomePage from "./pages/HomePage";
+import AboutPage from "./pages/AboutPage";
+import ServicesPage from "./pages/ServicesPage";
+import BSCCPage from "./pages/BSCCPage";
+import CollegesPage from "./pages/CollegesPage";
+import ContactPage from "./pages/ContactPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
   return (
-    <SmoothScrollWrapper>
-      <a href="#main" className="skip-link">
-        Skip to content
-      </a>
-      <div className="w-full min-h-screen bg-premium-navy relative">
-        <ScrollProgress />
-        <CustomCursor />
-        <PremiumNavbar />
-
-        <main id="main" className="relative z-10">
-          <PremiumHero />
-          <TrustStatistics />
-          <Services />
-          <BSCCLoans />
-          <UniversityPartners />
-          <SuccessStories />
-          <AnimatedProcessTimeline />
-          <AboutSection />
-          <FAQSection />
-          <ContactSection />
-        </main>
-
-        <PremiumFooter />
-        <WhatsAppFloat />
-      </div>
-    </SmoothScrollWrapper>
+    <PageLayout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/bscc" element={<BSCCPage />} />
+        <Route path="/colleges" element={<CollegesPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </PageLayout>
   );
 };
 

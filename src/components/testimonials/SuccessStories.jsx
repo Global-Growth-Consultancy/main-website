@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaQuoteLeft, FaStar, FaArrowLeft, FaArrowRight, FaGraduationCap, FaUniversity, FaMapMarkerAlt, FaCheckCircle } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
@@ -226,12 +227,12 @@ const SuccessStories = () => {
           className="text-center mt-12"
         >
           <p className="text-neutral-400 mb-6">Want to be our next success story?</p>
-          <a
-            href="#contact"
+          <Link
+            to="/contact"
             className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
           >
             Start Your Journey Today
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

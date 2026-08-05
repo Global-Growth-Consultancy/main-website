@@ -1,5 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FaArrowRight } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
 const UniversityPartners = () => {
@@ -108,12 +110,13 @@ const UniversityPartners = () => {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-center mt-12"
         >
-          <a
-            href="#contact"
-            className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
+          <Link
+            to="/colleges"
+            className="btn-premium inline-flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base"
           >
             View All Partner Colleges
-          </a>
+            <FaArrowRight className="text-xs" />
+          </Link>
         </motion.div>
       </div>
     </section>

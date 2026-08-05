@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaSearch, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaGraduationCap } from "react-icons/fa";
 
@@ -124,12 +125,12 @@ const ProcessTimeline = () => {
             <p className="text-neutral-400 mb-8">
               Book your free consultation today and take the first step towards your dream education
             </p>
-            <a
-              href="#contact"
-              className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+            <Link
+              to="/contact"
+              className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
             >
               Schedule Free Consultation
-            </a>
+            </Link>
           </div>
         </motion.div>
       </div>

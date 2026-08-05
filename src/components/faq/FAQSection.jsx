@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaChevronDown, FaQuestionCircle } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
@@ -139,18 +140,18 @@ const FAQSection = () => {
               Can't find the answer you're looking for? Our team is here to help.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="#contact"
+              <Link
+                to="/contact"
                 className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
               >
                 Schedule a Call
-              </a>
-              <a
-                href="#contact"
+              </Link>
+              <Link
+                to="/bscc"
                 className="btn-premium-outline inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
               >
-                Send us a Message
-              </a>
+                BSCC Loan Guide
+              </Link>
             </div>
           </LuxCard>
         </motion.div>

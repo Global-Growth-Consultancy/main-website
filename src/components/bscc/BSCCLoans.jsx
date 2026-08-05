@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset, FaWhatsapp } from "react-icons/fa";
+import { FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset, FaWhatsapp, FaArrowRight } from "react-icons/fa";
 import BSCCVisualizer from "./BSCCVisualizer";
 import LuxCard from "../shared/LuxCard";
 
@@ -65,11 +66,11 @@ const BSCCLoans = () => {
   ];
 
   const eligibility = [
-    "Bihar domicile with valid residential proof",
-    "Age between 17-35 years",
-    "Admission in recognized institution",
-    "Family income below ₹8 lakh per annum",
-    "No default on any previous loan"
+    "Permanent resident of Bihar with valid residential proof",
+    "12th pass from any recognized board — no minimum marks",
+    "Age up to 25 years (UG) / 30 years (PG & professional)",
+    "Admission in a recognized, BSCC-approved institution",
+    "0% interest for all students since September 2025"
   ];
 
   const process = [
@@ -120,8 +121,9 @@ const BSCCLoans = () => {
             Education Made Accessible
           </h2>
           <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
-            Bihar Student Credit Card (BSCC) Scheme enables students to pursue higher education without financial constraints. 
-            We specialize in BSCC applications with 70-80% of our students benefiting from this government scheme.
+            Bihar Student Credit Card (BSCC) — part of the government's <span className="text-neutral-200 font-medium">Saat Nischay</span> initiative —
+            enables students to pursue higher education with up to ₹4 lakh at <span className="text-neutral-200 font-medium">0% interest</span>,
+            no collateral. We specialize in BSCC applications with a 70-80% approval rate.
           </p>
         </motion.div>
 
@@ -251,18 +253,19 @@ const BSCCLoans = () => {
                 We ensure your application has the highest chance of approval.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a
-                  href="#contact"
-                  className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
+                <Link
+                  to="/bscc"
+                  className="btn-premium inline-flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base"
                 >
                   Start BSCC Application
-                </a>
-                <a
-                  href="#faq"
+                  <FaArrowRight className="text-xs" />
+                </Link>
+                <Link
+                  to="/bscc"
                   className="btn-premium-outline inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
                 >
-                  Learn More About BSCC
-                </a>
+                  Complete BSCC Guide
+                </Link>
               </div>
             </div>
           </LuxCard>

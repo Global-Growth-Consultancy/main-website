@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart, FaCheckCircle } from "react-icons/fa";
+import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart, FaCheckCircle, FaArrowRight } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
 const ValueCard = ({ icon: Icon, title, description, delay }) => (
@@ -89,7 +90,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="group"
+            className="card-lux--accent group"
           >
             <span className="eyebrow block mb-4">Our Mission</span>
             <p className="text-neutral-300 leading-relaxed">
@@ -105,7 +106,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="group"
+            className="card-lux--accent group"
           >
             <span className="eyebrow block mb-4">Our Vision</span>
             <p className="text-neutral-300 leading-relaxed">
@@ -197,6 +198,23 @@ const AboutSection = () => {
               ))}
             </div>
           </LuxCard>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mt-12"
+        >
+          <Link
+            to="/about"
+            className="btn-premium-outline inline-flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base"
+          >
+            Read Our Full Story
+            <FaArrowRight className="text-xs" />
+          </Link>
         </motion.div>
       </div>
     </section>

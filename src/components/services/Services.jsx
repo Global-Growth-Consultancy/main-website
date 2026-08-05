@@ -1,6 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck } from "react-icons/fa";
+import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
 const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
@@ -151,12 +152,21 @@ const Services = () => {
           className="text-center mt-12 sm:mt-16"
         >
           <p className="text-neutral-400 mb-4 sm:mb-6 text-sm sm:text-base">Need personalized guidance for your specific situation?</p>
-          <a
-            href="#contact"
-            className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
-          >
-            Schedule Free Consultation
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              to="/contact"
+              className="btn-premium inline-flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base"
+            >
+              Schedule Free Consultation
+              <FaArrowRight className="text-xs" />
+            </Link>
+            <Link
+              to="/services"
+              className="btn-premium-outline inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
+            >
+              View Complete Service Details
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>

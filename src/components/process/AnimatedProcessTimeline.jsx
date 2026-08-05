@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import { FaSearch, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaGraduationCap } from 'react-icons/fa';
 import LuxCard from '../shared/LuxCard';
@@ -220,12 +221,12 @@ const AnimatedProcessTimeline = () => {
             <p className="text-neutral-400 mb-8">
               Book your free consultation today and take the first step towards your dream education
             </p>
-            <a
-              href="#contact"
+            <Link
+              to="/contact"
               className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
             >
               Schedule Free Consultation
-            </a>
+            </Link>
           </LuxCard>
         </motion.div>
       </div>

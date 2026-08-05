@@ -1,6 +1,6 @@
 import React, { Suspense, useMemo, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Text, PerspectiveCamera, Stars } from '@react-three/drei';
+import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------
@@ -58,6 +58,14 @@ const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacit
     </sprite>
   );
 };
+
+// ---------------------------------------------------------------
+// Deep-space nebula — large, soft colour fields behind the scene
+// for atmosphere and depth. Static, GPU-cheap sprites.
+// ---------------------------------------------------------------
+const Nebula = ({ position, color, scale = 10, opacity = 0.14 }) => (
+  <GlowSprite position={position} color={color} scale={scale} opacity={opacity} />
+);
 
 // ---------------------------------------------------------------
 // Particle stream — LUT-sampled for maximum performance.
@@ -148,7 +156,8 @@ const GlowTube = ({ curve, color, opacity = 0.28 }) => {
 
 // ---------------------------------------------------------------
 // Central fusion core — a polished, softly lit sphere. No wobble,
-// no distortion: calm, confident, cinematic.
+// no distortion: calm, confident, cinematic. This is where every
+// student journey (admission + loan) converges.
 // ---------------------------------------------------------------
 const FusionCore = () => {
   const core = useRef();
@@ -156,27 +165,27 @@ const FusionCore = () => {
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
     if (core.current) {
-      core.current.rotation.y = t * 0.25;
-      core.current.rotation.x = Math.sin(t * 0.2) * 0.06;
+      core.current.rotation.y = t * 0.22;
+      core.current.rotation.x = Math.sin(t * 0.18) * 0.05;
     }
   });
 
   return (
-    <group position={[0, -0.2, 0]}>
+    <group position={[0, -0.25, 0]}>
       <mesh ref={core}>
-        <sphereGeometry args={[0.72, 48, 48]} />
+        <sphereGeometry args={[0.78, 48, 48]} />
         <meshPhysicalMaterial
-          color="#2a2a5a"
-          emissive="#4338ca"
-          emissiveIntensity={0.5}
+          color="#1e1b4b"
+          emissive="#4f46e5"
+          emissiveIntensity={0.65}
           metalness={0.9}
-          roughness={0.28}
+          roughness={0.22}
           clearcoat={1}
-          clearcoatRoughness={0.25}
+          clearcoatRoughness={0.18}
         />
       </mesh>
-      <GlowSprite scale={4.5} color="#6366f1" opacity={0.35} />
-      <GlowSprite scale={1.8} color="#ffffff" opacity={0.6} />
+      <GlowSprite scale={5.2} color="#6366f1" opacity={0.3} />
+      <GlowSprite scale={2} color="#c7d2fe" opacity={0.55} />
     </group>
   );
 };
@@ -190,9 +199,9 @@ const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.4 }) => {
     if (ref.current) ref.current.rotation.z = state.clock.getElapsedTime() * speed;
   });
   return (
-    <group rotation={tilt} position={[0, -0.2, 0]}>
+    <group rotation={tilt} position={[0, -0.25, 0]}>
       <mesh ref={ref}>
-        <torusGeometry args={[radius, 0.02, 8, 128]} />
+        <torusGeometry args={[radius, 0.018, 8, 128]} />
         <meshBasicMaterial color={color} transparent opacity={opacity} blending={THREE.AdditiveBlending} depthWrite={false} />
       </mesh>
     </group>
@@ -200,155 +209,208 @@ const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.4 }) => {
 };
 
 // ---------------------------------------------------------------
-// Stage node (origin / destination of each stream) — gently floating
+// Origin gem — a crystal that quietly floats and rotates at the
+// start of each path. Abstract and elegant (no demo-style labels).
 // ---------------------------------------------------------------
-const EnergyNode = ({ position, color, label, size = 0.34 }) => {
+const EnergyNode = ({ position, color, size = 0.3 }) => {
   const ref = useRef();
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
-    if (ref.current) ref.current.position.y = position[1] + Math.sin(t * 0.9 + position[0]) * 0.06;
+    if (ref.current) {
+      ref.current.position.y = position[1] + Math.sin(t * 0.9 + position[0] * 2) * 0.06;
+      ref.current.rotation.y = t * 0.35;
+      ref.current.rotation.z = Math.sin(t * 0.5) * 0.15;
+    }
   });
 
   return (
     <group position={position}>
       <group ref={ref}>
         <mesh>
-          <sphereGeometry args={[size, 32, 32]} />
+          <octahedronGeometry args={[size, 0]} />
           <meshPhysicalMaterial
-            color="#15153a"
+            color="#0e1428"
             emissive={color}
-            emissiveIntensity={0.55}
-            metalness={0.85}
-            roughness={0.3}
-            clearcoat={0.8}
-            clearcoatRoughness={0.3}
+            emissiveIntensity={0.9}
+            metalness={0.9}
+            roughness={0.18}
+            clearcoat={1}
+            clearcoatRoughness={0.2}
           />
         </mesh>
-        <GlowSprite scale={size * 5.5} color={color} opacity={0.38} />
+        <GlowSprite scale={size * 6} color={color} opacity={0.45} />
       </group>
-      <Text position={[0, -size - 0.55, 0]} fontSize={0.26} color="#94a3b8" anchorX="center" anchorY="middle" letterSpacing={0.14}>
-        {label}
-      </Text>
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Graduation cap — the final outcome. Restrained and still; a quiet
-// mark of achievement rather than a bobbing mascot.
+// Graduation cap — the final outcome, the hero of the scene.
+// A refined glass board with gold trim, resting on a deep base,
+// crowned with a gold button and emerald tassel. Gently floats,
+// never bobs.
 // ---------------------------------------------------------------
-const GraduationCap = ({ position }) => {
+const GraduationCap = ({ position, scale = 1 }) => {
   const ref = useRef();
   useFrame((state) => {
-    if (ref.current) ref.current.rotation.y = state.clock.getElapsedTime() * 0.12;
+    const t = state.clock.getElapsedTime();
+    if (ref.current) {
+      ref.current.rotation.y = Math.sin(t * 0.35) * 0.35;
+      ref.current.position.y = position[1] + Math.sin(t * 1.05) * 0.05;
+    }
   });
+
   return (
-    <group ref={ref} position={position}>
+    <group ref={ref} position={position} scale={scale}>
+      {/* Board — dark glass with gold rim */}
       <mesh>
-        <boxGeometry args={[1.4, 0.12, 1.4]} />
-        <meshPhysicalMaterial color="#0b1220" emissive="#10b981" emissiveIntensity={0.35} metalness={0.9} roughness={0.25} clearcoat={0.6} />
+        <boxGeometry args={[2.05, 0.09, 2.05]} />
+        <meshPhysicalMaterial
+          color="#0b1220"
+          emissive="#111c3a"
+          emissiveIntensity={0.5}
+          metalness={0.85}
+          roughness={0.2}
+          clearcoat={0.95}
+          clearcoatRoughness={0.12}
+        />
       </mesh>
-      <mesh position={[0, 0.22, 0]} rotation={[0, Math.PI / 4, 0]}>
-        <coneGeometry args={[0.98, 0.36, 4]} />
-        <meshPhysicalMaterial color="#10b981" emissive="#10b981" emissiveIntensity={0.45} metalness={0.6} roughness={0.35} />
+      <mesh position={[0, -0.055, 0]}>
+        <boxGeometry args={[2.1, 0.035, 2.1]} />
+        <meshPhysicalMaterial
+          color="#f59e0b"
+          emissive="#fbbf24"
+          emissiveIntensity={0.45}
+          metalness={0.95}
+          roughness={0.18}
+        />
       </mesh>
-      <mesh position={[0.72, -0.26, 0.72]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.5, 8]} />
-        <meshBasicMaterial color="#fbbf24" transparent opacity={0.9} />
+      {/* Button — gold pyramid */}
+      <mesh position={[0, 0.1, 0]} rotation={[0, Math.PI / 4, 0]}>
+        <coneGeometry args={[0.52, 0.3, 4]} />
+        <meshPhysicalMaterial
+          color="#fbbf24"
+          emissive="#f59e0b"
+          emissiveIntensity={0.55}
+          metalness={0.9}
+          roughness={0.22}
+        />
       </mesh>
-      <mesh position={[0.72, -0.54, 0.72]}>
-        <sphereGeometry args={[0.09, 16, 16]} />
+      {/* Base band */}
+      <mesh position={[0, -0.26, 0]}>
+        <cylinderGeometry args={[0.58, 0.66, 0.36, 32]} />
+        <meshPhysicalMaterial
+          color="#1e293b"
+          emissive="#10b981"
+          emissiveIntensity={0.22}
+          metalness={0.7}
+          roughness={0.4}
+        />
+      </mesh>
+      {/* Tassel cord + emerald end */}
+      <mesh position={[0.68, -0.55, 0.68]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.6, 8]} />
         <meshBasicMaterial color="#fbbf24" />
       </mesh>
-      <GlowSprite scale={3.4} color="#34d399" opacity={0.22} />
+      <mesh position={[0.68, -0.88, 0.68]}>
+        <sphereGeometry args={[0.075, 16, 16]} />
+        <meshBasicMaterial color="#34d399" />
+      </mesh>
+      <GlowSprite scale={4.8} color="#34d399" opacity={0.2} />
+      <GlowSprite scale={1.7} color="#fde68a" opacity={0.5} />
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Full scene: aspiration + loan converge into admission, bloom into success
-//
-// The scene is wrapped in a group whose scale is derived from the
-// LIVE viewport. It always fits the entire composition inside the
-// visible frustum for any container size / aspect ratio — no cropping.
+// Full scene: admissions + loan converge into guidance, then bloom
+// into graduation — the achieved dream.
 // ---------------------------------------------------------------
 const DreamScene = () => {
   const group = useRef();
   const { viewport } = useThree();
 
   const fit = useMemo(() => {
-    const HALF_W = 5.3;
-    const HALF_H = 4.5;
-    const CENTER_Y = 1.1;
+    const HALF_W = 5.6;
+    const HALF_H = 4.9;
+    const CENTER_Y = 1.0;
     const MARGIN = 0.94;
     const s = Math.min(viewport.width / (HALF_W * 2), viewport.height / (HALF_H * 2)) * MARGIN;
     return { scale: s, y: -CENTER_Y * s };
   }, [viewport.width, viewport.height]);
 
+  // Admission path: bottom-left → core
   const pathA = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-4.4, 1.7, 0),
-        new THREE.Vector3(-2.5, 1.1, 0.6),
-        new THREE.Vector3(-0.8, 0.3, 0.4),
-        new THREE.Vector3(0, -0.2, 0),
+        new THREE.Vector3(-4.5, 2.4, 0.2),
+        new THREE.Vector3(-2.6, 1.3, 0.6),
+        new THREE.Vector3(-1.0, 0.4, 0.3),
+        new THREE.Vector3(0, -0.25, 0),
       ]),
     []
   );
+  // Loan path: top-right → core
   const pathB = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0.5, 4.0, -1.2),
-        new THREE.Vector3(0.1, 2.3, 0.3),
-        new THREE.Vector3(0, 0.5, 0.5),
-        new THREE.Vector3(0, -0.2, 0),
+        new THREE.Vector3(4.3, 3.2, -1.0),
+        new THREE.Vector3(2.3, 2.1, -0.4),
+        new THREE.Vector3(0.8, 0.7, 0.2),
+        new THREE.Vector3(0, -0.25, 0),
       ]),
     []
   );
+  // Success path: core → graduation cap
   const pathC = useMemo(
     () =>
       new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -0.2, 0),
-        new THREE.Vector3(1.5, 0.5, 0.5),
-        new THREE.Vector3(3.0, 1.3, 0.3),
-        new THREE.Vector3(4.4, 1.9, 0),
+        new THREE.Vector3(0, -0.25, 0),
+        new THREE.Vector3(1.2, 0.7, 0.6),
+        new THREE.Vector3(2.6, 1.7, 0.4),
+        new THREE.Vector3(3.5, 2.6, 0),
       ]),
     []
   );
 
   useFrame((state) => {
     if (group.current) {
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.06, 0.04);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.04, 0.04);
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.06, 0.05);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.045, 0.05);
     }
   });
 
   return (
     <group ref={group} scale={fit.scale} position={[0, fit.y, 0]}>
-      <ambientLight intensity={0.6} />
+      <ambientLight intensity={0.55} />
       <pointLight position={[6, 6, 8]} intensity={1.4} color="#38bdf8" />
       <pointLight position={[-6, 6, 4]} intensity={1.0} color="#fbbf24" />
       <pointLight position={[0, -4, 2]} intensity={0.5} color="#6366f1" />
 
-      <Stars radius={30} depth={25} count={1200} factor={2} saturation={0} fade speed={0.6} />
+      <Stars radius={30} depth={25} count={1000} factor={2} saturation={0} fade speed={0.5} />
+
+      {/* Atmosphere */}
+      <Nebula position={[-4.5, 1.5, -6]} color="#4338ca" scale={12} opacity={0.16} />
+      <Nebula position={[4, 0, -7]} color="#0ea5e9" scale={10} opacity={0.12} />
+      <Nebula position={[0, 3.2, -5]} color="#a855f7" scale={9} opacity={0.1} />
 
       <GlowTube curve={pathA} color="#38bdf8" />
       <GlowTube curve={pathB} color="#fbbf24" />
       <GlowTube curve={pathC} color="#34d399" />
 
-      <ParticleStream curve={pathA} count={400} color="#38bdf8" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathB} count={400} color="#fbbf24" size={0.1} speed={0.14} />
-      <ParticleStream curve={pathC} count={300} color="#34d399" size={0.09} speed={0.12} />
+      <ParticleStream curve={pathA} count={360} color="#38bdf8" size={0.1} speed={0.16} />
+      <ParticleStream curve={pathB} count={360} color="#fbbf24" size={0.1} speed={0.16} />
+      <ParticleStream curve={pathC} count={300} color="#34d399" size={0.09} speed={0.14} />
 
-      <EnergyNode position={[-4.4, 1.7, 0]} color="#38bdf8" label="ASPIRATION" />
-      <EnergyNode position={[0.5, 4.0, -1.2]} color="#fbbf24" label="BSCC LOAN" size={0.38} />
-      <EnergyNode position={[4.4, 1.9, 0]} color="#34d399" label="SUCCESS" />
+      <EnergyNode position={[-4.5, 2.4, 0.2]} color="#38bdf8" size={0.3} />
+      <EnergyNode position={[4.3, 3.2, -1.0]} color="#fbbf24" size={0.34} />
 
       <FusionCore />
-      <GraduationCap position={[4.4, 3.05, 0]} />
+      <GraduationCap position={[3.5, 2.6, 0]} scale={1.25} />
 
-      <OrbitRing radius={1.5} color="#8b5cf6" tilt={[Math.PI / 2.6, 0.2, 0]} speed={0.5} opacity={0.35} />
-      <OrbitRing radius={1.95} color="#38bdf8" tilt={[Math.PI / 2.2, -0.4, 0.3]} speed={-0.35} opacity={0.3} />
+      <OrbitRing radius={1.55} color="#8b5cf6" tilt={[Math.PI / 2.6, 0.2, 0]} speed={0.5} opacity={0.35} />
+      <OrbitRing radius={2.0} color="#38bdf8" tilt={[Math.PI / 2.2, -0.4, 0.3]} speed={-0.35} opacity={0.3} />
+      <OrbitRing radius={2.5} color="#fbbf24" tilt={[Math.PI / 2.9, 0.5, -0.2]} speed={0.28} opacity={0.22} />
     </group>
   );
 };
@@ -362,7 +424,7 @@ const DreamFusionEngine = () => {
   return (
     <div ref={containerRef} className="relative w-full h-[380px] sm:h-[460px] md:h-[540px] select-none">
       <Canvas dpr={[1, 1.75]} frameloop={isInView ? "always" : "never"} gl={{ antialias: true, powerPreference: 'high-performance' }}>
-        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={55} />
+        <PerspectiveCamera makeDefault position={[0, 0.4, 10]} fov={50} />
         <Suspense fallback={null}>
           <DreamScene />
         </Suspense>
