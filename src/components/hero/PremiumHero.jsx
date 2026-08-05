@@ -1,204 +1,175 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd, FaCheckCircle } from "react-icons/fa";
+import React, { Suspense, lazy } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaShieldAlt } from "react-icons/fa";
+import ScrollReveal from "../shared/ScrollReveal";
+
+const DreamFusionEngine = lazy(() => import("./DreamFusionEngine"));
 
 const PremiumHero = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+  const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
   return (
-    <section className="relative min-h-screen flex items-center bg-white">
-      {/* Subtle Background Pattern */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-50 rounded-full blur-3xl opacity-50" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-neutral-100 rounded-full blur-3xl" />
-      </div>
+    <section className="relative min-h-screen flex items-center bg-premium-navy overflow-hidden">
+      {/* Animated Background */}
+      <motion.div
+        style={{ y: y1 }}
+        className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-3xl opacity-50"
+      />
+      <motion.div
+        style={{ y: y2 }}
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-accent-500/10 rounded-full blur-3xl"
+      />
+
+      {/* Subtle grid backdrop */}
+      <div
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(148,163,184,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.6) 1px, transparent 1px)",
+          backgroundSize: "56px 56px",
+          maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)",
+          WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)",
+        }}
+      />
+
+      {/* Floating Particles */}
+      {Array.from({ length: 16 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 bg-brand-500/30 rounded-full"
+          initial={{
+            x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1200),
+            y: Math.random() * 800,
+            opacity: 0,
+          }}
+          animate={{
+            y: [null, -100 - Math.random() * 200],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 3 + Math.random() * 2,
+            repeat: Infinity,
+            delay: Math.random() * 2,
+          }}
+        />
+      ))}
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <motion.div style={{ opacity }} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left Content */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-8"
-          >
+          <ScrollReveal direction="left" className="space-y-6 sm:space-y-8">
             {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 border border-brand-200"
-            >
-              <span className="w-2 h-2 rounded-full bg-brand-600" />
-              <span className="text-sm font-medium text-brand-700">Bihar's #1 Education Consultancy</span>
-            </motion.div>
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-brand-500/10 border border-brand-500/30 backdrop-blur-sm">
+              <span className="relative flex w-2 h-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75" />
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-brand-400" />
+              </span>
+              <span className="text-xs sm:text-sm font-medium text-brand-300 tracking-wide">
+                Bihar&apos;s #1 Education Consultancy
+              </span>
+            </div>
 
             {/* Heading */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 leading-tight"
-            >
-              Your Gateway to
-              <span className="text-brand-600 block">Premium Education</span>
-            </motion.h1>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.08] tracking-tight">
+              Your Dream.
+              <br />
+              <span className="text-gradient">Our Mission.</span>
+              <br />
+              <span className="text-gradient-gold">Funded. Guided. Achieved.</span>
+            </h1>
 
             {/* Subheading */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg text-neutral-600 leading-relaxed"
-            >
-              Expert guidance for BSCC loans, college admissions, and career counseling. 
-              Join thousands of students who achieved their academic dreams with GGC.
-            </motion.p>
+            <p className="text-base sm:text-lg text-neutral-400 leading-relaxed max-w-xl">
+              From college admissions to <span className="text-neutral-200 font-medium">Bihar Student Credit Card</span>{" "}
+              education loans — GGC turns your academic aspirations into an approved, fully-funded reality.
+            </p>
 
             {/* Features */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="space-y-3"
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
               {[
-                "Expert career counseling & guidance",
-                "BSCC loan assistance (Bihar Student Credit Card)",
-                "Direct partnerships with 200+ institutions",
-                "95% success rate in admissions"
-              ].map((feature, index) => (
+                { icon: FaGraduationCap, text: "Admissions to 200+ institutions" },
+                { icon: FaHandHoldingUsd, text: "BSCC loans up to ₹4 Lakh" },
+                { icon: FaUniversity, text: "IIT, NIT, Medical & more" },
+                { icon: FaShieldAlt, text: "95% admission success rate" },
+              ].map((item, index) => (
                 <div key={index} className="flex items-center gap-3">
-                  <FaCheckCircle className="text-brand-600 flex-shrink-0" />
-                  <span className="text-neutral-700">{feature}</span>
+                  <div className="w-7 h-7 rounded-lg bg-brand-500/15 flex items-center justify-center flex-shrink-0">
+                    <item.icon className="text-brand-400 text-xs" />
+                  </div>
+                  <span className="text-sm text-neutral-300">{item.text}</span>
                 </div>
               ))}
-            </motion.div>
+            </div>
 
             {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+                className="btn-premium glow-effect inline-flex items-center justify-center gap-2 text-sm sm:text-base px-6 py-3.5 group"
               >
-                Free Consultation
-                <FaArrowRight className="text-sm" />
+                <span>Get Free Consultation</span>
+                <FaArrowRight className="text-xs group-hover:translate-x-1 transition-transform" />
               </a>
               <a
                 href="#services"
-                className="inline-flex items-center justify-center px-6 py-3 border border-neutral-300 text-neutral-700 font-medium rounded-lg hover:bg-neutral-50 transition-colors duration-200"
+                className="btn-premium-outline inline-flex items-center justify-center text-sm sm:text-base px-6 py-3.5"
               >
                 Explore Services
               </a>
-            </motion.div>
+            </div>
 
             {/* Trust Indicators */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              className="flex flex-wrap gap-8 pt-4 border-t border-neutral-200"
-            >
+            <div className="flex flex-wrap gap-5 sm:gap-8 pt-6 border-t border-white/10">
               {[
-                { icon: FaGraduationCap, label: "5000+ Students", value: "5000+" },
-                { icon: FaUniversity, label: "200+ Colleges", value: "200+" },
-                { icon: FaHandHoldingUsd, label: "95% Success", value: "95%" },
+                { icon: FaGraduationCap, value: "5000+", label: "Students Guided" },
+                { icon: FaUniversity, value: "200+", label: "Partner Colleges" },
+                { icon: FaCheckCircle, value: "95%", label: "Success Rate" },
               ].map((item, index) => (
-                <div key={index} className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center">
-                    <item.icon className="text-brand-600" />
+                <div key={index} className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500/15 border border-brand-500/20 flex items-center justify-center">
+                    <item.icon className="text-brand-400 text-sm sm:text-base" />
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-neutral-900">{item.value}</div>
-                    <div className="text-xs text-neutral-600">{item.label}</div>
+                    <div className="text-base sm:text-lg font-bold text-white leading-none">{item.value}</div>
+                    <div className="text-[11px] sm:text-xs text-neutral-400 mt-1">{item.label}</div>
                   </div>
                 </div>
               ))}
-            </motion.div>
-          </motion.div>
-
-          {/* Right Content - Visual */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative"
-          >
-            {/* Main Card */}
-            <div className="relative bg-white rounded-2xl shadow-large p-8 border border-neutral-200">
-              {/* Card Header */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center">
-                  <FaGraduationCap className="text-xl text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Success Story</h3>
-                  <p className="text-sm text-neutral-600">Rahul Kumar, IIT Delhi</p>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="space-y-4">
-                <p className="text-neutral-700 leading-relaxed">
-                  "GGC helped me secure admission at IIT Delhi with full BSCC loan support. 
-                  Their guidance was invaluable throughout the entire process."
-                </p>
-
-                <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <div key={star} className="w-5 h-5 rounded-full bg-accent-400 flex items-center justify-center">
-                      <span className="text-white text-xs">★</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Decorative Elements */}
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-brand-100 rounded-full opacity-50" />
-              <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-accent-100 rounded-full opacity-50" />
             </div>
+          </ScrollReveal>
 
-            {/* Floating Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="absolute -top-8 -right-8 bg-white rounded-xl shadow-soft p-4 border border-neutral-200"
+          {/* Right Content - Dream Fusion Engine */}
+          <ScrollReveal direction="right" delay={0.2} className="relative">
+            <div className="absolute -inset-8 bg-gradient-to-br from-brand-500/10 via-transparent to-accent-500/10 rounded-full blur-2xl pointer-events-none" />
+            <Suspense
+              fallback={
+                <div className="relative w-full h-[400px] md:h-[540px] flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full border-2 border-brand-500/30 border-t-brand-400 animate-spin" />
+                </div>
+              }
             >
+              <DreamFusionEngine />
+            </Suspense>
+
+            {/* Overlay Stats */}
+            <div className="absolute bottom-2 sm:bottom-8 left-2 sm:left-8 glass rounded-2xl px-4 py-3.5 sm:px-5 sm:py-4 border border-white/10 shadow-soft">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-success-100 flex items-center justify-center">
-                  <FaCheckCircle className="text-success-600" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-success-500/20 flex items-center justify-center">
+                  <FaCheckCircle className="text-success-400 text-sm sm:text-base" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-neutral-900">Loan Approved</div>
-                  <div className="text-xs text-neutral-600">₹10 Lakhs</div>
+                  <p className="text-xs sm:text-sm font-semibold text-white">₹50 Cr+ Loans Approved</p>
+                  <p className="text-[10px] sm:text-xs text-neutral-400">BSCC + Private Bank Financing</p>
                 </div>
               </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="absolute -bottom-8 -left-8 bg-white rounded-xl shadow-soft p-4 border border-neutral-200"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center">
-                  <FaUniversity className="text-brand-600" />
-                </div>
-                <div>
-                  <div className="text-sm font-bold text-neutral-900">Admission Secured</div>
-                  <div className="text-xs text-neutral-600">Top Tier College</div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </ScrollReveal>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };

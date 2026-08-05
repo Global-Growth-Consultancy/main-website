@@ -1,20 +1,21 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { FaCreditCard, FaCheckCircle, FaFileAlt, FaUniversity, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset } from "react-icons/fa";
+import { FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset, FaWhatsapp } from "react-icons/fa";
+import BSCCVisualizer from "./BSCCVisualizer";
 
 const FeatureItem = ({ icon: Icon, title, description }) => (
   <motion.div
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true }}
-    className="flex items-start gap-4 p-4 rounded-xl bg-white border border-neutral-200 shadow-soft"
+    className="flex items-start gap-4 p-4 rounded-xl glass border border-white/10 shadow-soft"
   >
-    <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
-      <Icon className="text-xl text-brand-600" />
+    <div className="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center flex-shrink-0">
+      <Icon className="text-xl text-brand-400" />
     </div>
     <div>
-      <h4 className="font-semibold text-neutral-900 mb-1">{title}</h4>
-      <p className="text-sm text-neutral-600">{description}</p>
+      <h4 className="font-semibold text-white mb-1">{title}</h4>
+      <p className="text-sm text-neutral-400">{description}</p>
     </div>
   </motion.div>
 );
@@ -32,8 +33,8 @@ const ProcessStep = ({ step, title, description, delay }) => (
         <span className="text-xl font-bold text-white">{step}</span>
       </div>
       <div className="flex-1 pt-2">
-        <h4 className="text-xl font-bold text-neutral-900 mb-2">{title}</h4>
-        <p className="text-neutral-600">{description}</p>
+        <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
+        <p className="text-neutral-400">{description}</p>
       </div>
     </div>
   </motion.div>
@@ -95,7 +96,7 @@ const BSCCLoans = () => {
   ];
 
   return (
-    <section id="bscc" className="py-24 bg-neutral-50">
+    <section id="bscc" className="py-24 bg-premium-charcoal">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -109,19 +110,30 @@ const BSCCLoans = () => {
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-50 border border-brand-200 mb-6"
+            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-brand-500/20 border border-brand-500/30 mb-6"
           >
-            <FaCreditCard className="text-2xl text-brand-600" />
-            <span className="font-semibold text-neutral-900">Bihar Student Credit Card</span>
+            <FaCreditCard className="text-2xl text-brand-400" />
+            <span className="font-semibold text-white">Bihar Student Credit Card</span>
           </motion.div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             Education Made Accessible
           </h2>
-          <p className="text-neutral-600 text-lg max-w-3xl mx-auto">
+          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
             Bihar Student Credit Card (BSCC) Scheme enables students to pursue higher education without financial constraints. 
             We specialize in BSCC applications with 70-80% of our students benefiting from this government scheme.
           </p>
+        </motion.div>
+
+        {/* Live Visualizer */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.8 }}
+          className="mb-16"
+        >
+          <BSCCVisualizer />
         </motion.div>
 
         {/* Main Content Grid */}
@@ -133,24 +145,24 @@ const BSCCLoans = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h3 className="text-2xl font-bold text-neutral-900 mb-6">Key Benefits</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Key Benefits</h3>
            <div className="space-y-4">
               {features.map((feature, index) => (
                 <FeatureItem key={index} {...feature} />
               ))}
             </div>
 
-            <div className="mt-8 p-6 rounded-2xl bg-brand-50 border border-brand-200">
+            <div className="mt-8 p-6 rounded-2xl bg-brand-500/20 border border-brand-500/30">
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center">
                   <FaCheckCircle className="text-2xl text-white" />
                 </div>
                 <div>
-                  <h4 className="text-xl font-bold text-neutral-900">70-80% Success Rate</h4>
-                  <p className="text-sm text-neutral-600">Through BSCC Scheme</p>
+                  <h4 className="text-xl font-bold text-white">70-80% Success Rate</h4>
+                  <p className="text-sm text-neutral-400">Through BSCC Scheme</p>
                 </div>
               </div>
-              <p className="text-neutral-700 text-sm">
+              <p className="text-neutral-300 text-sm">
                 Our expertise in BSCC applications ensures maximum approval rate for eligible students
               </p>
             </div>
@@ -162,9 +174,9 @@ const BSCCLoans = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-2xl p-8 shadow-soft border border-neutral-200"
+            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
           >
-            <h3 className="text-2xl font-bold text-neutral-900 mb-6">Eligibility Criteria</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Eligibility Criteria</h3>
             <ul className="space-y-4">
               {eligibility.map((item, index) => (
                 <motion.li
@@ -173,23 +185,27 @@ const BSCCLoans = () => {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-3 text-neutral-700"
+                  className="flex items-center gap-3 text-neutral-300"
                 >
-                  <div className="w-6 h-6 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                    <FaCheckCircle className="text-sm text-success-600" />
+                  <div className="w-6 h-6 rounded-full bg-success-500/20 flex items-center justify-center flex-shrink-0">
+                    <FaCheckCircle className="text-sm text-success-400" />
                   </div>
                   {item}
                 </motion.li>
               ))}
             </ul>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full mt-8 px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+            <motion.a
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              href="https://wa.me/917739973470?text=Hi%20GGC!%20I%20want%20to%20check%20my%20eligibility%20for%20the%20BSCC%20education%20loan."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-8 px-6 py-3.5 bg-gradient-to-r from-success-500 to-success-400 text-white font-semibold rounded-xl hover:from-success-400 hover:to-success-500 transition-all duration-300 shadow-lg shadow-success-500/25 hover:shadow-success-500/40 flex items-center justify-center gap-3"
             >
-              Check Your Eligibility
-            </motion.button>
+              <FaWhatsapp className="text-lg" />
+              Check Your Eligibility on WhatsApp
+            </motion.a>
           </motion.div>
         </div>
 
@@ -201,9 +217,9 @@ const BSCCLoans = () => {
           transition={{ duration: 0.8 }}
           className="mb-16"
         >
-          <h3 className="text-3xl font-bold text-neutral-900 text-center mb-12">
+          <span className="eyebrow mb-4 block">
             Our BSCC Application Process
-          </h3>
+          </span>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {process.map((step, index) => (
@@ -220,27 +236,31 @@ const BSCCLoans = () => {
           transition={{ duration: 0.8 }}
           className="text-center"
         >
-          <div className="bg-white rounded-2xl p-12 shadow-soft border border-neutral-200">
-            <h3 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-4">
-              Ready to Apply for BSCC Loan?
-            </h3>
-            <p className="text-neutral-600 mb-8 max-w-2xl mx-auto">
-              Let our experts guide you through the Bihar Student Credit Card application process. 
-              We ensure your application has the highest chance of approval.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center px-6 py-3 bg-brand-600 text-white font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
-              >
-                Start BSCC Application
-              </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center px-6 py-3 border border-neutral-300 text-neutral-700 font-medium rounded-lg hover:bg-neutral-50 transition-colors duration-200"
-              >
-                Learn More About BSCC
-              </a>
+          <div className="glass rounded-3xl p-8 sm:p-12 border border-white/10 shadow-2xl relative overflow-hidden">
+            <div className="absolute -top-20 -right-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-accent-500/10 rounded-full blur-3xl" />
+            <div className="relative">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
+                Ready to Apply for <span className="text-gradient-gold">BSCC Loan?</span>
+              </h3>
+              <p className="text-neutral-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Let our experts guide you through the Bihar Student Credit Card application process.
+                We ensure your application has the highest chance of approval.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a
+                  href="#contact"
+                  className="btn-premium inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
+                >
+                  Start BSCC Application
+                </a>
+                <a
+                  href="#faq"
+                  className="btn-premium-outline inline-flex items-center justify-center px-6 py-3 text-sm sm:text-base"
+                >
+                  Learn More About BSCC
+                </a>
+              </div>
             </div>
           </div>
         </motion.div>

@@ -8,13 +8,13 @@ const ValueCard = ({ icon: Icon, title, description, delay }) => (
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.6, delay }}
-    className="bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 card-hover"
+    className="glass rounded-2xl p-6 shadow-soft border border-white/10 card-hover"
   >
-    <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-4">
-      <Icon className="text-2xl text-brand-600" />
+    <div className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-4">
+      <Icon className="text-2xl text-brand-400" />
     </div>
-    <h4 className="text-xl font-bold text-neutral-900 mb-2">{title}</h4>
-    <p className="text-neutral-600 text-sm leading-relaxed">{description}</p>
+    <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
+    <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
   </motion.div>
 );
 
@@ -60,7 +60,7 @@ const AboutSection = () => {
   ];
 
   return (
-    <section id="about" className="py-24 bg-neutral-50">
+    <section id="about" className="py-24 bg-premium-charcoal">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -70,13 +70,11 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
-            About Us
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+          <span className="eyebrow mb-4 block">About Us</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             Who We Are
           </h2>
-          <p className="text-neutral-600 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-neutral-400 text-lg max-w-3xl mx-auto leading-relaxed">
             Global Growth Consultancy (GGC) is Bihar's premier education consultancy, dedicated to helping students 
             achieve their academic dreams. With over a decade of experience, we have guided thousands of students to 
             prestigious institutions across India.
@@ -90,10 +88,10 @@ const AboutSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-2xl p-8 shadow-soft border border-neutral-200"
+            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
           >
-            <h3 className="text-2xl font-bold text-brand-600 mb-4">Our Mission</h3>
-            <p className="text-neutral-600 leading-relaxed">
+            <h3 className="text-2xl font-bold text-brand-400 mb-4">Our Mission</h3>
+            <p className="text-neutral-400 leading-relaxed">
               To make quality education accessible to every deserving student in Bihar by providing expert guidance, 
               seamless admission support, and hassle-free education loan processing. We believe that financial constraints 
               should never be a barrier to pursuing one's dreams.
@@ -105,10 +103,10 @@ const AboutSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="bg-white rounded-2xl p-8 shadow-soft border border-neutral-200"
+            className="glass rounded-2xl p-8 shadow-soft border border-white/10"
           >
-            <h3 className="text-2xl font-bold text-brand-600 mb-4">Our Vision</h3>
-            <p className="text-neutral-600 leading-relaxed">
+            <h3 className="text-2xl font-bold text-brand-400 mb-4">Our Vision</h3>
+            <p className="text-neutral-400 leading-relaxed">
               To become India's most trusted education consultancy, known for our integrity, expertise, and 
               unwavering commitment to student success. We aim to empower the youth of Bihar to compete at the 
               national level and build successful careers.
@@ -124,7 +122,7 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="mb-16"
         >
-          <h3 className="text-3xl font-bold text-neutral-900 text-center mb-8">Our Core Values</h3>
+          <h3 className="text-3xl font-bold text-white text-center mb-8">Our Core Values</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {values.map((value, index) => (
               <ValueCard key={index} {...value} delay={index * 0.1} />
@@ -144,10 +142,10 @@ const AboutSection = () => {
             <motion.div
               key={index}
               whileHover={{ scale: 1.05 }}
-              className="bg-white rounded-2xl p-6 shadow-soft border border-neutral-200 text-center card-hover"
+              className="glass rounded-2xl p-6 shadow-soft border border-white/10 text-center card-hover"
             >
-              <h3 className="text-4xl font-bold text-brand-600 mb-2">{stat.value}</h3>
-              <p className="text-sm text-neutral-600">{stat.label}</p>
+              <h3 className="text-4xl font-bold text-brand-400 mb-2">{stat.value}</h3>
+              <p className="text-sm text-neutral-400">{stat.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -160,8 +158,8 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="mt-16"
         >
-          <div className="bg-white rounded-2xl p-8 md:p-12 shadow-soft border border-neutral-200">
-            <h3 className="text-3xl font-bold text-neutral-900 text-center mb-8">
+          <div className="glass rounded-2xl p-8 md:p-12 shadow-soft border border-white/10">
+            <h3 className="text-3xl font-bold text-white text-center mb-8">
               Why Choose GGC?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -183,10 +181,10 @@ const AboutSection = () => {
                   transition={{ delay: index * 0.05 }}
                   className="flex items-center gap-3"
                 >
-                  <div className="w-6 h-6 rounded-full bg-success-100 flex items-center justify-center flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-success-600" />
+                  <div className="w-6 h-6 rounded-full bg-success-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-success-400" />
                   </div>
-                  <span className="text-neutral-700">{item}</span>
+                  <span className="text-neutral-300">{item}</span>
                 </motion.div>
               ))}
             </div>

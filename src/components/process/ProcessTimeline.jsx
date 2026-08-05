@@ -76,7 +76,7 @@ const ProcessTimeline = () => {
   ];
 
   return (
-    <section className="py-24 bg-neutral-50">
+    <section className="py-24 bg-premium-navy">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -86,13 +86,13 @@ const ProcessTimeline = () => {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
+          <span className="text-brand-400 font-medium text-sm tracking-wider uppercase mb-4 block">
             How It Works
           </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
             Your Journey to Success
           </h2>
-          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
             A simple, transparent process designed to make your education journey smooth and stress-free
           </p>
         </motion.div>
@@ -117,11 +117,11 @@ const ProcessTimeline = () => {
           transition={{ duration: 0.8 }}
           className="text-center mt-16"
         >
-          <div className="bg-white rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-soft border border-neutral-200">
-            <h3 className="text-2xl md:text-3xl font-bold text-neutral-900 mb-4">
+          <div className="glass rounded-2xl p-8 md:p-12 max-w-3xl mx-auto shadow-soft border border-white/10">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
               Ready to Start Your Journey?
             </h3>
-            <p className="text-neutral-600 mb-8">
+            <p className="text-neutral-400 mb-8">
               Book your free consultation today and take the first step towards your dream education
             </p>
             <a

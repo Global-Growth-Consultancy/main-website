@@ -1,23 +1,65 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes, FaPhone, FaEnvelope, FaArrowRight, FaGraduationCap } from "react-icons/fa";
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
+import { FaBars, FaTimes, FaPhone, FaEnvelope, FaArrowRight } from "react-icons/fa";
+
+const MagneticButton = ({ children, className, ...props }) => {
+  const x = useSpring(useMotionValue(0), { stiffness: 300, damping: 20 });
+  const y = useSpring(useMotionValue(0), { stiffness: 300, damping: 20 });
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.a
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ x, y }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.a>
+  );
+};
+
+const navItems = [
+  { name: "Home", path: "#" },
+  { name: "About", path: "#about" },
+  { name: "Services", path: "#services" },
+  { name: "BSCC Loans", path: "#bscc" },
+  { name: "Colleges", path: "#colleges" },
+  { name: "Contact", path: "#contact" },
+];
 
 const PremiumNavbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { name: "Home", path: "#" },
-    { name: "About", path: "#about" },
-    { name: "Services", path: "#services" },
-    { name: "BSCC Loans", path: "#bscc" },
-    { name: "Colleges", path: "#colleges" },
-    { name: "Contact", path: "#contact" },
-  ];
+  const [activeSection, setActiveSection] = useState("Home");
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
+
+      // Update active section based on scroll
+      const sections = navItems.map((item) => item.path.substring(1));
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section.charAt(0).toUpperCase() + section.slice(1));
+            break;
+          }
+        }
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -29,63 +71,77 @@ const PremiumNavbar = () => {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-white/80 backdrop-blur-xl border-b border-neutral-200 shadow-subtle"
-            : "bg-white"
+            ? "bg-premium-navy/90 backdrop-blur-xl border-b border-white/10 shadow-subtle"
+            : "bg-premium-navy"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
             {/* Logo */}
-            <a href="#" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center">
-                <FaGraduationCap className="text-xl text-white" />
-              </div>
+            <a href="#" className="flex items-center gap-2 sm:gap-3">
+              <img
+                src="/GGCWHITE.png"
+                alt="Global Growth Consultancy Logo"
+                className="w-9 h-9 sm:w-11 sm:h-11 object-contain"
+              />
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-neutral-900">GGC</h1>
-                <p className="text-xs text-neutral-600">Global Growth Consultancy</p>
+                <h1 className="text-base sm:text-lg font-bold text-white">GGC</h1>
+                <p className="text-[10px] sm:text-xs text-neutral-400">Global Growth Consultancy</p>
               </div>
             </a>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-4 xl:gap-8">
               {navItems.map((item) => (
                 <a
                   key={item.name}
                   href={item.path}
-                  className="text-sm font-medium text-neutral-600 hover:text-brand-600 transition-colors duration-200"
+                  className={`text-xs sm:text-sm font-medium transition-all duration-200 relative ${
+                    activeSection === item.name 
+                      ? 'text-brand-400' 
+                      : 'text-neutral-300 hover:text-brand-400'
+                  }`}
                 >
                   {item.name}
+                  {activeSection === item.name && (
+                    <motion.div
+                      layoutId="activeNavIndicator"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-brand-400"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                    />
+                  )}
                 </a>
               ))}
             </div>
 
             {/* CTA Buttons */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-4">
               <a
                 href="tel:+917739973470"
-                className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-brand-600 transition-colors"
+                className="hidden xl:flex items-center gap-2 text-sm font-medium text-neutral-300 hover:text-brand-400 transition-colors"
               >
                 <FaPhone className="text-sm" />
                 <span>+91 7739973470</span>
               </a>
-              <a
+              <MagneticButton
                 href="#contact"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white text-sm font-medium rounded-lg hover:bg-brand-700 transition-colors duration-200"
+                className="btn-premium inline-flex items-center justify-center px-4 py-2 xl:px-5 xl:py-2.5 text-xs sm:text-sm"
               >
                 Free Consultation
                 <FaArrowRight className="text-xs" />
-              </a>
+              </MagneticButton>
             </div>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+              className="lg:hidden p-2 rounded-lg hover:bg-surface-100 transition-colors"
             >
               {isMobileMenuOpen ? (
-                <FaTimes className="text-xl text-neutral-900" />
+                <FaTimes className="text-lg sm:text-xl text-white" />
               ) : (
-                <FaBars className="text-xl text-neutral-900" />
+                <FaBars className="text-lg sm:text-xl text-white" />
               )}
             </button>
           </div>
@@ -102,24 +158,26 @@ const PremiumNavbar = () => {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-50 lg:hidden"
           >
-            <div className="absolute inset-0 bg-white" />
-            <div className="relative h-full flex flex-col p-6">
+            <div className="absolute inset-0 bg-premium-navy" />
+            <div className="relative h-full flex flex-col p-4 sm:p-6">
               {/* Mobile Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center">
-                    <FaGraduationCap className="text-xl text-white" />
-                  </div>
+              <div className="flex items-center justify-between mb-6 sm:mb-8">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <img
+                    src="/GGCWHITE.png"
+                    alt="Global Growth Consultancy Logo"
+                    className="w-9 h-9 sm:w-11 sm:h-11 object-contain"
+                  />
                   <div>
-                    <h1 className="text-lg font-bold text-neutral-900">GGC</h1>
-                    <p className="text-xs text-neutral-600">Global Growth Consultancy</p>
+                    <h1 className="text-base sm:text-lg font-bold text-white">GGC</h1>
+                    <p className="text-[10px] sm:text-xs text-neutral-400">Global Growth Consultancy</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-neutral-100 transition-colors"
+                  className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
                 >
-                  <FaTimes className="text-xl text-neutral-900" />
+                  <FaTimes className="text-lg sm:text-xl text-white" />
                 </button>
               </div>
 
@@ -133,7 +191,7 @@ const PremiumNavbar = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="px-4 py-3 rounded-lg text-neutral-900 hover:bg-neutral-100 transition-colors"
+                    className="px-4 py-3 rounded-lg text-white hover:bg-surface-100 transition-colors text-sm sm:text-base"
                   >
                     {item.name}
                   </motion.a>
@@ -141,15 +199,15 @@ const PremiumNavbar = () => {
               </div>
 
               {/* Mobile CTA */}
-              <div className="mt-8 space-y-4">
+              <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
                 <a
                   href="#contact"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full px-5 py-3 bg-brand-600 text-white text-center font-medium rounded-lg hover:bg-brand-700 transition-colors"
+                  className="block w-full px-4 py-3 sm:px-5 sm:py-3.5 bg-gradient-to-r from-brand-600 to-brand-500 text-white text-center font-semibold rounded-xl shadow-lg shadow-brand-500/25 text-sm sm:text-base"
                 >
                   Free Consultation
                 </a>
-                <div className="flex items-center justify-center gap-6 text-sm text-neutral-600">
+                <div className="flex items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-neutral-400">
                   <a href="tel:+917739973470" className="flex items-center gap-2 hover:text-brand-600 transition-colors">
                     <FaPhone />
                     <span>Call</span>

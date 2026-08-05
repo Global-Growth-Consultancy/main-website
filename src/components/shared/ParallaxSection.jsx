@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import { useScroll, useTransform } from "framer-motion";
 
 const ParallaxSection = ({ children, speed = 0.5, className = "" }) => {

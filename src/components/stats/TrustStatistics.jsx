@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { FaUsers, FaUniversity, FaAward, FaHandshake, FaCheckCircle, FaStar } from "react-icons/fa";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { FaUsers, FaCheckCircle, FaAward, FaHandshake, FaUniversity } from "react-icons/fa";
 
 const StatCard = ({ icon: Icon, value, label, description, delay }) => {
   const [count, setCount] = useState(0);
@@ -37,18 +37,23 @@ const StatCard = ({ icon: Icon, value, label, description, delay }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      className="bg-white rounded-2xl p-8 shadow-soft border border-neutral-200 card-hover"
+      whileHover={{ y: -8, scale: 1.05 }}
+      className="glass rounded-2xl p-8 shadow-soft border border-white/10 card-hover group cursor-pointer"
     >
-      <div className="w-14 h-14 rounded-xl bg-brand-50 flex items-center justify-center mb-6">
-        <Icon className="text-2xl text-brand-600" />
-      </div>
-      <h3 className="text-4xl md:text-5xl font-bold text-neutral-900 mb-2">
+      <motion.div 
+        className="w-14 h-14 rounded-xl bg-brand-500/20 flex items-center justify-center mb-6 group-hover:bg-brand-500/30 transition-colors duration-300"
+        whileHover={{ rotate: 360 }}
+        transition={{ duration: 0.6 }}
+      >
+        <Icon className="text-2xl text-brand-400 group-hover:text-brand-300 transition-colors duration-300" />
+      </motion.div>
+      <h3 className="text-4xl md:text-5xl font-bold text-white mb-2 group-hover:text-brand-400 transition-colors duration-300">
         {typeof value === 'string' && value.includes('+') ? `${count}+` : count}
         {typeof value === 'string' && value.includes('%') ? '%' : ''}
         {typeof value === 'string' && value.includes('Cr') ? 'Cr+' : ''}
       </h3>
-      <p className="text-lg font-semibold text-neutral-900 mb-2">{label}</p>
-      <p className="text-neutral-600 text-sm leading-relaxed">{description}</p>
+      <p className="text-lg font-semibold text-white mb-2 group-hover:text-brand-300 transition-colors duration-300">{label}</p>
+      <p className="text-neutral-400 text-sm leading-relaxed group-hover:text-neutral-300 transition-colors duration-300">{description}</p>
     </motion.div>
   );
 };
@@ -58,14 +63,18 @@ const TrustBadge = ({ icon: Icon, text }) => (
     initial={{ opacity: 0, scale: 0.8 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
-    className="flex items-center gap-3 px-6 py-3 rounded-full bg-brand-50 border border-brand-200"
+    className="flex items-center gap-3 px-6 py-3 rounded-full bg-brand-500/20 border border-brand-500/30"
   >
-    <Icon className="text-brand-600" />
-    <span className="text-sm font-medium text-neutral-700">{text}</span>
+    <Icon className="text-brand-400" />
+    <span className="text-sm font-medium text-neutral-300">{text}</span>
   </motion.div>
 );
 
 const TrustStatistics = () => {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 300], [0, -50]);
+  const y2 = useTransform(scrollY, [0, 300], [0, 50]);
+  
   const stats = [
     {
       icon: FaUsers,
@@ -94,36 +103,34 @@ const TrustStatistics = () => {
   ];
 
   const badges = [
-    { icon: FaCheckCircle, text: "BSCC Certified Partner" },
-    { icon: FaStar, text: "4.9/5 Google Rating" },
-    { icon: FaAward, text: "Best Education Consultancy 2024" },
-    { icon: FaCheckCircle, text: "ISO Certified" },
+    { icon: FaUsers, text: "5000+ Students Guided" },
+    { icon: FaUniversity, text: "200+ Partner Institutions" },
+    { icon: FaCheckCircle, text: "95% Admission Success Rate" },
+    { icon: FaHandshake, text: "BSCC Scheme Specialists" },
   ];
 
   return (
-    <section className="py-24 bg-neutral-50">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <span className="text-brand-600 font-medium text-sm tracking-wider uppercase mb-4 block">
-            Our Impact
-          </span>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-neutral-900 mb-6">
+          <span className="eyebrow mb-4 block">Our Impact</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-display font-bold text-white mb-4 sm:mb-6 tracking-tight">
             Numbers That Speak
           </h2>
-          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             Our track record demonstrates our commitment to student success and trust building
           </p>
         </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <motion.div style={{ y: y1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
           {stats.map((stat, index) => (
             <StatCard
               key={index}
@@ -131,16 +138,10 @@ const TrustStatistics = () => {
               delay={index * 0.1}
             />
           ))}
-        </div>
+        </motion.div>
 
         {/* Trust Badges */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-4"
-        >
+        <motion.div style={{ y: y2 }} className="flex flex-wrap justify-center gap-2 sm:gap-4">
           {badges.map((badge, index) => (
             <TrustBadge key={index} {...badge} />
           ))}

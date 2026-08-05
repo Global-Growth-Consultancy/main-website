@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, useScroll } from "framer-motion";
+import { useScroll } from "framer-motion";
 
 const Work = () => {
   const [images, setImages] = useState([

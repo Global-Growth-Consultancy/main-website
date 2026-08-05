@@ -1,5 +1,5 @@
 import React from "react";
-import { FaFacebookF, FaInstagram, FaEnvelope, FaWhatsapp } from "react-icons/fa";
+import { FaInstagram, FaEnvelope, FaWhatsapp } from "react-icons/fa";
 
 const About = () => {
   return (

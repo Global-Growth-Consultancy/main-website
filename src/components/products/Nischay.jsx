@@ -1,5 +1,5 @@
 import React from "react";
-import { FaGraduationCap, FaUniversity, FaBook, FaCheckCircle, FaRupeeSign, FaWhatsapp, FaEnvelope, FaInstagram, FaMapMarkerAlt } from "react-icons/fa";
+import { FaUniversity, FaBook, FaCheckCircle, FaRupeeSign, FaWhatsapp, FaEnvelope, FaInstagram } from "react-icons/fa";
 
 const SevenNischay = () => {
   return (

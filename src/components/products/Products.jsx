@@ -9,6 +9,8 @@ import Programs from "../../../public/videos/Programs.mp4";
 import Collegelist from "../../../public/videos/Collegelist.mp4";
 import Nischay from "../../../public/videos/7nischay.mp4";
 
+const videos = [About, Programs, Collegelist, Nischay];
+
 const Products = () => {
     const products = [
         { title: "About-Us", description: "Global Growth Consultancy guides students to top global universities with expert counseling, personalized support, and end-to-end admission assistance, helping them achieve their academic and career goals.", link: "/about-us" },
@@ -17,7 +19,6 @@ const Products = () => {
         { title: "7Nischay", description: "7 Nischay is a key initiative by the Bihar Government focused on youth empowerment, education, employment, and infrastructure development to enhance the state's growth and quality of life.", link: "/7Nischay" },
     ];
 
-    const videos = [About, Programs, Collegelist, Nischay];
     const [pos, setPos] = useState(0);
     const [currentVideo, setCurrentVideo] = useState(About); // Default to first video
 

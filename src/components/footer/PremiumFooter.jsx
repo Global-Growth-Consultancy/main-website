@@ -1,34 +1,78 @@
 import React from "react";
-import { FaFacebookF, FaTwitter, FaInstagram, FaLinkedinIn, FaYoutube, FaArrowUp, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { motion } from "framer-motion";
+import {
+  FaInstagram,
+  FaArrowUp,
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaWhatsapp,
+} from "react-icons/fa";
 
 const PremiumFooter = () => {
+  const year = new Date().getFullYear();
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const socials = [
+    { icon: FaInstagram, label: "Instagram", href: "https://www.instagram.com/global_growth_consultancy" },
+    { icon: FaWhatsapp, label: "WhatsApp", href: "https://wa.me/917739973470" },
+  ];
+
+  const quickLinks = [
+    { label: "Home", href: "#" },
+    { label: "About", href: "#about" },
+    { label: "Services", href: "#services" },
+    { label: "BSCC Loans", href: "#bscc" },
+    { label: "Colleges", href: "#colleges" },
+    { label: "FAQ", href: "#faq" },
+    { label: "Contact", href: "#contact" },
+  ];
+
+  const services = [
+    "Career Counseling",
+    "College Admission",
+    "BSCC Loan Assistance",
+    "Document Preparation",
+    "Scholarship Support",
+    "Entrance Exam Support",
+  ];
+
   return (
-    <footer className="bg-neutral-950 text-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+    <footer className="bg-premium-darker text-white relative overflow-hidden">
+      {/* Top glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[min(80%,720px)] h-px bg-gradient-to-r from-transparent via-brand-500/60 to-transparent" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 pt-16 pb-8">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-          {/* Company Info */}
-          <div className="lg:col-span-1">
-            <h3 className="text-xl font-bold text-white mb-4">GGC</h3>
+          {/* Brand */}
+          <div>
+            <a href="#" className="flex items-center gap-3 mb-5">
+              <img
+                src="/GGCWHITE.png"
+                alt="Global Growth Consultancy Logo"
+                className="w-11 h-11 object-contain"
+              />
+              <div>
+                <p className="text-lg font-bold text-white leading-none">GGC</p>
+                <p className="text-[11px] text-neutral-400 mt-1">Global Growth Consultancy</p>
+              </div>
+            </a>
             <p className="text-neutral-400 mb-6 leading-relaxed text-sm">
-              Global Growth Consultancy - Bihar's premier education consultancy helping students achieve their academic dreams through expert guidance and seamless admission support.
+              Bihar&apos;s premier education consultancy — guiding students to top colleges across India with
+              guaranteed BSCC loan assistance.
             </p>
-            <div className="flex gap-3">
-              {[
-                { icon: FaFacebookF, color: "hover:bg-blue-600" },
-                { icon: FaTwitter, color: "hover:bg-sky-500" },
-                { icon: FaInstagram, color: "hover:bg-pink-600" },
-                { icon: FaLinkedinIn, color: "hover:bg-blue-700" },
-                { icon: FaYoutube, color: "hover:bg-red-600" },
-              ].map((social, index) => (
+            <div className="flex gap-2.5">
+              {socials.map((social, index) => (
                 <a
                   key={index}
-                  href="#"
-                  className={`w-10 h-10 rounded-lg bg-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white transition-all duration-200 ${social.color}`}
+                  href={social.href}
+                  aria-label={social.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:border-brand-500/50 hover:bg-brand-500/15 hover:-translate-y-1 transition-all duration-300"
                 >
                   <social.icon className="text-sm" />
                 </a>
@@ -38,15 +82,16 @@ const PremiumFooter = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Quick Links</h4>
-            <ul className="space-y-3">
-              {["Home", "About", "Services", "BSCC Loans", "Colleges", "Contact"].map((link) => (
-                <li key={link}>
+            <h4 className="font-mono text-xs text-neutral-300 mb-5 uppercase tracking-[0.2em]">Quick Links</h4>
+            <ul className="space-y-2.5">
+              {quickLinks.map((link) => (
+                <li key={link.label}>
                   <a
-                    href={`#${link.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="text-neutral-400 hover:text-brand-400 transition-colors duration-200 text-sm"
+                    href={link.href}
+                    className="text-neutral-400 hover:text-brand-300 transition-colors duration-200 text-sm group inline-flex items-center gap-2"
                   >
-                    {link}
+                    <span className="w-1 h-1 rounded-full bg-brand-500/50 group-hover:bg-brand-400 transition-colors" />
+                    {link.label}
                   </a>
                 </li>
               ))}
@@ -55,21 +100,15 @@ const PremiumFooter = () => {
 
           {/* Services */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Services</h4>
-            <ul className="space-y-3">
-              {[
-                "Career Counseling",
-                "College Admission",
-                "BSCC Loan Assistance",
-                "Document Preparation",
-                "Visa Guidance",
-                "Scholarship Support"
-              ].map((service) => (
+            <h4 className="font-mono text-xs text-neutral-300 mb-5 uppercase tracking-[0.2em]">Services</h4>
+            <ul className="space-y-2.5">
+              {services.map((service) => (
                 <li key={service}>
                   <a
                     href="#services"
-                    className="text-neutral-400 hover:text-brand-400 transition-colors duration-200 text-sm"
+                    className="text-neutral-400 hover:text-brand-300 transition-colors duration-200 text-sm group inline-flex items-center gap-2"
                   >
+                    <span className="w-1 h-1 rounded-full bg-brand-500/50 group-hover:bg-brand-400 transition-colors" />
                     {service}
                   </a>
                 </li>
@@ -77,30 +116,41 @@ const PremiumFooter = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Contact</h4>
+            <h4 className="font-mono text-xs text-neutral-300 mb-5 uppercase tracking-[0.2em]">Contact</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <FaPhone className="text-brand-400 mt-1 text-sm" />
-                <div>
-                  <a href="tel:+917739973470" className="text-neutral-400 hover:text-brand-400 transition-colors text-sm">
-                    +91 7739973470
+                <div className="w-8 h-8 rounded-lg bg-brand-500/15 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                  <FaPhone className="text-brand-400 text-xs" />
+                </div>
+                <div className="pt-1">
+                  <a href="tel:+917739973470" className="text-neutral-300 hover:text-brand-300 transition-colors text-sm">
+                    +91 77399 73470
                   </a>
+                  <p className="text-[11px] text-neutral-400 mt-0.5">Mon–Sat, 9AM–7PM</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <FaEnvelope className="text-brand-400 mt-1 text-sm" />
-                <div>
-                  <a href="mailto:globalgrowthconsultancy9@gmail.com" className="text-neutral-400 hover:text-brand-400 transition-colors text-sm">
+                <div className="w-8 h-8 rounded-lg bg-brand-500/15 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                  <FaEnvelope className="text-brand-400 text-xs" />
+                </div>
+                <div className="pt-1">
+                  <a
+                    href="mailto:globalgrowthconsultancy9@gmail.com"
+                    className="text-neutral-300 hover:text-brand-300 transition-colors text-sm break-all"
+                  >
                     globalgrowthconsultancy9@gmail.com
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <FaMapMarkerAlt className="text-brand-400 mt-1 text-sm" />
-                <div>
-                  <span className="text-neutral-400 text-sm">Bihar, India</span>
+                <div className="w-8 h-8 rounded-lg bg-brand-500/15 border border-brand-500/20 flex items-center justify-center flex-shrink-0">
+                  <FaMapMarkerAlt className="text-brand-400 text-xs" />
+                </div>
+                <div className="pt-1">
+                  <span className="text-neutral-300 text-sm">Patna, Bihar, India</span>
+                  <p className="text-[11px] text-neutral-400 mt-0.5">Serving all 38 districts</p>
                 </div>
               </li>
             </ul>
@@ -108,24 +158,28 @@ const PremiumFooter = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-neutral-500 text-sm">
-            &copy; 2024 Global Growth Consultancy. All rights reserved.
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-neutral-400 text-sm">
+            &copy; {year} Global Growth Consultancy. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm">
-            <a href="#" className="text-neutral-500 hover:text-brand-400 transition-colors">Privacy Policy</a>
-            <a href="#" className="text-neutral-500 hover:text-brand-400 transition-colors">Terms of Service</a>
+          <div className="flex items-center gap-2 text-xs">
+            <a href="#contact" className="text-neutral-400 hover:text-brand-300 transition-colors">Free Consultation</a>
+            <span className="text-neutral-600">•</span>
+            <a href="tel:+917739973470" className="text-neutral-400 hover:text-brand-300 transition-colors">+91 77399 73470</a>
           </div>
         </div>
       </div>
 
       {/* Scroll to Top Button */}
-      <button
+      <motion.button
         onClick={scrollToTop}
-        className="fixed bottom-8 right-8 w-12 h-12 rounded-lg bg-brand-600 text-white flex items-center justify-center hover:bg-brand-700 transition-colors duration-200 shadow-lg z-50"
+        whileHover={{ y: -4 }}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-8 right-8 w-12 h-12 rounded-xl bg-gradient-to-br from-brand-600 to-brand-400 text-white flex items-center justify-center shadow-lg shadow-brand-500/40 border border-white/10 z-50"
+        aria-label="Scroll to top"
       >
         <FaArrowUp />
-      </button>
+      </motion.button>
     </footer>
   );
 };

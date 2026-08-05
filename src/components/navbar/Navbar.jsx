@@ -3,8 +3,9 @@ import { Link, useLocation } from "react-router-dom"; // Import Link and useLoca
 import { FaBars, FaTimes } from "react-icons/fa"; // Icons for mobile menu toggle
 import EnquiryForm from "../shared/EnquiryForm";
 
+const navItems = ["Home", "About Us", "Courses", "Colleges", "", "7Nischay"];
+
 const Navbar = () => {
-  const navItems = ["Home", "About Us", "Courses", "Colleges", "", "7Nischay"];
   const [activePage, setActivePage] = useState("Home"); // Track active page
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Toggle mobile menu
   const [isFormOpen, setIsFormOpen] = useState(false); // State for EnquiryForm modal
