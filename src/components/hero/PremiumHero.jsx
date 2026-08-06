@@ -118,6 +118,8 @@ const PremiumHero = () => {
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 400], [1, 0]);
   const yMove = useTransform(scrollY, [0, 400], [0, 60]);
+  const scale = useTransform(scrollY, [0, 420], [1, 0.96]);
+  const blur = useTransform(scrollY, [0, 420], ["blur(0px)", "blur(2px)"]);
 
   // Parallax pointer for the floating stat cards
   const px = useMotionValue(0);
@@ -182,7 +184,7 @@ const PremiumHero = () => {
       />
 
       {/* ---------------- Content ---------------- */}
-      <motion.div style={{ opacity }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
+      <motion.div style={{ opacity, scale, filter: blur }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* ---------- Left: Copy ---------- */}
           <div className="lg:col-span-7">

@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  FaUniversity, FaHandHoldingUsd, FaGlobeAsia, FaPassport, FaGraduationCap,
+  FaUniversity, FaHandHoldingUsd, FaGlobeAsia, FaGraduationCap,
   FaFolderOpen, FaStamp, FaTrophy,
 } from "react-icons/fa";
 import NexusField from "./NexusField";
@@ -22,12 +22,15 @@ const Student3D = lazy(() => import("./Student3D"));
 // Each chapter drives:
 //  • a live hologram speech line (typewriter)
 //  • a signature stage effect (flying docs / APPROVED stamp / ₹ loan coin / rays)
-//  • a character gesture + lipsync + micro-expression (rendered by Student3D)
+//  • a chapter-reactive 3D scene (rendered by Student3D)
 //  • a scene accent colour (HUD dots, badge, glow)
 //
-// The character itself is a premium stylised 3D graduate (Student3D,
-// react-three-fiber) — real 3D, correct proportions, Pixar-level style.
-// Every tween is transform/opacity-only → buttery smooth, 60 FPS.
+// The hero visual is a premium abstract 3D scene (Student3D,
+// react-three-fiber + @react-three/postprocessing): floating grad cap,
+// diploma, globe, loan coin and document, with a cinematic chapter accent
+// light, bloom, depth-of-field and vignette (Stripe/Linear style — §10
+// fallback). DOM tweens are transform/opacity-only → buttery 60 FPS; the
+// WebGL canvas idles (frameloop "never") when scrolled out of view.
 // ------------------------------------------------------------------
 
 const STORY = [
@@ -82,7 +85,6 @@ const STORY = [
 ];
 
 const SCENE_SECONDS = 5.6;
-const TALK_MS = 3400;
 
 const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
@@ -90,8 +92,6 @@ const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 const ORBITS = [
   { icon: FaUniversity, label: "200+ Colleges", pos: "right-2 top-4", accent: "#A78BFA" },
   { icon: FaHandHoldingUsd, label: "BSCC Loan", pos: "right-2 top-[42%]", accent: "#34D399" },
-  { icon: FaGraduationCap, label: "Grad Day", pos: "right-2 bottom-12", accent: "#F472B6" },
-  { icon: FaPassport, label: "Visa Ready", pos: "left-3 top-[21%]", accent: "#FBBF24" },
   { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-2 bottom-12", accent: "#38BDF8" },
 ];
 
@@ -132,9 +132,11 @@ const StudentPerformer = () => {
   const orbitRefs = useRef([]);
   const orbitFloatRefs = useRef([]);
   const docRefs = useRef([]);
+  const flashRef = useRef(null);
   const hoverRef = useRef(false);
   const reducedRef = useRef(false);
   const enteredRef = useRef(false);
+  const pauseUntilRef = useRef(0);
 
   const [scene, setScene] = useState(0);
   const [typed, setTyped] = useState("");
@@ -143,6 +145,7 @@ const StudentPerformer = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [clicks, setClicks] = useState(0);
   const [reduced, setReduced] = useState(false);
+  const [onScreen, setOnScreen] = useState(true);
 
   const { icon: SceneIcon, accent } = STORY[scene];
 
@@ -151,6 +154,18 @@ const StudentPerformer = () => {
     const m = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     reducedRef.current = m;
     setReduced(m);
+  }, []);
+
+  // ---- frameloop demand: idle the 3D canvas when scrolled out of view ----
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => setOnScreen(entry.isIntersecting),
+      { rootMargin: "120px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   // ---- confetti burst ----
@@ -185,7 +200,7 @@ const StudentPerformer = () => {
   // ---- timed story rotation + countdown ----
   useEffect(() => {
     const id = setInterval(() => {
-      if (hoverRef.current) return;
+      if (hoverRef.current || Date.now() < pauseUntilRef.current) return;
       setCountdown((c) => {
         const next = +(c - 0.1).toFixed(1);
         if (next <= 0) {
@@ -280,6 +295,20 @@ const StudentPerformer = () => {
     setClicks((c) => c + 1);
   };
 
+  // ---- chapter navigation (dots / keyboard) with a 10s rotation hold ----
+  const jumpToScene = (i) => {
+    pauseUntilRef.current = Date.now() + 10000;
+    setScene(i);
+    setCountdown(SCENE_SECONDS);
+  };
+
+  const onStageKeyDown = (e) => {
+    if (e.key === "ArrowRight") jumpToScene((scene + 1) % STORY.length);
+    else if (e.key === "ArrowLeft") jumpToScene((scene - 1 + STORY.length) % STORY.length);
+    else return;
+    e.preventDefault();
+  };
+
   // ---- idle life: floating chrome + scroll lean (character life lives in Student3D) ----
   useEffect(() => {
     const root = wrapRef.current;
@@ -367,6 +396,11 @@ const StudentPerformer = () => {
 
       if (reducedRef.current) return;
 
+      // chapter transition glow flash
+      if (flashRef.current) {
+        gsap.fromTo(flashRef.current, { opacity: 0.9 }, { opacity: 0, duration: 1, ease: "power2.out" });
+      }
+
       if (scene === 0) {
         docs.forEach((el, i) => {
           gsap.timeline({ repeat: 1, repeatDelay: 0.6, delay: i * 0.3 })
@@ -424,6 +458,12 @@ const StudentPerformer = () => {
       }
     }, 26);
 
+    if (reducedRef.current) {
+      clearInterval(typeId);
+      setTyped(full);
+      setDone(true);
+    }
+
     if (reducedRef.current || !svgWrapRef.current) {
       return () => clearInterval(typeId);
     }
@@ -446,7 +486,7 @@ const StudentPerformer = () => {
         { width: 0, height: 0, opacity: 0.5 },
         { width: 380, height: 380, opacity: 0, duration: 1.1, ease: "power2.out" }
       );
-      const burst = scene === 0 ? 10 : scene === 4 ? 18 : scene === 5 ? 24 : 8;
+      const burst = scene === 4 ? 18 : scene === 5 ? 24 : 0;
       spawnConfetti(burst);
 
       // ---- life pop ----
@@ -469,7 +509,7 @@ const StudentPerformer = () => {
       onMouseEnter={() => { hoverRef.current = true; setIsHovered(true); }}
       onMouseLeave={() => { hoverRef.current = false; setIsHovered(false); }}
       onClick={handleClick}
-      className="group relative rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/50 overflow-hidden cursor-pointer"
+      className="group relative rounded-3xl border border-white/[0.12] bg-gradient-to-b from-premium-charcoal/70 to-premium-dark/80 backdrop-blur-md shadow-2xl shadow-black/60 overflow-hidden cursor-pointer"
     >
       {/* Top hairline */}
       <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent z-30 pointer-events-none" />
@@ -505,12 +545,18 @@ const StudentPerformer = () => {
             </AnimatePresence>
           </div>
         </div>
-        {/* scene dots */}
-        <div className="flex items-center gap-1.5 mt-2">
+        {/* scene dots (clickable chapter jump + 10s rotation hold) */}
+        <div className="flex items-center gap-1.5 mt-2" role="tablist" aria-label="Story chapters">
           {STORY.map((s, i) => (
-            <div
+            <button
               key={i}
-              className="h-1 rounded-full transition-all duration-500"
+              type="button"
+              role="tab"
+              aria-selected={i === scene}
+              aria-label={`${s.label}: ${s.status}`}
+              tabIndex={i === scene ? 0 : -1}
+              onClick={() => jumpToScene(i)}
+              className="h-1 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
               style={{
                 background: i === scene ? s.accent : "rgba(255,255,255,0.08)",
                 width: i === scene ? undefined : "0.5rem",
@@ -523,15 +569,23 @@ const StudentPerformer = () => {
       </div>
 
       {/* ---- Stage: cinematic marketing world ---- */}
-      <div ref={stageRef} className="relative h-[300px] sm:h-[390px] md:h-[450px]">
-        {/* particle field */}
-        <div className="absolute inset-0 opacity-25 pointer-events-none">
+      <div
+        ref={stageRef}
+        tabIndex={0}
+        role="region"
+        aria-label="Hero story stage — press arrow keys to switch chapters"
+        onFocus={() => { pauseUntilRef.current = Date.now() + 10000; }}
+        onKeyDown={onStageKeyDown}
+        className="relative h-[300px] sm:h-[390px] md:h-[450px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 rounded-2xl"
+      >
+        {/* particle field — subdued so the abstract 3D reads as hero focal point */}
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
           <NexusField />
         </div>
 
         {/* education ecosystem network */}
         <svg
-          className="absolute inset-0 w-full h-full opacity-25 pointer-events-none z-0"
+          className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none z-0"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
           aria-hidden="true"
@@ -563,13 +617,21 @@ const StudentPerformer = () => {
           }}
         />
 
-        {/* back glow */}
+        {/* chapter-reactive back glow */}
         <div
           ref={backGlowRef}
-          className="absolute inset-x-0 mx-auto bottom-0 w-[78%] h-[62%] pointer-events-none z-0"
+          className="absolute inset-x-0 mx-auto bottom-0 w-[85%] h-[68%] pointer-events-none z-0 transition-[background] duration-700"
           style={{
-            background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.20), rgba(167,139,250,0.09) 45%, transparent 72%)",
-            filter: "blur(8px)",
+            background: `radial-gradient(ellipse at center bottom, ${accent}33, rgba(167,139,250,0.06) 42%, transparent 70%)`,
+            filter: "blur(10px)",
+          }}
+        />
+
+        {/* cinematic vignette — draws eye to portrait character */}
+        <div
+          className="absolute inset-0 pointer-events-none z-[6]"
+          style={{
+            background: "radial-gradient(ellipse 72% 68% at 50% 58%, transparent 35%, rgba(6,10,20,0.55) 100%)",
           }}
         />
 
@@ -592,11 +654,12 @@ const StudentPerformer = () => {
           >
             <div ref={(el) => { orbitRefs.current[i] = el; }}>
               <div
-                className="glass flex items-center gap-1.5 rounded-xl border border-white/10 px-2 py-1.5"
+                className="glass flex items-center gap-1.5 rounded-xl border border-white/10 px-2 py-1.5 opacity-90"
                 style={{
-                  borderColor: `${o.accent}33`,
-                  background: "rgba(8,12,22,0.5)",
-                  boxShadow: `0 8px 24px -12px ${o.accent}44`,
+                  borderColor: `${o.accent}28`,
+                  background: "rgba(8,12,22,0.65)",
+                  boxShadow: `0 6px 20px -10px ${o.accent}33`,
+                  backdropFilter: "blur(8px)",
                 }}
               >
                 <o.icon className="text-[13px]" style={{ color: o.accent }} />
@@ -685,27 +748,32 @@ const StudentPerformer = () => {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-brand-400/40 opacity-0 pointer-events-none"
         />
 
-        {/* character aura */}
+        {/* chapter transition glow flash (GSAP pulse) */}
         <div
-          ref={auraRef}
-          className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[70%] h-[55%] pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.18), transparent 68%)" }}
+          ref={flashRef}
+          className="absolute inset-0 pointer-events-none z-[4] opacity-0"
+          style={{ background: "radial-gradient(circle at 50% 55%, rgba(255,255,255,0.14), transparent 55%)" }}
         />
 
-        {/* character — premium 3D graduate */}
+        {/* character aura — synced to chapter accent */}
+        <div
+          ref={auraRef}
+          className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[75%] h-[58%] pointer-events-none z-[4] transition-[background] duration-700"
+          style={{ background: `radial-gradient(ellipse at center bottom, ${accent}28, transparent 68%)` }}
+        />
+
+        {/* character — premium 3D portrait graduate */}
         <div
           ref={svgWrapRef}
-          className="absolute inset-0 flex items-end justify-center pb-1 z-10"
+          className="absolute inset-0 flex items-end justify-center pb-0 z-10"
         >
           <Suspense fallback={null}>
             <Student3D
               isHovered={isHovered}
               scene={scene}
-              gesture={STORY[scene].gesture}
-              speech={STORY[scene].speech}
               clicks={clicks}
-              talkMs={TALK_MS}
               reducedMotion={reduced}
+              visible={onScreen}
             />
           </Suspense>
         </div>
