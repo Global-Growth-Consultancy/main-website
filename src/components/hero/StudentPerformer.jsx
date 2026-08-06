@@ -2,21 +2,19 @@ import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  FaPlay, FaVolumeUp, FaClosedCaptioning, FaExpand, FaMicrophone,
-} from "react-icons/fa";
+import { FaQuoteLeft } from "react-icons/fa";
 import NexusField from "./NexusField";
 
 gsap.registerPlugin(ScrollTrigger);
 
 // ------------------------------------------------------------------
-// StudentPerformer — a fully code-built "video".
+// StudentPerformer — a fully code-built living character.
 //
-// • SVG student mascot performs a scroll-scrubbed story (waves, talks
-//   with lipsync, gestures) while the fake player UI (timer, progress,
-//   LIVE) updates live — so visitors believe it is a real video.
-// • Always-on idle life: blinking eyes + breathing body, so the
-//   character feels alive even when the page is not being scrolled.
+// • SVG student mascot ("Aarav") performs a scroll-scrubbed story:
+//   waves, talks with lipsync, gestures, points — as the user scrolls
+//   through the hero.
+// • Always-on idle life: blinking, breathing, and a gentle head sway,
+//   plus eye movement while talking — so he feels real, not stiff.
 // • A timed quote bar on top cycles 5 captions with a countdown timer
 //   and an advancing progress bar; each quote auto-rotates.
 // ------------------------------------------------------------------
@@ -30,7 +28,6 @@ const QUOTES = [
 ];
 
 const QUOTE_SECONDS = 4.8;
-const TOTAL_SECONDS = 45;
 
 const formatTime = (s) => {
   const m = Math.floor(s / 60);
@@ -43,6 +40,7 @@ const StudentPerformer = () => {
   const figureRef = useRef(null);
   const breatheRef = useRef(null);
   const headRef = useRef(null);
+  const headIdleRef = useRef(null);
   const bodyRef = useRef(null);
   const capRef = useRef(null);
   const tasselRef = useRef(null);
@@ -50,9 +48,6 @@ const StudentPerformer = () => {
   const armRRef = useRef(null);
   const mouthRef = useRef(null);
   const eyesRef = useRef(null);
-  const fillRef = useRef(null);
-  const playheadRef = useRef(null);
-  const timerRef = useRef(null);
   const hoverRef = useRef(false);
 
   const [qIndex, setQIndex] = useState(0);
@@ -114,7 +109,8 @@ const StudentPerformer = () => {
 
     const ctx = gsap.context(() => {
       setOrigin(headRef.current, 100, 148);
-      setOrigin(bodyRef.current, 100, 210);
+      setOrigin(headIdleRef.current, 100, 146);
+      setOrigin(bodyRef.current, 100, 190);
       setOrigin(tasselRef.current, 120, 74);
       setOrigin(armLRef.current, 74, 152);
       setOrigin(armRRef.current, 126, 152);
@@ -122,22 +118,23 @@ const StudentPerformer = () => {
       setOrigin(eyesRef.current, 100, 109);
       setOrigin(breatheRef.current, 100, 200);
 
-      if (reduced) {
-        if (fillRef.current) fillRef.current.style.transform = "scaleX(0)";
-        if (timerRef.current) timerRef.current.textContent = formatTime(0);
-        return;
-      }
+      if (reduced) return;
 
-      // ---- idle life: blinking + breathing ----
+      // ---- idle life: blinking + breathing + head sway ----
       const blink = gsap.timeline({ repeat: -1, repeatDelay: 2.4 });
       blink
         .to(eyesRef.current, { scaleY: 0.08, duration: 0.07, ease: "power2.in" })
         .to(eyesRef.current, { scaleY: 1, duration: 0.1, ease: "power2.out" });
 
-      const breathe = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 0 });
+      const breathe = gsap.timeline({ repeat: -1, yoyo: true });
       breathe
         .to(breatheRef.current, { scaleY: 1.014, scaleX: 1.004, duration: 2.1, ease: "sine.inOut" })
         .to(breatheRef.current, { scaleY: 1, scaleX: 1, duration: 2.3, ease: "sine.inOut" });
+
+      const sway = gsap.timeline({ repeat: -1, yoyo: true });
+      sway
+        .to(headIdleRef.current, { rotation: 2, duration: 2.2, ease: "sine.inOut" })
+        .to(headIdleRef.current, { rotation: -2, duration: 2.4, ease: "sine.inOut" });
 
       const tl = gsap.timeline({ defaults: { ease: "none" }, paused: true });
 
@@ -156,6 +153,15 @@ const StudentPerformer = () => {
         .to(headRef.current, { rotation: 0, duration: 0.06 }, 0.78)
         .to(headRef.current, { rotation: 3, duration: 0.1 }, 0.84)
         .to(headRef.current, { rotation: -2, duration: 0.1 }, 0.94);
+
+      // --- eyes look around while talking ---
+      tl.to(eyesRef.current, { x: 1.5, duration: 0.12 }, 0.16)
+        .to(eyesRef.current, { x: -1, duration: 0.12 }, 0.3)
+        .to(eyesRef.current, { x: 2, duration: 0.12 }, 0.42)
+        .to(eyesRef.current, { x: 0, duration: 0.12 }, 0.56)
+        .to(eyesRef.current, { x: -1.5, duration: 0.12 }, 0.7)
+        .to(eyesRef.current, { x: 2.5, duration: 0.12 }, 0.86)
+        .to(eyesRef.current, { x: 0, duration: 0.1 }, 0.98);
 
       // --- right arm (wave → gesture → point) ---
       tl.to(armRRef.current, { rotation: 28, duration: 0.01 }, 0.01)
@@ -224,19 +230,15 @@ const StudentPerformer = () => {
           .to(mouthRef.current, { scaleY: 0.25, duration: 0.012 }, t + 0.012);
       }
 
-      // --- scrubbed fake player ---
+      // --- scroll scrub drives the whole performance ---
       ScrollTrigger.create({
         trigger: triggerEl,
         start: "top top",
         end: "bottom top",
         scrub: 0.5,
         onUpdate: (self) => {
-          const p = self.progress;
-          tl.progress(p);
-          if (fillRef.current) fillRef.current.style.transform = `scaleX(${p})`;
-          if (playheadRef.current) playheadRef.current.style.left = `${p * 100}%`;
-          if (timerRef.current) timerRef.current.textContent = formatTime(p * TOTAL_SECONDS);
-          setShowHint(p < 0.03);
+          tl.progress(self.progress);
+          setShowHint(self.progress < 0.03);
         },
       });
     }, root);
@@ -258,40 +260,10 @@ const StudentPerformer = () => {
       {/* Top hairline */}
       <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent z-30 pointer-events-none" />
 
-      {/* ---- Player top bar ---- */}
-      <div className="relative z-20 px-4 sm:px-5 pt-4 pb-2.5 flex items-center justify-between gap-3 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-success-400/80" />
-          <span className="w-2 h-2 rounded-full bg-accent-400/80" />
-          <span className="w-2 h-2 rounded-full bg-brand-400/80" />
-        </div>
-        <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-[0.25em] text-neutral-500 truncate">
-          GGC · Student Story
-        </span>
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden sm:flex items-center gap-[3px]">
-            {[0, 1, 2].map((i) => (
-              <span
-                key={i}
-                className="voice-bar block w-[3px] h-3 rounded-full bg-brand-400"
-                style={{ animationDelay: `${i * 0.18}s` }}
-              />
-            ))}
-          </div>
-          <span className="flex items-center gap-1.5 font-mono text-[9px] font-semibold tracking-[0.2em] text-rose-400">
-            <span className="relative flex w-1.5 h-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75" />
-              <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-rose-500" />
-            </span>
-            LIVE
-          </span>
-        </div>
-      </div>
-
       {/* ---- Quote bar: 5 auto-rotating captions + countdown timer ---- */}
-      <div className="relative z-20 px-4 sm:px-5 py-2.5 border-b border-white/5 bg-premium-dark/60">
-        <div className="flex items-center gap-3 min-h-[38px]">
-          <div className="flex flex-col items-center shrink-0 rounded-xl border border-white/10 bg-white/[0.03] px-2 py-1.5 min-w-[52px]">
+      <div className="relative z-20 px-4 sm:px-5 py-3 border-b border-white/5 bg-premium-dark/60">
+        <div className="flex items-center gap-3 min-h-[40px]">
+          <div className="flex flex-col items-center shrink-0 rounded-xl border border-brand-500/30 bg-brand-500/10 px-2 py-1.5 min-w-[54px]">
             <span className="font-mono text-[12px] font-bold text-brand-300 tabular-nums leading-none">
               {formatTime(countdown)}
             </span>
@@ -307,9 +279,9 @@ const StudentPerformer = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.28, ease: "easeOut" }}
-                className="text-[11px] sm:text-sm leading-snug text-neutral-200 font-medium min-h-[38px] flex items-center"
+                className="text-[11px] sm:text-sm leading-snug text-neutral-200 font-medium min-h-[40px] flex items-center"
               >
-                <FaMicrophone className="text-brand-400 text-[9px] sm:text-[11px] mr-2 shrink-0" />
+                <FaQuoteLeft className="text-brand-400 text-[9px] sm:text-[11px] mr-2 shrink-0" />
                 <span>{typed}</span>
                 <span className="caret ml-0.5 inline-block w-[2px] h-3.5 bg-brand-400" />
               </motion.p>
@@ -328,22 +300,28 @@ const StudentPerformer = () => {
 
       {/* ---- Stage: canvas + character ---- */}
       <div className="relative h-[300px] sm:h-[390px] md:h-[450px]">
-        <div className="absolute inset-0 opacity-40">
+        <div className="absolute inset-0 opacity-30">
           <NexusField />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-premium-charcoal via-transparent to-transparent pointer-events-none" />
+
+        {/* Character aura */}
+        <div
+          className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[70%] h-[55%] pointer-events-none"
+          style={{ background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.16), transparent 68%)" }}
+        />
 
         {/* Character */}
         <div className="absolute inset-0 flex items-end justify-center pb-1 z-10">
           <svg
             viewBox="0 0 200 240"
-            className="h-[94%] w-auto max-w-[92%] drop-shadow-[0_0_24px_rgba(56,189,248,0.35)]"
+            className="h-[94%] w-auto max-w-[92%] drop-shadow-[0_0_24px_rgba(56,189,248,0.3)]"
             aria-hidden="true"
           >
             <defs>
-              <linearGradient id="ggcGown" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#2A3854" />
-                <stop offset="1" stopColor="#0E1526" />
+              <linearGradient id="ggcBlazer" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#2C3A58" />
+                <stop offset="1" stopColor="#101726" />
               </linearGradient>
               <radialGradient id="ggcSkin" cx="0.4" cy="0.3" r="1">
                 <stop offset="0" stopColor="#F2CBA8" />
@@ -360,74 +338,89 @@ const StudentPerformer = () => {
 
             <g ref={figureRef}>
               <g ref={breatheRef}>
-                {/* Shoes */}
-                <ellipse cx="86" cy="232" rx="10" ry="5" fill="#0B1120" />
-                <ellipse cx="114" cy="232" rx="10" ry="5" fill="#0B1120" />
+                {/* Trousers */}
+                <path d="M84 184 L97 184 L98 222 L88 222 Q82 212 82 198 Z" fill="#0E1729" />
+                <path d="M103 184 L116 184 L118 222 L112 222 Q118 212 118 198 Z" fill="#0E1729" />
 
-                {/* Body / gown */}
+                {/* Shoes */}
+                <ellipse cx="88" cy="228" rx="11" ry="5" fill="#0A0F1C" />
+                <ellipse cx="112" cy="228" rx="11" ry="5" fill="#0A0F1C" />
+                <path d="M80 227 Q88 223 96 227" fill="none" stroke="rgba(56,189,248,0.3)" strokeWidth="1" />
+
+                {/* Blazer torso */}
                 <g ref={bodyRef}>
                   <path
-                    d="M64 150 Q100 140 136 150 L148 212 Q100 224 52 212 Z"
-                    fill="url(#ggcGown)"
-                    stroke="rgba(56,189,248,0.4)"
+                    d="M64 150 Q100 141 136 150 L140 176 Q140 186 130 186 L70 186 Q60 186 60 176 Z"
+                    fill="url(#ggcBlazer)"
+                    stroke="rgba(56,189,248,0.35)"
                     strokeWidth="1.5"
                   />
-                  <path d="M150 200 Q146 214 134 218" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M96 174 L100 200 L104 174" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M62 178 Q100 188 138 178" fill="none" stroke="rgba(56,189,248,0.3)" strokeWidth="1.5" />
+                  {/* shirt + tie */}
+                  <path d="M90 148 Q100 160 110 148 L110 156 Q100 170 90 156 Z" fill="#E9EFF7" />
+                  <rect x="97" y="147" width="6" height="6" rx="1.5" fill="#FBBF24" />
+                  <path d="M98 153 L102 153 L104 172 L100 177 L96 172 Z" fill="#FBBF24" />
+                  {/* lapel notch */}
+                  <path d="M92 150 L100 162 L108 150" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="2.5" strokeLinecap="round" />
+                  {/* buttons + pocket */}
+                  <circle cx="100" cy="174" r="2" fill="#FBBF24" />
+                  <path d="M118 170 L130 170" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
                 </g>
 
                 {/* Left arm */}
                 <g ref={armLRef}>
                   <path
-                    d="M66 152 Q60 176 64 196 Q66 204 74 202 L80 200 Q78 190 80 178 Q82 160 78 154 Z"
-                    fill="url(#ggcGown)"
+                    d="M66 152 Q60 178 64 198 Q66 206 74 204 L80 202 Q78 192 80 180 Q82 160 78 154 Z"
+                    fill="url(#ggcBlazer)"
                     stroke="rgba(56,189,248,0.3)"
                     strokeWidth="1.5"
                   />
-                  <circle cx="72" cy="201" r="8" fill="url(#ggcSkin)" />
+                  <rect x="70" y="196" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(-6 76 199)" />
+                  <circle cx="76" cy="206" r="7.5" fill="url(#ggcSkin)" />
                 </g>
 
                 {/* Right arm */}
                 <g ref={armRRef}>
                   <path
-                    d="M134 152 Q140 176 136 196 Q134 204 126 202 L120 200 Q122 190 120 178 Q118 160 122 154 Z"
-                    fill="url(#ggcGown)"
+                    d="M134 152 Q140 178 136 198 Q134 206 126 204 L120 202 Q122 192 120 180 Q118 160 122 154 Z"
+                    fill="url(#ggcBlazer)"
                     stroke="rgba(56,189,248,0.3)"
                     strokeWidth="1.5"
                   />
-                  <circle cx="128" cy="201" r="8" fill="url(#ggcSkin)" />
+                  <rect x="118" y="196" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(6 124 199)" />
+                  <circle cx="124" cy="206" r="7.5" fill="url(#ggcSkin)" />
                 </g>
 
                 {/* Neck */}
-                <path d="M93 134 Q100 146 107 134 L107 142 Q100 152 93 142 Z" fill="#C98F63" />
+                <path d="M93 134 Q100 144 107 134 L107 142 Q100 152 93 142 Z" fill="#C98F63" />
 
                 {/* Head */}
                 <g ref={headRef}>
-                  <ellipse cx="100" cy="112" rx="26" ry="28" fill="url(#ggcSkin)" />
-                  <circle cx="74" cy="112" r="4.5" fill="url(#ggcSkin)" />
-                  <circle cx="126" cy="112" r="4.5" fill="url(#ggcSkin)" />
-                  <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
-                  <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
-                  <path d="M81 99 Q88 94 95 98" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
-                  <path d="M105 98 Q112 94 119 99" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
-                  <g ref={eyesRef}>
-                    <circle cx="88" cy="109" r="2.6" fill="#0F172A" />
-                    <circle cx="112" cy="109" r="2.6" fill="#0F172A" />
-                    <circle cx="89" cy="108" r="0.8" fill="#fff" opacity="0.85" />
-                    <circle cx="113" cy="108" r="0.8" fill="#fff" opacity="0.85" />
-                  </g>
-                  <circle cx="88" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
-                  <circle cx="112" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
-                  <path d="M95.5 109 L104.5 109" stroke="#38BDF8" strokeWidth="2" />
-                  <path d="M80.5 107 L73 102" stroke="#38BDF8" strokeWidth="2" />
-                  <path d="M119.5 107 L127 102" stroke="#38BDF8" strokeWidth="2" />
-                  <path d="M92 106 Q88 104 85 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
-                  <path d="M116 106 Q120 104 123 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
-                  <path d="M98 117 Q100 120 102 117" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
-                  <g ref={mouthRef}>
-                    <ellipse cx="100" cy="126" rx="5" ry="6" fill="#7C2D3E" />
-                    <path d="M94 125 Q100 121 106 125" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" />
+                  <g ref={headIdleRef}>
+                    <ellipse cx="100" cy="112" rx="26" ry="28" fill="url(#ggcSkin)" />
+                    <circle cx="74" cy="112" r="4.5" fill="url(#ggcSkin)" />
+                    <circle cx="126" cy="112" r="4.5" fill="url(#ggcSkin)" />
+                    <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
+                    <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
+                    <path d="M81 99 Q88 94 95 98" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
+                    <path d="M105 98 Q112 94 119 99" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
+                    <g ref={eyesRef}>
+                      <circle cx="88" cy="109" r="2.6" fill="#0F172A" />
+                      <circle cx="112" cy="109" r="2.6" fill="#0F172A" />
+                      <circle cx="89" cy="108" r="0.8" fill="#fff" opacity="0.85" />
+                      <circle cx="113" cy="108" r="0.8" fill="#fff" opacity="0.85" />
+                    </g>
+                    <circle cx="88" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
+                    <circle cx="112" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M95.5 109 L104.5 109" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M80.5 107 L73 102" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M119.5 107 L127 102" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M92 106 Q88 104 85 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
+                    <path d="M116 106 Q120 104 123 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
+                    <path d="M98 117 Q100 120 102 117" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
+                    <g ref={mouthRef}>
+                      <ellipse cx="100" cy="126" rx="5" ry="6" fill="#7C2D3E" />
+                      <path d="M94 125 Q100 121 106 125" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" />
+                    </g>
                   </g>
                 </g>
 
@@ -464,39 +457,10 @@ const StudentPerformer = () => {
               <svg className="animate-bounce w-3 h-3 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7 7 7-7" />
               </svg>
-              <span className="text-[10px] font-medium text-neutral-300 tracking-wide">Scroll to play</span>
+              <span className="text-[10px] font-medium text-neutral-300 tracking-wide">Scroll to explore</span>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* ---- Fake player controls ---- */}
-      <div className="relative z-20 px-4 sm:px-5 py-3 border-t border-white/5 bg-premium-dark/40">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 text-neutral-400 shrink-0">
-            <FaPlay className="text-[10px]" />
-            <FaVolumeUp className="text-[11px]" />
-          </div>
-          <span ref={timerRef} className="font-mono text-[10px] text-neutral-400 tabular-nums shrink-0">
-            0:00
-          </span>
-          <div className="relative flex-1 h-[3px] rounded-full bg-white/10 overflow-visible">
-            <div
-              ref={fillRef}
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-brand-500 via-brand-400 to-brand-300 origin-left"
-              style={{ transform: "scaleX(0)" }}
-            />
-            <div
-              ref={playheadRef}
-              className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-brand-300 shadow-[0_0_10px_rgba(56,189,248,0.8)]"
-              style={{ left: "0%" }}
-            />
-          </div>
-          <div className="flex items-center gap-3 text-neutral-400 shrink-0">
-            <FaClosedCaptioning className="text-[11px] text-brand-300/80" />
-            <FaExpand className="text-[10px]" />
-          </div>
-        </div>
       </div>
     </div>
   );
