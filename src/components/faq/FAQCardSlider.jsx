@@ -41,30 +41,43 @@ function useSlidesPerView() {
 }
 
 const SlideCard = ({ faq, index }) => {
+  const ref = useRef(null);
   const num = String(index + 1).padStart(2, "0");
 
-  return (
-    <div className="faq-lux-card group h-full flex flex-col p-5 sm:p-6">
-      <span className="faq-lux-card__light" aria-hidden="true" />
-      <span className="faq-lux-card__sheen" aria-hidden="true" />
-      <span className="faq-lux-card__num" aria-hidden="true">{num}</span>
+  const onMove = (e) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
+    el.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
+  };
 
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      className="faq-aura-card group h-full flex flex-col p-5 sm:p-6"
+    >
       {/* meta row */}
       <div className="relative flex items-center justify-between mb-5">
-        <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500">
-          {faq.category}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex w-1.5 h-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-60" />
+            <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-brand-400" />
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-400">
+            {faq.category}
+          </span>
+        </div>
         <span className="font-mono text-xs text-neutral-600">{num}</span>
       </div>
-
-      <div className="relative h-px w-full bg-white/5 mb-5" />
 
       {/* question */}
       <h3 className="relative text-base sm:text-lg xl:text-xl font-display font-bold text-white leading-snug tracking-tight mb-4">
         {faq.question}
       </h3>
 
-      <div className="relative h-px w-16 bg-brand-400/30 mb-4" />
+      <div className="relative h-px w-full bg-gradient-to-r from-brand-500/40 via-violet-400/20 to-accent-400/40 mb-4" />
 
       {/* answer — always visible, no clicks */}
       <p className="relative flex-1 text-xs sm:text-sm text-neutral-400 leading-relaxed">
@@ -73,22 +86,33 @@ const SlideCard = ({ faq, index }) => {
 
       {/* footer */}
       <div className="relative mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
-        <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-600">
+        <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-500">
           GGC · Answered
         </span>
-        <span className="w-1.5 h-1.5 rounded-full bg-brand-400/80" />
+        <span className="text-brand-400/90 text-[10px] font-mono">{num}</span>
       </div>
     </div>
   );
 };
 
 const CTACard = () => {
-  return (
-    <div className="faq-lux-card group h-full flex flex-col items-center justify-center text-center gap-4 p-6">
-      <span className="faq-lux-card__light" aria-hidden="true" />
-      <span className="faq-lux-card__sheen" aria-hidden="true" />
+  const ref = useRef(null);
 
-      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+  const onMove = (e) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
+    el.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      className="faq-aura-card faq-aura-card--gold group h-full flex flex-col items-center justify-center text-center gap-4 p-6"
+    >
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-accent-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
         <FaHeadset className="text-xl sm:text-2xl" />
       </div>
 

@@ -295,76 +295,104 @@
     }
   }
 
-  .faq-lux-card {
+  /* ------------------------------------------------------------------
+     FAQ cards — animated aurora border + cursor spotlight + glass body
+     ------------------------------------------------------------------ */
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes rotateAngle {
+    to { --angle: 360deg; }
+  }
+
+  .faq-aura-card {
+    --angle: 0deg;
     position: relative;
     overflow: hidden;
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 1.3rem;
+    border: 1px solid rgba(255, 255, 255, 0.06);
     background:
-      radial-gradient(120% 70% at 50% 0%, rgba(56, 189, 248, 0.05), transparent 60%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.008));
+      radial-gradient(120% 80% at 50% 0%, rgba(56, 189, 248, 0.06), transparent 55%),
+      linear-gradient(180deg, rgba(14, 19, 31, 0.92), rgba(8, 11, 18, 0.96));
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.85);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+  }
+
+  .faq-aura-card:hover {
+    transform: translateY(-5px);
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 24px 50px -30px rgba(0, 0, 0, 0.8);
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.5s ease, box-shadow 0.5s ease;
+      0 40px 80px -36px rgba(0, 0, 0, 0.9),
+      0 0 60px -20px rgba(56, 189, 248, 0.35);
   }
 
-  .faq-lux-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(56, 189, 248, 0.28);
+  /* rotating aurora border ring */
+  .faq-aura-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--angle),
+      transparent 0deg,
+      rgba(56, 189, 248, 0.95) 70deg,
+      rgba(167, 139, 250, 0.85) 130deg,
+      rgba(251, 191, 36, 0.9) 200deg,
+      transparent 290deg,
+      transparent 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    animation: rotateAngle 7s linear infinite;
+    pointer-events: none;
+  }
+
+  .faq-aura-card:hover::before {
+    animation-duration: 3s;
+  }
+
+  /* cursor-tracking spotlight inside the card */
+  .faq-aura-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(56, 189, 248, 0.1), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .faq-aura-card:hover::after {
+    opacity: 1;
+  }
+
+  /* gold variant for the CTA card */
+  .faq-aura-card--gold::before {
+    background: conic-gradient(
+      from var(--angle),
+      transparent 0deg,
+      rgba(251, 191, 36, 0.95) 70deg,
+      rgba(56, 189, 248, 0.85) 130deg,
+      rgba(251, 191, 36, 0.9) 200deg,
+      transparent 290deg,
+      transparent 360deg
+    );
+  }
+
+  .faq-aura-card--gold::after {
+    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(251, 191, 36, 0.1), transparent 70%);
+  }
+
+  .faq-aura-card--gold:hover {
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 32px 64px -34px rgba(0, 0, 0, 0.9),
-      0 0 44px -18px rgba(56, 189, 248, 0.28);
-  }
-
-  /* soft stage light bleeding from the top edge */
-  .faq-lux-card__light {
-    position: absolute;
-    top: -45%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 65%;
-    height: 90%;
-    background: radial-gradient(ellipse at top, rgba(56, 189, 248, 0.07), transparent 70%);
-    pointer-events: none;
-  }
-
-  /* diagonal sheen that sweeps across on hover */
-  .faq-lux-card__sheen {
-    position: absolute;
-    top: 0;
-    left: -60%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-    transform: skewX(-18deg);
-    transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-  }
-
-  .faq-lux-card:hover .faq-lux-card__sheen {
-    left: 130%;
-  }
-
-  /* giant ghost index numeral */
-  .faq-lux-card__num {
-    position: absolute;
-    right: 0.9rem;
-    bottom: -0.6rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 6rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.06em;
-    color: rgba(255, 255, 255, 0.028);
-    pointer-events: none;
-    user-select: none;
-    transition: color 0.5s ease;
-  }
-
-  .faq-lux-card:hover .faq-lux-card__num {
-    color: rgba(56, 189, 248, 0.09);
+      0 40px 80px -36px rgba(0, 0, 0, 0.9),
+      0 0 60px -20px rgba(251, 191, 36, 0.35);
   }
 
   .progress-fill {
