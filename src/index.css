@@ -252,6 +252,16 @@
     50%, 100% { opacity: 0; }
   }
 
+  /* Quote rotation progress (auto-rotating captions) */
+  @keyframes quoteProgress {
+    from { width: 0%; }
+    to { width: 100%; }
+  }
+
+  .quote-progress {
+    animation: quoteProgress var(--quote-duration, 4.8s) linear forwards;
+  }
+
   /* ------------------------------------------------------------------
      FAQ slider — themed premium cards + carousel track
      ------------------------------------------------------------------ */
