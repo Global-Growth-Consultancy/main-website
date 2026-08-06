@@ -8,20 +8,23 @@ import NexusField from "./NexusField";
 gsap.registerPlugin(ScrollTrigger);
 
 // ------------------------------------------------------------------
-// StudentPerformer — a fully code-built living character.
+// StudentPerformer — a fully code-built living character ("Aarav").
 //
-// • SVG student mascot ("Aarav") performs in REAL TIME, on its own —
-//   no scroll required. Every quote is a "chapter": the character
-//   gestures (wave, talk with hands, point, open arms) and talks with
-//   syllable-synced lipsync (the mouth pulses on every vowel of the
-//   actual caption), then settles back to a calm idle loop.
+// • Real-time autonomous performance: every quote is a "chapter" the
+//   character performs live (wave, talk with hands, point, open arms)
+//   with syllable-synced JAW lipsync (the jaw drops on every vowel of
+//   the actual caption), then settles to a calm idle loop.
+// • Layered cursor rig: iris tracks, eyes track, head turns, torso
+//   leans and the shadow shifts — all at different speeds (parallax).
+// • Reactivity: hover = excited wave + squint + bounce + blush;
+//   click = jump + confetti burst + arm flail.
+// • Micro-expressions per quote: eyebrows, eyelids (squint), smile and
+//   emphasis brow-pulses on word starts while talking.
 // • The ENTIRE head unit (face + hair + cap + tassel) is one rigid
 //   group so nothing slides relative to the face when the head turns.
-// • Micro-expressions per quote: eyebrows, eyelids (squint) and smile
-//   shape driven by an emotion profile.
 // • Always-on secondary life: blinking, breathing, head sway, tassel
-//   sway, tie sway, blush pulse, breathing shadow.
-// • Entrance rise + chapter pulse ring on every new quote.
+//   sway, tie sway, blush pulse, breathing shadow, weight-shift, aura.
+// • Entrance rise + chapter pulse ring + confetti on every new quote.
 // ------------------------------------------------------------------
 
 const QUOTES = [
@@ -35,7 +38,7 @@ const QUOTES = [
 const QUOTE_SECONDS = 4.8;
 const TALK_MS = 3200;
 
-// speech envelope: 1 = vowel (mouth open), 0 = consonant (mouth closed)
+// speech envelope: 1 = vowel (jaw open), 0 = consonant (jaw closed)
 const SPEECH = QUOTES.map((q) =>
   q.split("").map((c) => (/[aeiouAEIOU]/i.test(c) ? 1 : 0))
 );
@@ -49,6 +52,8 @@ const EMOTIONS = [
   { brow: -3, squint: 1.6, smile: 1.12 }, // support — warm
   { brow: -2.5, squint: 1.2, smile: 1.12 }, // CTA — strong
 ];
+
+const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
 const formatTime = (s) => {
   const m = Math.floor(s / 60);
@@ -69,32 +74,67 @@ const StudentPerformer = () => {
   const blushRef = useRef(null);
   const shadowRef = useRef(null);
   const ringRef = useRef(null);
+  const auraRef = useRef(null);
+  const confettiRef = useRef(null);
   const armLRef = useRef(null);
   const armLElbowRef = useRef(null);
   const armRRef = useRef(null);
   const armRElbowRef = useRef(null);
+  const jawRef = useRef(null);
   const mouthRef = useRef(null);
   const eyesRef = useRef(null);
+  const irisRef = useRef(null);
   const browLRef = useRef(null);
   const browRRef = useRef(null);
   const lidLRef = useRef(null);
   const lidRRef = useRef(null);
-  const hoverRef = useRef(false);
-  const reducedRef = useRef(false);
-  const enteredRef = useRef(false);
-  // New refs for enhanced body parts
   const legLRef = useRef(null);
   const legLKneeRef = useRef(null);
   const legRRef = useRef(null);
   const legRKneeRef = useRef(null);
-  const handLRef = useRef(null);
-  const handRRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
+  const hoverRef = useRef(false);
+  const reducedRef = useRef(false);
+  const enteredRef = useRef(false);
 
   const [qIndex, setQIndex] = useState(0);
   const [typed, setTyped] = useState("");
   const [done, setDone] = useState(false);
   const [countdown, setCountdown] = useState(QUOTE_SECONDS);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // ---- reduced-motion detection (runs first) ----
+  useEffect(() => {
+    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+
+  // ---- confetti burst ----
+  const spawnConfetti = (count = 18) => {
+    const holder = confettiRef.current;
+    if (!holder || reducedRef.current) return;
+    for (let i = 0; i < count; i += 1) {
+      const el = document.createElement("div");
+      const size = 3 + Math.random() * 4;
+      const round = Math.random() < 0.5;
+      el.style.cssText = `position:absolute;left:50%;top:56%;width:${size}px;height:${size * (round ? 1 : 1.7)}px;background:${CONFETTI_COLORS[i % CONFETTI_COLORS.length]};border-radius:${round ? "50%" : "2px"};pointer-events:none;opacity:0;will-change:transform;`;
+      holder.appendChild(el);
+      gsap.to(el, {
+        x: (Math.random() - 0.5) * 260,
+        y: -(30 + Math.random() * 130),
+        rotation: (Math.random() - 0.5) * 560,
+        opacity: 1,
+        duration: 0.35 + Math.random() * 0.3,
+        ease: "power2.out",
+        onComplete: () => gsap.to(el, {
+          y: 50 + Math.random() * 90,
+          rotation: (Math.random() - 0.5) * 220,
+          opacity: 0,
+          duration: 0.6,
+          ease: "power1.in",
+          onComplete: () => el.remove(),
+        }),
+      });
+    }
+  };
 
   // ---- timed quote rotation + countdown ----
   useEffect(() => {
@@ -112,79 +152,111 @@ const StudentPerformer = () => {
     return () => clearInterval(id);
   }, []);
 
-  // ---- cursor following + hover reactions ----
+  // ---- layered cursor rig (parallax at different speeds) ----
   useEffect(() => {
     const root = wrapRef.current;
     if (!root) return undefined;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return undefined;
 
-    const handleMouseMove = (e) => {
-      if (!svgRef.current) return;
-      const rect = svgRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      
-      const deltaX = (e.clientX - centerX) / rect.width;
-      const deltaY = (e.clientY - centerY) / rect.height;
-      
-      // Eyes follow cursor
-      if (eyesRef.current) {
-        gsap.to(eyesRef.current, {
-          x: deltaX * 4,
-          y: deltaY * 2,
-          duration: 0.3,
-          ease: "power2.out"
-        });
-      }
-      
-      // Subtle head turn
-      if (headRef.current) {
-        gsap.to(headRef.current, {
-          rotation: deltaX * 8,
-          duration: 0.4,
-          ease: "power2.out"
-        });
-      }
+    const head = headRef.current;
+    const eyes = eyesRef.current;
+    const iris = irisRef.current;
+    const torso = breatheRef.current;
+    const shadow = shadowRef.current;
+    if (!head || !eyes || !iris || !torso || !shadow) return undefined;
+
+    const toHead = gsap.quickTo(head, "rotation", { duration: 0.5, ease: "power2.out" });
+    const toEyesX = gsap.quickTo(eyes, "x", { duration: 0.35, ease: "power2.out" });
+    const toEyesY = gsap.quickTo(eyes, "y", { duration: 0.35, ease: "power2.out" });
+    const toIrisX = gsap.quickTo(iris, "x", { duration: 0.3, ease: "power2.out" });
+    const toIrisY = gsap.quickTo(iris, "y", { duration: 0.3, ease: "power2.out" });
+    const toLean = gsap.quickTo(torso, "rotation", { duration: 0.6, ease: "power1.out" });
+    const toShadow = gsap.quickTo(shadow, "x", { duration: 0.6, ease: "power1.out" });
+
+    const onMove = (e) => {
+      const rect = svgRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const dx = (e.clientX - (rect.left + rect.width / 2)) / rect.width;
+      const dy = (e.clientY - (rect.top + rect.height / 2)) / rect.height;
+      toHead(dx * 5);
+      toEyesX(dx * 1.5);
+      toEyesY(dy * 1);
+      toIrisX(dx * 2.8);
+      toIrisY(dy * 1.8);
+      toLean(dx * 1.6);
+      toShadow(dx * 3);
+    };
+    const onLeave = () => {
+      toHead(0);
+      toEyesX(0);
+      toEyesY(0);
+      toIrisX(0);
+      toIrisY(0);
+      toLean(0);
+      toShadow(0);
     };
 
-    root.addEventListener('mousemove', handleMouseMove);
-    return () => root.removeEventListener('mousemove', handleMouseMove);
+    root.addEventListener("mousemove", onMove);
+    root.addEventListener("mouseleave", onLeave);
+    return () => {
+      root.removeEventListener("mousemove", onMove);
+      root.removeEventListener("mouseleave", onLeave);
+    };
   }, []);
 
-  // ---- hover-specific animations ----
+  // ---- hover + click reactions ----
   useEffect(() => {
-    if (!svgRef.current) return;
-    
+    if (!svgRef.current || reducedRef.current) return undefined;
+
     if (isHovered) {
-      // Hover reaction: excited wave with both arms
-      const hoverAnim = gsap.timeline();
-      hoverAnim
-        .to(armRRef.current, { rotation: -45, duration: 0.4, ease: "back.out(1.7)" }, 0)
+      const tl = gsap.timeline();
+      tl.to(armRRef.current, { rotation: -45, duration: 0.4, ease: "back.out(1.7)" }, 0)
         .to(armRElbowRef.current, { rotation: 35, duration: 0.4, ease: "back.out(1.7)" }, 0)
         .to(armLRef.current, { rotation: 35, duration: 0.4, ease: "back.out(1.7)" }, 0)
         .to(armLElbowRef.current, { rotation: -25, duration: 0.4, ease: "back.out(1.7)" }, 0)
-        .to(mouthRef.current, { scaleY: 0.35, scaleX: 1.3, duration: 0.3, ease: "power2.out" }, 0)
-        .to(browLRef.current, { rotation: -6, duration: 0.3, ease: "power2.out" }, 0)
-        .to(browRRef.current, { rotation: -6, duration: 0.3, ease: "power2.out" }, 0)
-        .to(bodyRef.current, { y: -3, duration: 0.3, ease: "power2.out" }, 0);
-        
-      return () => hoverAnim.kill();
-    } else {
-      // Return to idle
-      gsap.to([armRRef.current, armLRef.current], { rotation: 0, duration: 0.5, ease: "power2.out" });
-      gsap.to([armRElbowRef.current, armLElbowRef.current], { rotation: 6, duration: 0.5, ease: "power2.out" });
-      gsap.to(mouthRef.current, { scaleY: 0.22, scaleX: 1, duration: 0.4, ease: "power2.out" });
-      gsap.to([browLRef.current, browRRef.current], { rotation: 0, duration: 0.4, ease: "power2.out" });
-      gsap.to(bodyRef.current, { y: 0, duration: 0.4, ease: "power2.out" });
+        .to(mouthRef.current, { scaleX: 1.3, duration: 0.3, ease: "power2.out" }, 0)
+        .to(browLRef.current, { rotation: -7, duration: 0.3, ease: "power2.out" }, 0)
+        .to(browRRef.current, { rotation: -7, duration: 0.3, ease: "power2.out" }, 0)
+        .to(lidLRef.current, { y: 2.2, duration: 0.3, ease: "power2.out" }, 0)
+        .to(lidRRef.current, { y: 2.2, duration: 0.3, ease: "power2.out" }, 0)
+        .to(blushRef.current, { opacity: 0.95, duration: 0.3, ease: "power2.out" }, 0)
+        .to(figureRef.current, { y: -4, duration: 0.35, yoyo: true, repeat: 1, ease: "power2.out" }, 0.15);
+      return () => tl.kill();
     }
+
+    gsap.to([armRRef.current, armLRef.current], { rotation: 0, duration: 0.5, ease: "power2.out" });
+    gsap.to([armRElbowRef.current, armLElbowRef.current], { rotation: 6, duration: 0.5, ease: "power2.out" });
+    gsap.to(mouthRef.current, { scaleX: 1, duration: 0.4, ease: "power2.out" });
+    gsap.to([browLRef.current, browRRef.current], { rotation: 0, duration: 0.4, ease: "power2.out" });
+    gsap.to([lidLRef.current, lidRRef.current], { y: 0, duration: 0.4, ease: "power2.out" });
+    gsap.to(blushRef.current, { opacity: 0.65, duration: 0.4, ease: "power2.out" });
+    gsap.to(figureRef.current, { y: 0, duration: 0.4, ease: "power2.out" });
+    return undefined;
   }, [isHovered]);
+
+  const handleClick = () => {
+    if (reducedRef.current || !figureRef.current) return;
+    spawnConfetti(26);
+    const fig = figureRef.current;
+    const sh = shadowRef.current;
+    gsap.to(fig, { y: -16, duration: 0.22, ease: "power2.out" });
+    if (sh) gsap.to(sh, { scaleX: 0.8, scaleY: 1.25, duration: 0.22, ease: "power2.out" });
+    gsap.to(fig, { y: 0, duration: 0.5, ease: "bounce.out", delay: 0.22 });
+    if (sh) gsap.to(sh, { scaleX: 1, scaleY: 1, duration: 0.5, ease: "power2.in", delay: 0.22 });
+    if (browLRef.current && browRRef.current) {
+      gsap.to([browLRef.current, browRRef.current], { rotation: -8, duration: 0.2, yoyo: true, repeat: 1, ease: "power2.out" });
+    }
+    if (armRRef.current) gsap.fromTo(armRRef.current, { rotation: -50 }, { rotation: 0, duration: 0.5, ease: "power3.inOut" });
+    if (armRElbowRef.current) gsap.fromTo(armRElbowRef.current, { rotation: 40 }, { rotation: 6, duration: 0.5, ease: "power3.inOut" });
+    if (armLRef.current) gsap.fromTo(armLRef.current, { rotation: 40 }, { rotation: 0, duration: 0.5, ease: "power3.inOut" });
+    if (armLElbowRef.current) gsap.fromTo(armLElbowRef.current, { rotation: -30 }, { rotation: 6, duration: 0.5, ease: "power3.inOut" });
+  };
 
   // ---- idle life: blink + breathe + head sway + secondary motion ----
   useEffect(() => {
     const root = wrapRef.current;
     if (!root) return undefined;
 
-    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const reduced = reducedRef.current;
     const triggerEl = root.closest("section") || root;
     const lenis = window.__lenis;
     if (lenis) lenis.on("scroll", ScrollTrigger.update);
@@ -195,6 +267,7 @@ const StudentPerformer = () => {
     };
 
     const ctx = gsap.context(() => {
+      setOrigin(figureRef.current, 100, 236);
       setOrigin(headRef.current, 100, 148);
       setOrigin(headIdleRef.current, 100, 146);
       setOrigin(bodyRef.current, 100, 175);
@@ -207,21 +280,23 @@ const StudentPerformer = () => {
       setOrigin(armLElbowRef.current, 62, 185);
       setOrigin(armRRef.current, 138, 157);
       setOrigin(armRElbowRef.current, 138, 185);
+      setOrigin(jawRef.current, 100, 128);
       setOrigin(mouthRef.current, 100, 126);
       setOrigin(eyesRef.current, 100, 109);
+      setOrigin(irisRef.current, 100, 108);
       setOrigin(breatheRef.current, 100, 205);
-      // New leg origins
       setOrigin(legLRef.current, 88, 195);
       setOrigin(legLKneeRef.current, 88, 215);
       setOrigin(legRRef.current, 112, 195);
       setOrigin(legRKneeRef.current, 112, 215);
 
       // neutral resting pose
-      if (mouthRef.current) gsap.set(mouthRef.current, { scaleY: 0.22, scaleX: 1 });
+      if (jawRef.current) gsap.set(jawRef.current, { y: 0, scaleY: 0.05 });
+      if (mouthRef.current) gsap.set(mouthRef.current, { scaleX: 1 });
       if (lidLRef.current) gsap.set(lidLRef.current, { y: 0 });
       if (lidRRef.current) gsap.set(lidRRef.current, { y: 0 });
 
-      if (reduced) return;
+      if (reducedRef.current) return;
 
       // blinking
       const blink = gsap.timeline({ repeat: -1, repeatDelay: 2.2 });
@@ -267,6 +342,11 @@ const StudentPerformer = () => {
       legShift.to(legLRef.current, { rotation: 1.5, duration: 3.2, ease: "sine.inOut" }, 0)
         .to(legRRef.current, { rotation: -1.5, duration: 3.2, ease: "sine.inOut" }, 0);
 
+      // aura breathes around the character
+      const aura = gsap.timeline({ repeat: -1, yoyo: true });
+      aura.to(auraRef.current, { opacity: 0.6, duration: 2.6, ease: "sine.inOut" })
+        .to(auraRef.current, { opacity: 0.3, duration: 2.8, ease: "sine.inOut" });
+
       // gentle scroll parallax lean (subtle — the character performs on its own)
       const tilt = gsap.quickTo(svgRef.current, "rotation", { duration: 0.5, ease: "power1.out" });
       ScrollTrigger.create({
@@ -284,7 +364,7 @@ const StudentPerformer = () => {
     };
   }, []);
 
-  // ---- chapter performance + typewriter + emotion + lipsync ----
+  // ---- chapter performance + typewriter + emotion + jaw lipsync ----
   useEffect(() => {
     const full = QUOTES[qIndex];
     setTyped("");
@@ -321,14 +401,18 @@ const StudentPerformer = () => {
           { opacity: 0, scaleX: 0.6, scaleY: 1.4 },
           { opacity: 1, scaleX: 1, scaleY: 1, duration: 1.2, ease: "power3.out", delay: 0.2 }
         );
+        // landing settle bounce
+        gsap.to(figureRef.current, { y: -4, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.out", delay: 1.05 });
+        spawnConfetti(14);
       }
 
-      // ---- chapter pulse ring ----
+      // ---- chapter pulse ring + confetti ----
       gsap.fromTo(
         ringRef.current,
         { width: 0, height: 0, opacity: 0.5 },
         { width: 380, height: 380, opacity: 0, duration: 1.1, ease: "power2.out" }
       );
+      spawnConfetti(10);
 
       // ---- life pop + shadow response ----
       gsap.fromTo(
@@ -449,8 +533,8 @@ const StudentPerformer = () => {
           .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.1);
       }
 
-      // ---- syllable-synced lipsync over the actual caption ----
-      const mouth = mouthRef.current;
+      // ---- jaw lipsync: drop the jaw on every vowel ----
+      const jaw = jawRef.current;
       const envelope = SPEECH[qIndex];
       const step = TALK_MS / (envelope.length || 1);
       const talk = gsap.timeline({ delay: 0.1 });
@@ -459,9 +543,22 @@ const StudentPerformer = () => {
         if (!v) return;
         const at = i * step;
         talk
-          .to(mouth, { scaleY: 0.9, duration: 0.05, ease: "power2.out" }, at)
-          .to(mouth, { scaleY: 0.28, duration: 0.07, ease: "power2.in" }, at + 0.055);
+          .to(jaw, { y: 2.8, scaleY: 1, duration: 0.05, ease: "power2.out" }, at)
+          .to(jaw, { y: 0, scaleY: 0.05, duration: 0.07, ease: "power2.in" }, at + 0.055);
       });
+
+      // emphasis brows — a small raise at every word start while talking
+      if (browLRef.current && browRRef.current) {
+        const browL = browLRef.current;
+        const browR = browRRef.current;
+        for (let i = 0; i < full.length; i += 1) {
+          if (i !== 0 && full[i - 1] !== " ") continue;
+          const at = 0.1 + i * step;
+          talk
+            .to([browL, browR], { rotation: emo.brow - 3.5, duration: 0.22, ease: "power2.out" }, at)
+            .to([browL, browR], { rotation: emo.brow, duration: 0.28, ease: "power2.in" }, at + 0.26);
+        }
+      }
 
       // gentle head bob while talking (separate so the talk timeline stays finite)
       const headBob = gsap.to(headRef.current, {
@@ -477,7 +574,8 @@ const StudentPerformer = () => {
       talk.eventCallback("onComplete", () => {
         headBob.kill();
         gsap.to(headRef.current, { y: 0, duration: 0.4, ease: "power2.out" });
-        gsap.to(mouth, { scaleY: 0.22, scaleX: emo.smile, duration: 0.45, ease: "power2.out" });
+        gsap.to(jaw, { y: 0, scaleY: 0.05, duration: 0.4, ease: "power2.out" });
+        gsap.to(mouthRef.current, { scaleX: emo.smile, duration: 0.45, ease: "power2.out" });
       });
     }, svgRef.current);
 
@@ -492,7 +590,8 @@ const StudentPerformer = () => {
       ref={wrapRef}
       onMouseEnter={() => { hoverRef.current = true; setIsHovered(true); }}
       onMouseLeave={() => { hoverRef.current = false; setIsHovered(false); }}
-      className="group relative rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/50 overflow-hidden"
+      onClick={handleClick}
+      className="group relative rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/50 overflow-hidden cursor-pointer"
     >
       {/* Top hairline */}
       <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent z-30 pointer-events-none" />
@@ -542,6 +641,9 @@ const StudentPerformer = () => {
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-premium-charcoal via-transparent to-transparent pointer-events-none" />
 
+        {/* Confetti layer */}
+        <div ref={confettiRef} className="absolute inset-0 z-20 overflow-hidden pointer-events-none" />
+
         {/* Chapter pulse ring */}
         <div
           ref={ringRef}
@@ -550,6 +652,7 @@ const StudentPerformer = () => {
 
         {/* Character aura */}
         <div
+          ref={auraRef}
           className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[70%] h-[55%] pointer-events-none"
           style={{ background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.18), transparent 68%)" }}
         />
@@ -598,25 +701,25 @@ const StudentPerformer = () => {
                 {/* Left Leg */}
                 <g ref={legLRef}>
                   {/* Upper leg (thigh) */}
-                  <path 
-                    d="M85 188 Q88 188 90 192 L88 210 Q86 210 84 206 Q82 200 83 194 Z" 
-                    fill="#0E1729" 
-                    stroke="rgba(56,189,248,0.2)" 
+                  <path
+                    d="M85 188 Q88 188 90 192 L88 210 Q86 210 84 206 Q82 200 83 194 Z"
+                    fill="#0E1729"
+                    stroke="rgba(56,189,248,0.2)"
                     strokeWidth="1"
                   />
                   <g ref={legLKneeRef}>
                     {/* Lower leg (shin) */}
-                    <path 
-                      d="M86 212 Q88 215 87 222 Q85 228 82 230 Q80 228 81 222 Q82 215 85 212 Z" 
-                      fill="#0E1729" 
-                      stroke="rgba(56,189,248,0.2)" 
+                    <path
+                      d="M86 212 Q88 215 87 222 Q85 228 82 230 Q80 228 81 222 Q82 215 85 212 Z"
+                      fill="#0E1729"
+                      stroke="rgba(56,189,248,0.2)"
                       strokeWidth="1"
                     />
                     {/* Realistic shoe */}
-                    <path 
-                      d="M78 230 Q75 232 76 236 Q80 238 88 236 Q90 234 88 230 Q84 228 78 230 Z" 
-                      fill="#0A0F1C" 
-                      stroke="rgba(56,189,248,0.3)" 
+                    <path
+                      d="M78 230 Q75 232 76 236 Q80 238 88 236 Q90 234 88 230 Q84 228 78 230 Z"
+                      fill="#0A0F1C"
+                      stroke="rgba(56,189,248,0.3)"
                       strokeWidth="1"
                     />
                     <path d="M76 234 Q82 236 88 234" fill="none" stroke="rgba(56,189,248,0.4)" strokeWidth="1.5" />
@@ -627,25 +730,25 @@ const StudentPerformer = () => {
                 {/* Right Leg */}
                 <g ref={legRRef}>
                   {/* Upper leg (thigh) */}
-                  <path 
-                    d="M115 188 Q112 188 110 192 L112 210 Q114 210 116 206 Q118 200 117 194 Z" 
-                    fill="#0E1729" 
-                    stroke="rgba(56,189,248,0.2)" 
+                  <path
+                    d="M115 188 Q112 188 110 192 L112 210 Q114 210 116 206 Q118 200 117 194 Z"
+                    fill="#0E1729"
+                    stroke="rgba(56,189,248,0.2)"
                     strokeWidth="1"
                   />
                   <g ref={legRKneeRef}>
                     {/* Lower leg (shin) */}
-                    <path 
-                      d="M114 212 Q112 215 113 222 Q115 228 118 230 Q120 228 119 222 Q118 215 115 212 Z" 
-                      fill="#0E1729" 
-                      stroke="rgba(56,189,248,0.2)" 
+                    <path
+                      d="M114 212 Q112 215 113 222 Q115 228 118 230 Q120 228 119 222 Q118 215 115 212 Z"
+                      fill="#0E1729"
+                      stroke="rgba(56,189,248,0.2)"
                       strokeWidth="1"
                     />
                     {/* Realistic shoe */}
-                    <path 
-                      d="M122 230 Q125 232 124 236 Q120 238 112 236 Q110 234 112 230 Q116 228 122 230 Z" 
-                      fill="#0A0F1C" 
-                      stroke="rgba(56,189,248,0.3)" 
+                    <path
+                      d="M122 230 Q125 232 124 236 Q120 238 112 236 Q110 234 112 230 Q116 228 122 230 Z"
+                      fill="#0A0F1C"
+                      stroke="rgba(56,189,248,0.3)"
                       strokeWidth="1"
                     />
                     <path d="M124 234 Q118 236 112 234" fill="none" stroke="rgba(56,189,248,0.4)" strokeWidth="1.5" />
@@ -666,28 +769,28 @@ const StudentPerformer = () => {
                   <path d="M130 160 Q135 165 140 160" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" opacity="0.5" />
                   <path d="M62 175 Q65 185 68 175" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1" opacity="0.4" />
                   <path d="M132 175 Q135 185 138 175" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1" opacity="0.4" />
-                  
+
                   {/* shirt with better shape */}
                   <path d="M88 144 Q100 158 112 144 L112 152 Q100 172 88 152 Z" fill="#E9EFF7" />
                   <path d="M92 150 Q100 165 108 150" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
-                  
+
                   {/* tie (sways with the breath) */}
                   <g ref={tieRef}>
                     <rect x="96" y="142" width="8" height="7" rx="2" fill="#FBBF24" />
                     <path d="M97 149 L103 149 L105 175 L100 182 L95 175 Z" fill="#FBBF24" />
                     <path d="M97 149 L103 149" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
                   </g>
-                  
+
                   {/* Enhanced lapel notch */}
                   <path d="M86 145 L100 162 L114 145" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="2.6" strokeLinecap="round" />
                   <path d="M88 148 L100 160 L112 148" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeLinecap="round" />
-                  
+
                   {/* buttons + pocket with better details */}
                   <circle cx="100" cy="175" r="2.5" fill="#FBBF24" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
                   <circle cx="100" cy="183" r="2.5" fill="#FBBF24" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
                   <path d="M115 174 L130 174" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
                   <path d="M115 177 L128 177" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeLinecap="round" />
-                  
+
                   {/* Shoulder pads for structure */}
                   <ellipse cx="62" cy="155" rx="8" ry="4" fill="rgba(0,0,0,0.1)" />
                   <ellipse cx="138" cy="155" rx="8" ry="4" fill="rgba(0,0,0,0.1)" />
@@ -710,19 +813,17 @@ const StudentPerformer = () => {
                     />
                     <rect x="59" y="201" width="13" height="5" rx="2" fill="#E9EFF7" transform="rotate(-6 66 204)" />
                     {/* Realistic hand with fingers */}
-                    <g ref={handLRef}>
-                      <path 
-                        d="M68 208 Q75 210 78 216 Q80 222 76 228 Q72 232 66 230 Q62 226 64 220 Q65 214 68 208 Z" 
-                        fill="url(#ggcSkin)" 
-                        stroke="rgba(0,0,0,0.1)" 
+                    <g>
+                      <path
+                        d="M68 208 Q75 210 78 216 Q80 222 76 228 Q72 232 66 230 Q62 226 64 220 Q65 214 68 208 Z"
+                        fill="url(#ggcSkin)"
+                        stroke="rgba(0,0,0,0.1)"
                         strokeWidth="1"
                       />
-                      {/* Fingers */}
                       <path d="M66 210 Q67 205 68 201" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M70 211 Q72 206 73 202" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M74 212 Q76 207 77 203" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M78 214 Q80 210 81 207" stroke="url(#ggcSkin)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-                      {/* Thumb */}
                       <path d="M64 215 Q60 213 58 216" stroke="url(#ggcSkin)" strokeWidth="3" strokeLinecap="round" fill="none" />
                     </g>
                   </g>
@@ -745,19 +846,17 @@ const StudentPerformer = () => {
                     />
                     <rect x="128" y="201" width="13" height="5" rx="2" fill="#E9EFF7" transform="rotate(6 134 204)" />
                     {/* Realistic hand with fingers */}
-                    <g ref={handRRef}>
-                      <path 
-                        d="M132 208 Q125 210 122 216 Q120 222 124 228 Q128 232 134 230 Q138 226 136 220 Q135 214 132 208 Z" 
-                        fill="url(#ggcSkin)" 
-                        stroke="rgba(0,0,0,0.1)" 
+                    <g>
+                      <path
+                        d="M132 208 Q125 210 122 216 Q120 222 124 228 Q128 232 134 230 Q138 226 136 220 Q135 214 132 208 Z"
+                        fill="url(#ggcSkin)"
+                        stroke="rgba(0,0,0,0.1)"
                         strokeWidth="1"
                       />
-                      {/* Fingers */}
                       <path d="M134 210 Q133 205 132 201" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M130 211 Q128 206 127 202" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M126 212 Q124 207 123 203" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
                       <path d="M122 214 Q120 210 119 207" stroke="url(#ggcSkin)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-                      {/* Thumb */}
                       <path d="M136 215 Q140 213 142 216" stroke="url(#ggcSkin)" strokeWidth="3" strokeLinecap="round" fill="none" />
                     </g>
                   </g>
@@ -793,17 +892,18 @@ const StudentPerformer = () => {
                       <path d="M106 97 Q114 92 122 98" fill="none" stroke="#1E293B" strokeWidth="2.8" strokeLinecap="round" />
                     </g>
 
-                    {/* Enhanced eyes (blink + look) with better details */}
+                    {/* Enhanced eyes — whites + blink, iris tracks cursor separately */}
                     <g ref={eyesRef}>
                       <ellipse cx="88" cy="108" rx="5" ry="4.5" fill="#FFF8F0" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
                       <ellipse cx="112" cy="108" rx="5" ry="4.5" fill="#FFF8F0" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
-                      <circle cx="88" cy="108" r="3.2" fill="#4A2A18" />
-                      <circle cx="112" cy="108" r="3.2" fill="#4A2A18" />
-                      <circle cx="88" cy="108" r="1.5" fill="#140C08" />
-                      <circle cx="112" cy="108" r="1.5" fill="#140C08" />
-                      <circle cx="89.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
-                      <circle cx="113.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
-                      {/* Eyelid crease */}
+                      <g ref={irisRef}>
+                        <circle cx="88" cy="108" r="3.2" fill="#4A2A18" />
+                        <circle cx="112" cy="108" r="3.2" fill="#4A2A18" />
+                        <circle cx="88" cy="108" r="1.5" fill="#140C08" />
+                        <circle cx="112" cy="108" r="1.5" fill="#140C08" />
+                        <circle cx="89.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
+                        <circle cx="113.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
+                      </g>
                       <path d="M83 104 Q88 102 93 104" stroke="rgba(0,0,0,0.15)" strokeWidth="1" fill="none" />
                       <path d="M107 104 Q112 102 117 104" stroke="rgba(0,0,0,0.15)" strokeWidth="1" fill="none" />
                     </g>
@@ -827,14 +927,19 @@ const StudentPerformer = () => {
                     <path d="M99 114 Q101 118 100 120" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
                     <path d="M95.5 118.5 Q97.5 121 100.5 120" fill="none" stroke="#C98F63" strokeWidth="1.4" strokeLinecap="round" />
 
-                    {/* Enhanced mouth (lipsync + smile) with better shape */}
+                    {/* ---- Jaw rig: static upper lips + teeth, moving lower jaw ---- */}
+                    {/* resting lips (closed line) + upper teeth — smile via scaleX */}
                     <g ref={mouthRef}>
-                      <ellipse cx="100" cy="126" rx="6" ry="7" fill="#4A1523" />
-                      <path d="M95 128 Q100 133 105 128 Q100 137 95 128 Z" fill="url(#ggcLip)" />
-                      <rect x="95" y="120" width="10" height="2.5" rx="1" fill="#F7FAFC" />
                       <path d="M92 124 Q96 119 100 121.5 Q104 119 108 124" fill="none" stroke="#B4556B" strokeWidth="2.5" strokeLinecap="round" />
-                      {/* Lip highlight */}
-                      <path d="M96 125 Q100 123 104 125" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                      <path d="M92.5 126.5 Q100 129.5 107.5 126.5" fill="none" stroke="#B4556B" strokeWidth="2.5" strokeLinecap="round" />
+                      <rect x="95.5" y="122" width="9" height="2.2" rx="1" fill="#F7FAFC" />
+                      <path d="M96 125 Q100 123.5 104 125" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                    </g>
+                    {/* jaw — drops open on vowels */}
+                    <g ref={jawRef}>
+                      <ellipse cx="100" cy="129" rx="6" ry="5" fill="#4A1523" />
+                      <path d="M96.5 130 Q100 135 103.5 130 Q100 139 96.5 130 Z" fill="url(#ggcLip)" />
+                      <path d="M96 130 Q100 133.5 104 130 Q100 134.8 96 130 Z" fill="#D96C7C" />
                     </g>
                   </g>
 
@@ -855,7 +960,6 @@ const StudentPerformer = () => {
                     <ellipse cx="100" cy="64.5" rx="36" ry="6.5" fill="#1B2740" />
                     <path d="M72 82 Q100 75 128 82 L128 78 Q100 71 72 78 Z" fill="#0F172A" />
                     <path d="M72 80 Q100 73.5 128 80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
-                    {/* Cap texture */}
                     <path d="M75 79 Q100 73 125 79" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
                     <g ref={tasselRef}>
                       <path d="M126 64 Q134 55 139 57" fill="none" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
