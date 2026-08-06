@@ -57,26 +57,31 @@ const makeShadowTexture = () => {
 const irisTex = makeIrisTexture();
 const shadowTex = makeShadowTexture();
 
-// ---- materials ----
-const skinMat = new THREE.MeshStandardMaterial({ color: "#E3B183", roughness: 0.55 });
-const hairMat = new THREE.MeshStandardMaterial({ color: "#26313F", roughness: 0.42 });
-const gownMat = new THREE.MeshStandardMaterial({ color: "#1D2A47", roughness: 0.62, metalness: 0.04 });
+// ---- materials (MeshPhysical = soft subsurface skin, premium cloth) ----
+const skinMat = new THREE.MeshPhysicalMaterial({
+  color: "#B37A4F", roughness: 0.5, clearcoat: 0.28, clearcoatRoughness: 0.7,
+  sheen: 0.7, sheenRoughness: 0.8,
+});
+const hairMat = new THREE.MeshPhysicalMaterial({ color: "#221511", roughness: 0.58, clearcoat: 0.12 });
+const gownMat = new THREE.MeshPhysicalMaterial({ color: "#1D2A47", roughness: 0.55, clearcoat: 0.28, clearcoatRoughness: 0.6 });
 const gownTrimMat = new THREE.MeshStandardMaterial({ color: "#141D33", roughness: 0.6 });
 const pantsMat = new THREE.MeshStandardMaterial({ color: "#151E33", roughness: 0.6 });
-const shirtMat = new THREE.MeshStandardMaterial({ color: "#F4F6FA", roughness: 0.7 });
+const shirtMat = new THREE.MeshPhysicalMaterial({ color: "#F6F8FC", roughness: 0.35, clearcoat: 0.15 });
 const tieMat = new THREE.MeshStandardMaterial({ color: "#FBBF24", roughness: 0.35, metalness: 0.12 });
 const shoeMat = new THREE.MeshStandardMaterial({ color: "#0B0F1A", roughness: 0.32, metalness: 0.08 });
 const capMat = new THREE.MeshStandardMaterial({ color: "#0F172A", roughness: 0.5 });
-const scleraMat = new THREE.MeshStandardMaterial({ color: "#FFF6EC", roughness: 0.15 });
+const scleraMat = new THREE.MeshPhysicalMaterial({ color: "#FDF6EC", roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 });
 const pupilMat = new THREE.MeshStandardMaterial({ color: "#12090A", roughness: 0.2 });
-const lipMat = new THREE.MeshStandardMaterial({ color: "#C4757F", roughness: 0.45 });
+const lipMat = new THREE.MeshPhysicalMaterial({ color: "#B0626A", roughness: 0.42, clearcoat: 0.2 });
 const mouthInnerMat = new THREE.MeshStandardMaterial({ color: "#4A1523", roughness: 0.7 });
 const teethMat = new THREE.MeshStandardMaterial({ color: "#FFFFFF", roughness: 0.3 });
+const innerEarMat = new THREE.MeshStandardMaterial({ color: "#9C6A44", roughness: 0.6 });
+const nostrilMat = new THREE.MeshStandardMaterial({ color: "#3E2316", roughness: 0.8 });
 const blushMat = new THREE.MeshStandardMaterial({
-  color: "#F0B8A8",
+  color: "#D98A68",
   roughness: 0.6,
-  emissive: "#E8937F",
-  emissiveIntensity: 0.08,
+  emissive: "#C77A5E",
+  emissiveIntensity: 0.05,
 });
 const irisMat = new THREE.MeshStandardMaterial({ map: irisTex, roughness: 0.25 });
 
@@ -230,8 +235,8 @@ const StudentRig = (props) => {
       headTrackRef.current.rotation.x = THREE.MathUtils.damp(headTrackRef.current.rotation.x, -0.02, 3, dt);
       applyPose(POSE.rest.rs, POSE.rest.re, POSE.rest.ls, POSE.rest.le, 3, dt);
       jawRef.current.rotation.x = THREE.MathUtils.damp(jawRef.current.rotation.x, -0.02, 8, dt);
-      cornerLRef.current.position.y = 0.008;
-      cornerRRef.current.position.y = 0.008;
+      cornerLRef.current.position.y = -0.07;
+      cornerRRef.current.position.y = -0.07;
       return;
     }
 
@@ -269,8 +274,8 @@ const StudentRig = (props) => {
     // natural smile (always present, stronger when happy)
     const happy = hoverRef.current || gRef.current === 4;
     smileAmt.current = THREE.MathUtils.damp(smileAmt.current, happy ? 1 : 0.6, 5, dt);
-    cornerLRef.current.position.y = 0.004 + smileAmt.current * 0.006;
-    cornerRRef.current.position.y = 0.004 + smileAmt.current * 0.006;
+    cornerLRef.current.position.y = -0.074 + smileAmt.current * 0.008;
+    cornerRRef.current.position.y = -0.074 + smileAmt.current * 0.008;
     blushMat.emissiveIntensity = 0.08 + smileAmt.current * 0.45;
 
     // head looks toward the user's cursor + gentle idle sway
@@ -524,159 +529,242 @@ const StudentRig = (props) => {
         <group position={[0, 0.76, 0]}>
           <group ref={headTrackRef}>
             <group ref={headBobRef}>
-              {/* skull */}
-              <mesh position={[0, 0.09, 0]} scale={[1, 1.1, 0.98]}>
-                <sphereGeometry args={[0.21, 32, 24]} />
+              {/* ---- skull (human egg shape, not a sphere) ---- */}
+              <mesh position={[0, 0.1, -0.01]} scale={[0.94, 1.12, 0.97]}>
+                <sphereGeometry args={[0.2, 32, 24]} />
                 <primitive object={skinMat} />
               </mesh>
-              {/* chin / jaw volume */}
-              <mesh position={[0, -0.04, 0.04]} scale={[0.9, 0.7, 0.8]}>
+              {/* crown volume */}
+              <mesh position={[0, 0.21, 0.01]} scale={[0.88, 0.9, 0.9]}>
                 <sphereGeometry args={[0.11, 24, 18]} />
                 <primitive object={skinMat} />
               </mesh>
-              {/* ears */}
-              <mesh position={[-0.2, 0.04, 0]} scale={[0.45, 0.85, 0.5]}>
-                <sphereGeometry args={[0.045, 16, 12]} />
+              {/* jaw + chin definition */}
+              <mesh position={[0, -0.06, 0.04]} scale={[0.95, 0.6, 0.85]}>
+                <sphereGeometry args={[0.12, 24, 18]} />
                 <primitive object={skinMat} />
               </mesh>
-              <mesh position={[0.2, 0.04, 0]} scale={[0.45, 0.85, 0.5]}>
-                <sphereGeometry args={[0.045, 16, 12]} />
+              <mesh position={[0, -0.16, 0.05]} scale={[0.78, 0.85, 0.7]}>
+                <sphereGeometry args={[0.07, 20, 16]} />
                 <primitive object={skinMat} />
               </mesh>
-              {/* blush */}
-              <mesh position={[-0.12, 0.0, 0.195]} scale={[1, 0.7, 0.5]}>
+              <mesh position={[-0.14, -0.06, 0.03]} scale={[0.45, 0.5, 0.75]}>
+                <sphereGeometry args={[0.07, 20, 16]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.14, -0.06, 0.03]} scale={[0.45, 0.5, 0.75]}>
+                <sphereGeometry args={[0.07, 20, 16]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* cheeks */}
+              <mesh position={[-0.13, 0.0, 0.08]} scale={[0.5, 0.75, 0.5]}>
+                <sphereGeometry args={[0.06, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.13, 0.0, 0.08]} scale={[0.5, 0.75, 0.5]}>
+                <sphereGeometry args={[0.06, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* ears (layered outer + inner) */}
+              <mesh position={[-0.185, 0.03, -0.01]} scale={[0.35, 0.8, 0.4]}>
+                <sphereGeometry args={[0.052, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[-0.196, 0.035, 0.0]} scale={[0.32, 0.55, 0.35]}>
+                <sphereGeometry args={[0.035, 14, 10]} />
+                <primitive object={innerEarMat} />
+              </mesh>
+              <mesh position={[0.185, 0.03, -0.01]} scale={[0.35, 0.8, 0.4]}>
+                <sphereGeometry args={[0.052, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.196, 0.035, 0.0]} scale={[0.32, 0.55, 0.35]}>
+                <sphereGeometry args={[0.035, 14, 10]} />
+                <primitive object={innerEarMat} />
+              </mesh>
+              {/* subtle blush */}
+              <mesh position={[-0.115, -0.015, 0.185]} scale={[1, 0.7, 0.5]}>
                 <sphereGeometry args={[0.026, 16, 12]} />
                 <primitive object={blushMat} />
               </mesh>
-              <mesh position={[0.12, 0.0, 0.195]} scale={[1, 0.7, 0.5]}>
+              <mesh position={[0.115, -0.015, 0.185]} scale={[1, 0.7, 0.5]}>
                 <sphereGeometry args={[0.026, 16, 12]} />
                 <primitive object={blushMat} />
               </mesh>
 
-              {/* ---- eyes (flat premium iris discs ΓÇö no bug-eye bulge) ---- */}
-              <group position={[-0.11, 0.055, 0.16]}>
-                <mesh scale={[1, 1.05, 0.5]}>
-                  <sphereGeometry args={[0.085, 24, 18]} />
+              {/* ---- eyes (glossy eyeballs recessed in the socket) ---- */}
+              <group position={[-0.105, 0.045, 0.145]}>
+                <mesh scale={[1, 1.05, 0.55]}>
+                  <sphereGeometry args={[0.072, 24, 18]} />
                   <primitive object={scleraMat} />
                 </mesh>
                 <group ref={lidLRef}>
-                  <mesh position={[0, 0.06, 0.01]} scale={[1, 0.55, 0.6]}>
-                    <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                  <mesh position={[0, 0.055, 0.01]} scale={[1, 0.6, 0.6]}>
+                    <sphereGeometry args={[0.082, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
                     <primitive object={skinMat} />
                   </mesh>
                 </group>
-                <mesh position={[0, -0.06, 0.01]} scale={[1, 0.55, 0.6]}>
-                  <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+                <mesh position={[0, -0.055, 0.01]} scale={[1, 0.6, 0.6]}>
+                  <sphereGeometry args={[0.082, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
                   <primitive object={skinMat} />
                 </mesh>
-                <group ref={irisLRef} position={[0, 0, 0.038]}>
+                <group ref={irisLRef} position={[0, 0, 0.032]}>
                   <mesh>
-                    <circleGeometry args={[0.035, 24]} />
+                    <circleGeometry args={[0.034, 24]} />
                     <primitive object={irisMat} />
                   </mesh>
                   <mesh position={[0, 0, 0.002]}>
-                    <circleGeometry args={[0.016, 20]} />
+                    <circleGeometry args={[0.018, 20]} />
                     <primitive object={pupilMat} />
                   </mesh>
-                  <mesh position={[0.012, 0.012, 0.004]}>
-                    <circleGeometry args={[0.01, 16]} />
+                  <mesh position={[0.013, 0.013, 0.004]}>
+                    <circleGeometry args={[0.009, 16]} />
                     <meshStandardMaterial color="#ffffff" roughness={0.1} />
                   </mesh>
                 </group>
               </group>
-
-              <group position={[0.11, 0.055, 0.16]}>
-                <mesh scale={[1, 1.05, 0.5]}>
-                  <sphereGeometry args={[0.085, 24, 18]} />
+              <group position={[0.105, 0.045, 0.145]}>
+                <mesh scale={[1, 1.05, 0.55]}>
+                  <sphereGeometry args={[0.072, 24, 18]} />
                   <primitive object={scleraMat} />
                 </mesh>
                 <group ref={lidRRef}>
-                  <mesh position={[0, 0.06, 0.01]} scale={[1, 0.55, 0.6]}>
-                    <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                  <mesh position={[0, 0.055, 0.01]} scale={[1, 0.6, 0.6]}>
+                    <sphereGeometry args={[0.082, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
                     <primitive object={skinMat} />
                   </mesh>
                 </group>
-                <mesh position={[0, -0.06, 0.01]} scale={[1, 0.55, 0.6]}>
-                  <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+                <mesh position={[0, -0.055, 0.01]} scale={[1, 0.6, 0.6]}>
+                  <sphereGeometry args={[0.082, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
                   <primitive object={skinMat} />
                 </mesh>
-                <group ref={irisRRef} position={[0, 0, 0.038]}>
+                <group ref={irisRRef} position={[0, 0, 0.032]}>
                   <mesh>
-                    <circleGeometry args={[0.035, 24]} />
+                    <circleGeometry args={[0.034, 24]} />
                     <primitive object={irisMat} />
                   </mesh>
                   <mesh position={[0, 0, 0.002]}>
-                    <circleGeometry args={[0.016, 20]} />
+                    <circleGeometry args={[0.018, 20]} />
                     <primitive object={pupilMat} />
                   </mesh>
-                  <mesh position={[0.012, 0.012, 0.004]}>
-                    <circleGeometry args={[0.01, 16]} />
+                  <mesh position={[0.013, 0.013, 0.004]}>
+                    <circleGeometry args={[0.009, 16]} />
                     <meshStandardMaterial color="#ffffff" roughness={0.1} />
                   </mesh>
                 </group>
               </group>
 
               {/* brows */}
-              <mesh ref={browLRef} position={[-0.115, 0.125, 0.2]} rotation={[0, 0, 0.06]}>
-                <boxGeometry args={[0.095, 0.018, 0.02]} />
+              <mesh ref={browLRef} position={[-0.105, 0.125, 0.172]} rotation={[0, 0, 0.08]}>
+                <boxGeometry args={[0.1, 0.016, 0.02]} />
                 <primitive object={hairMat} />
               </mesh>
-              <mesh ref={browRRef} position={[0.115, 0.125, 0.2]} rotation={[0, 0, -0.06]}>
-                <boxGeometry args={[0.095, 0.018, 0.02]} />
+              <mesh ref={browRRef} position={[0.105, 0.125, 0.172]} rotation={[0, 0, -0.08]}>
+                <boxGeometry args={[0.1, 0.016, 0.02]} />
                 <primitive object={hairMat} />
               </mesh>
 
-              {/* nose */}
-              <mesh position={[0, 0.005, 0.2]} scale={[0.7, 0.9, 0.5]}>
-                <sphereGeometry args={[0.03, 18, 14]} />
+              {/* ---- nose: bridge + tip + alae + nostrils ---- */}
+              <mesh position={[0, 0.05, 0.168]} rotation={[0.3, 0, 0]}>
+                <boxGeometry args={[0.028, 0.09, 0.02]} />
                 <primitive object={skinMat} />
               </mesh>
+              <mesh position={[0, 0.015, 0.188]} rotation={[0.14, 0, 0]}>
+                <boxGeometry args={[0.024, 0.07, 0.02]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0, -0.025, 0.205]} scale={[0.9, 0.85, 0.9]}>
+                <sphereGeometry args={[0.034, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[-0.034, -0.048, 0.195]} scale={[0.85, 0.8, 0.9]}>
+                <sphereGeometry args={[0.028, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.034, -0.048, 0.195]} scale={[0.85, 0.8, 0.9]}>
+                <sphereGeometry args={[0.028, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[-0.02, -0.058, 0.2]} scale={[1, 0.7, 0.8]}>
+                <sphereGeometry args={[0.011, 12, 10]} />
+                <primitive object={nostrilMat} />
+              </mesh>
+              <mesh position={[0.02, -0.058, 0.2]} scale={[1, 0.7, 0.8]}>
+                <sphereGeometry args={[0.011, 12, 10]} />
+                <primitive object={nostrilMat} />
+              </mesh>
 
-              {/* jaw rig (hinges at the back of the mouth) */}
-              <group ref={jawRef} position={[0, -0.05, 0.16]}>
-                <mesh position={[0, 0, 0.02]} scale={[1.1, 0.6, 0.5]}>
-                  <sphereGeometry args={[0.05, 18, 14]} />
+              {/* ---- mouth: fuller lips + jaw rig ---- */}
+              <mesh position={[0, -0.075, 0.185]}>
+                <torusGeometry args={[0.052, 0.016, 8, 20, Math.PI]} />
+                <primitive object={lipMat} />
+              </mesh>
+              <group ref={jawRef} position={[0, -0.075, 0.15]}>
+                <mesh position={[0, 0, 0.025]} scale={[1.1, 0.6, 0.5]}>
+                  <sphereGeometry args={[0.048, 18, 14]} />
                   <primitive object={mouthInnerMat} />
                 </mesh>
-                <mesh position={[0, 0.01, 0.045]}>
-                  <boxGeometry args={[0.05, 0.018, 0.01]} />
+                <mesh position={[0, 0.012, 0.048]}>
+                  <boxGeometry args={[0.048, 0.016, 0.01]} />
                   <primitive object={teethMat} />
                 </mesh>
-                <mesh position={[0, -0.018, 0.05]} rotation={[0, 0, Math.PI]}>
-                  <torusGeometry args={[0.042, 0.013, 8, 18, Math.PI]} />
+                <mesh position={[0, -0.022, 0.05]} rotation={[0, 0, Math.PI]}>
+                  <torusGeometry args={[0.048, 0.016, 8, 18, Math.PI]} />
                   <primitive object={lipMat} />
                 </mesh>
               </group>
-              {/* upper lip (static) */}
-              <mesh position={[0, -0.02, 0.19]}>
-                <torusGeometry args={[0.048, 0.013, 8, 20, Math.PI]} />
+              <mesh ref={cornerLRef} position={[-0.052, -0.074, 0.182]}>
+                <sphereGeometry args={[0.013, 12, 10]} />
                 <primitive object={lipMat} />
               </mesh>
-              {/* smile corners */}
-              <mesh ref={cornerLRef} position={[-0.05, -0.02, 0.19]}>
-                <sphereGeometry args={[0.014, 12, 10]} />
-                <primitive object={lipMat} />
-              </mesh>
-              <mesh ref={cornerRRef} position={[0.05, -0.02, 0.19]}>
-                <sphereGeometry args={[0.014, 12, 10]} />
+              <mesh ref={cornerRRef} position={[0.052, -0.074, 0.182]}>
+                <sphereGeometry args={[0.013, 12, 10]} />
                 <primitive object={lipMat} />
               </mesh>
 
-              {/* modern hair */}
-              <mesh position={[0, 0.1, -0.01]} scale={[1.02, 0.82, 1.06]}>
-                <sphereGeometry args={[0.225, 32, 24]} />
+              {/* ---- layered modern hair (side-part + textured fringe) ---- */}
+              <mesh position={[0, 0.16, -0.04]} scale={[1.0, 0.98, 0.95]}>
+                <sphereGeometry args={[0.205, 32, 24]} />
                 <primitive object={hairMat} />
               </mesh>
-              <mesh position={[0, 0.1, 0.02]} scale={[1.02, 0.85, 1.06]}>
-                <sphereGeometry args={[0.225, 32, 24, 0, Math.PI * 2, 0.7, 0.35]} />
+              {/* crown clumps */}
+              <mesh position={[0, 0.225, 0.0]} scale={[1.1, 0.4, 1.0]}>
+                <sphereGeometry args={[0.09, 20, 16]} />
                 <primitive object={hairMat} />
               </mesh>
-              <mesh position={[-0.19, 0.08, 0.02]} scale={[0.035, 0.09, 0.05]}>
-                <boxGeometry args={[1, 1, 1]} />
+              <mesh position={[-0.06, 0.23, 0.05]} scale={[1.0, 0.4, 0.9]}>
+                <sphereGeometry args={[0.055, 18, 14]} />
                 <primitive object={hairMat} />
               </mesh>
-              <mesh position={[0.19, 0.08, 0.02]} scale={[0.035, 0.09, 0.05]}>
-                <boxGeometry args={[1, 1, 1]} />
+              <mesh position={[0.06, 0.23, 0.05]} scale={[1.0, 0.4, 0.9]}>
+                <sphereGeometry args={[0.055, 18, 14]} />
+                <primitive object={hairMat} />
+              </mesh>
+              {/* textured fringe */}
+              <mesh position={[0, 0.2, 0.15]} rotation={[0.3, 0, 0]} scale={[1.25, 0.4, 0.6]}>
+                <sphereGeometry args={[0.05, 18, 14]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[-0.055, 0.195, 0.165]} rotation={[0.3, 0, 0.14]} scale={[1.0, 0.4, 0.55]}>
+                <sphereGeometry args={[0.04, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[0.055, 0.195, 0.165]} rotation={[0.3, 0, -0.14]} scale={[1.0, 0.4, 0.55]}>
+                <sphereGeometry args={[0.04, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
+              {/* temples / sideburns */}
+              <mesh position={[-0.145, 0.1, -0.01]} scale={[0.45, 1.15, 0.8]}>
+                <sphereGeometry args={[0.042, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[0.145, 0.1, -0.01]} scale={[0.45, 1.15, 0.8]}>
+                <sphereGeometry args={[0.042, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
+              {/* back nape */}
+              <mesh position={[0, 0.12, -0.13]} scale={[1.1, 0.6, 0.5]}>
+                <sphereGeometry args={[0.055, 18, 14]} />
                 <primitive object={hairMat} />
               </mesh>
 
