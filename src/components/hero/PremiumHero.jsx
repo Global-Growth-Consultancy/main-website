@@ -32,7 +32,7 @@ const fadeUp = {
 const headlineLines = [
   { text: "Your Dream.", className: "text-white" },
   { text: "Our Mission.", className: "text-gradient" },
-  { text: "Funded. Guided. Achieved.", className: "text-gradient-gold" },
+  { text: "Funded. Guided. Achieved.", className: "shimmer-gold" },
 ];
 
 const statChips = [

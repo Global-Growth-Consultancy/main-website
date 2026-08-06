@@ -1,97 +1,171 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 // ------------------------------------------------------------------
-// NexusField — a living 2D particle network on a plain <canvas>.
-// Drifting nodes that connect with hairline arcs when close, plus a
-// soft glow ring that follows the pointer. Reads as "data network of
-// students → colleges → loans", not as a 3D toy. GPU-cheap, runs at
-// 60fps, pauses when off-screen, honours reduced motion.
+// NexusField — a living neural constellation for the hero.
+//
+// • Three depth layers (far / mid / near) with different size, speed
+//   and brightness so the network feels 3D.
+// • Nodes drift, twinkle, and subtly repel from the pointer (mouse or
+//   touch) — the network reacts to you.
+// • Golden "signal" pulses periodically travel between near-layer
+//   nodes, like data moving across the GGC network.
+// • Distance-faded hairline links that breathe with a global pulse.
+// • Pauses off-screen via IntersectionObserver, honours
+//   prefers-reduced-motion, capped DPR for performance.
 // ------------------------------------------------------------------
 
-const PALETTE = ['#38bdf8', '#7dd3fc', '#fbbf24', '#a78bfa'];
+const COLORS = ["56,189,248", "125,211,252", "167,139,250", "251,191,36"];
+const MAX_NODES = 150;
 
-const NexusField = ({ className = '', density = 'auto' }) => {
+function densityFor(width, height) {
+  const area = width * height;
+  if (area > 1100000) return MAX_NODES;
+  if (area > 560000) return 110;
+  return 70;
+}
+
+const NexusField = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
-    const ctx = canvas.getContext('2d', { alpha: true });
-    if (!ctx) return undefined;
+    const ctx = canvas.getContext("2d");
+    const parent = canvas.parentElement;
 
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let width = 0;
     let height = 0;
-    let dpr = 1;
-    let rafId = 0;
-    let running = true;
-    let particles = [];
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let nodes = [];
+    let pulses = [];
+    let raf = 0;
+    let running = false;
+    let lastPulseAt = 0;
+    let linkDist = 128;
     const pointer = { x: -9999, y: -9999, active: false };
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const buildParticles = () => {
-      const area = width * height;
-      let count = 90;
-      if (density === 'auto') {
-        count = area < 250000 ? 70 : area < 520000 ? 110 : 150;
-      } else if (density === 'sparse') {
-        count = Math.round(area / 15000);
-      } else if (density === 'dense') {
-        count = Math.round(area / 5200);
-      }
-      count = Math.max(40, Math.min(count, 190));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        r: 0.8 + Math.random() * 1.7,
-        color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-        twinkle: Math.random() * Math.PI * 2,
-      }));
-    };
-
-    const resize = () => {
-      const rect = canvas.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      width = rect.width;
-      height = rect.height;
+    const build = () => {
+      const rect = parent.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      buildParticles();
+      linkDist = width < 640 ? 92 : 128;
+
+      const count = Math.min(densityFor(width, height), MAX_NODES);
+      nodes = [];
+      for (let i = 0; i < count; i += 1) {
+        const layer = Math.random();
+        const near = layer >= 0.8;
+        const r = layer < 0.45
+          ? 0.9 + Math.random() * 0.9
+          : layer < 0.8
+            ? 1.5 + Math.random() * 1.1
+            : 2.2 + Math.random() * 1.4;
+        const speedBase = layer < 0.45 ? 0.14 : layer < 0.8 ? 0.24 : 0.36;
+        nodes.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * speedBase,
+          vy: (Math.random() - 0.5) * speedBase,
+          r,
+          near,
+          c: COLORS[Math.floor(Math.random() * COLORS.length)],
+          tw: Math.random() * Math.PI * 2,
+          ts: 0.6 + Math.random() * 1.4,
+          baseA: near ? 0.85 : layer < 0.45 ? 0.16 : 0.4,
+        });
+      }
+      pulses = [];
     };
 
-    const step = (t) => {
-      if (!running) return;
+    const spawnPulse = () => {
+      const candidates = nodes.filter((n) => n.near || Math.random() < 0.4);
+      if (candidates.length < 2) return;
+      const a = candidates[Math.floor(Math.random() * candidates.length)];
+      const b = candidates[Math.floor(Math.random() * candidates.length)];
+      if (a === b) return;
+      pulses.push({
+        x0: a.x, y0: a.y, x1: b.x, y1: b.y,
+        t: 0,
+        speed: 0.009 + Math.random() * 0.006,
+        hue: Math.random() < 0.55 ? "251,191,36" : "125,211,252",
+      });
+      if (pulses.length > 6) pulses.shift();
+    };
+
+    const drawStatic = () => {
       ctx.clearRect(0, 0, width, height);
-      const time = t * 0.001;
-
-      // Move particles
-      for (const p of particles) {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vx += Math.sin(time * 0.4 + p.twinkle) * 0.0012;
-        p.vy += Math.cos(time * 0.35 + p.twinkle) * 0.0012;
-        if (p.x < -10) p.x = width + 10;
-        if (p.x > width + 10) p.x = -10;
-        if (p.y < -10) p.y = height + 10;
-        if (p.y > height + 10) p.y = -10;
-      }
-
-      // Connection lines (hairline, distance-faded)
-      const linkDist = width < 640 ? 92 : 128;
-      for (let i = 0; i < particles.length; i++) {
-        const a = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-          const b = particles[j];
+      for (let i = 0; i < nodes.length; i += 1) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j += 1) {
+          const b = nodes[j];
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const d2 = dx * dx + dy * dy;
           if (d2 < linkDist * linkDist) {
+            const alpha = (1 - Math.sqrt(d2) / linkDist) * 0.3;
+            ctx.strokeStyle = `rgba(56,189,248,${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        ctx.fillStyle = `rgba(${n.c},${n.baseA * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const step = (time) => {
+      ctx.clearRect(0, 0, width, height);
+
+      const globalPulse = 0.82 + 0.18 * Math.sin(time * 0.0012);
+      const radius = linkDist;
+
+      // --- update nodes (drift + pointer repulsion) ---
+      for (const n of nodes) {
+        const dx = n.x - pointer.x;
+        const dy = n.y - pointer.y;
+        const d2 = dx * dx + dy * dy;
+        if (pointer.active && d2 < radius * radius) {
+          const d = Math.sqrt(d2) || 1;
+          const f = (1 - d / radius) * 0.4;
+          n.vx += (dx / d) * f;
+          n.vy += (dy / d) * f;
+        }
+        n.vx *= 0.984;
+        n.vy *= 0.984;
+        if (n.x < 8) n.vx += 0.09; else if (n.x > width - 8) n.vx -= 0.09;
+        if (n.y < 8) n.vy += 0.09; else if (n.y > height - 8) n.vy -= 0.09;
+        n.x += n.vx;
+        n.y += n.vy;
+        if (n.x < -24) n.x = width + 24; else if (n.x > width + 24) n.x = -24;
+        if (n.y < -24) n.y = height + 24; else if (n.y > height + 24) n.y = -24;
+      }
+
+      // --- links ---
+      for (let i = 0; i < nodes.length; i += 1) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j += 1) {
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < radius * radius) {
             const d = Math.sqrt(d2);
-            const alpha = (1 - d / linkDist) * 0.16;
-            ctx.strokeStyle = `rgba(125, 211, 252, ${alpha})`;
-            ctx.lineWidth = 0.7;
+            const alpha = (1 - d / radius) * 0.34 * globalPulse;
+            ctx.strokeStyle = `rgba(56,189,248,${alpha})`;
+            ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
@@ -100,53 +174,83 @@ const NexusField = ({ className = '', density = 'auto' }) => {
         }
       }
 
-      // Draw nodes with soft glow
-      for (const p of particles) {
-        const glow = 0.5 + Math.sin(time * 1.6 + p.twinkle) * 0.25;
-        ctx.globalAlpha = 0.75 * glow + 0.25;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 0.14 * glow;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r * 4.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      // Pointer influence — a ring that gently links nearby nodes
-      if (pointer.active) {
-        const rad = 150;
-        for (const p of particles) {
-          const dx = p.x - pointer.x;
-          const dy = p.y - pointer.y;
-          const d = Math.hypot(dx, dy);
-          if (d < rad) {
-            const alpha = (1 - d / rad) * 0.5;
-            ctx.strokeStyle = `rgba(251, 191, 36, ${alpha * 0.5})`;
-            ctx.lineWidth = 0.8;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(pointer.x, pointer.y);
-            ctx.stroke();
-          }
+      // --- signal pulses travelling across the network ---
+      for (let k = pulses.length - 1; k >= 0; k -= 1) {
+        const p = pulses[k];
+        p.t += p.speed;
+        if (p.t >= 1) {
+          pulses.splice(k, 1);
+          continue;
         }
-        ctx.strokeStyle = 'rgba(251, 191, 36, 0.55)';
-        ctx.lineWidth = 1.4;
+        const x = p.x0 + (p.x1 - p.x0) * p.t;
+        const y = p.y0 + (p.y1 - p.y0) * p.t;
+        const fade = Math.sin(p.t * Math.PI);
+        const trail = ctx.createRadialGradient(x, y, 0, x, y, 15);
+        trail.addColorStop(0, `rgba(${p.hue},${0.85 * fade})`);
+        trail.addColorStop(1, `rgba(${p.hue},0)`);
+        ctx.fillStyle = trail;
         ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(251, 191, 36, 0.22)';
-        ctx.lineWidth = 1;
+        ctx.arc(x, y, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(${p.hue},${0.95 * fade})`;
         ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 22 + Math.sin(time * 2.4) * 6, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(x, y, 2.3, 0, Math.PI * 2);
+        ctx.fill();
       }
 
-      rafId = requestAnimationFrame(step);
+      // --- spawn a pulse periodically ---
+      if (time - lastPulseAt > 1500 + Math.random() * 1300) {
+        spawnPulse();
+        lastPulseAt = time;
+      }
+
+      // --- nodes (twinkle + near-layer glow) ---
+      for (const n of nodes) {
+        const tw = 0.6 + 0.4 * Math.sin(time * 0.001 * n.ts + n.tw);
+        const alpha = n.baseA * tw * globalPulse;
+        ctx.fillStyle = `rgba(${n.c},${alpha})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+        if (n.near) {
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+          g.addColorStop(0, `rgba(${n.c},${alpha * 0.26})`);
+          g.addColorStop(1, `rgba(${n.c},0)`);
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // --- pointer halo (only while pointer is inside) ---
+      if (pointer.active) {
+        const g = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, 30);
+        g.addColorStop(0, "rgba(251,191,36,0.4)");
+        g.addColorStop(0.25, "rgba(251,191,36,0.12)");
+        g.addColorStop(1, "rgba(251,191,36,0)");
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(pointer.x, pointer.y, 30, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      raf = requestAnimationFrame(step);
     };
 
+    const start = () => {
+      if (running) return;
+      running = true;
+      lastPulseAt = performance.now();
+      raf = requestAnimationFrame(step);
+    };
+
+    const stop = () => {
+      running = false;
+      cancelAnimationFrame(raf);
+    };
+
+    // --- events ---
     const onPointerMove = (e) => {
       const rect = canvas.getBoundingClientRect();
       pointer.x = e.clientX - rect.left;
@@ -155,43 +259,67 @@ const NexusField = ({ className = '', density = 'auto' }) => {
     };
     const onPointerLeave = () => {
       pointer.active = false;
+      pointer.x = -9999;
+      pointer.y = -9999;
     };
+    const onPointerDown = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = e.clientX - rect.left;
+      pointer.y = e.clientY - rect.top;
+      pointer.active = true;
+    };
+
+    canvas.addEventListener("pointermove", onPointerMove);
+    canvas.addEventListener("pointerdown", onPointerDown);
+    canvas.addEventListener("pointerleave", onPointerLeave);
+    canvas.addEventListener("pointerup", onPointerLeave);
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => {
+        build();
+        if (reduced) drawStatic();
+      });
+      resizeObserver.observe(parent);
+    } else {
+      window.addEventListener("resize", () => {
+        build();
+        if (reduced) drawStatic();
+      });
+    }
 
     const io = new IntersectionObserver(
       ([entry]) => {
-        running = entry.isIntersecting;
-        if (running && !reduceMotion) {
-          cancelAnimationFrame(rafId);
-          rafId = requestAnimationFrame(step);
+        if (entry.isIntersecting) {
+          if (reduced) drawStatic();
+          else start();
+        } else {
+          stop();
         }
       },
-      { rootMargin: '120px' }
+      { threshold: 0 }
     );
     io.observe(canvas);
 
-    resize();
-    window.addEventListener('resize', resize);
-    canvas.addEventListener('pointermove', onPointerMove);
-    canvas.addEventListener('pointerleave', onPointerLeave);
-
-    if (!reduceMotion) {
-      rafId = requestAnimationFrame(step);
+    build();
+    if (reduced) {
+      drawStatic();
     } else {
-      step(0);
-      cancelAnimationFrame(rafId);
+      start();
     }
 
     return () => {
-      running = false;
-      cancelAnimationFrame(rafId);
+      stop();
       io.disconnect();
-      window.removeEventListener('resize', resize);
-      canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('pointerleave', onPointerLeave);
+      if (resizeObserver) resizeObserver.disconnect();
+      canvas.removeEventListener("pointermove", onPointerMove);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+      canvas.removeEventListener("pointerup", onPointerLeave);
     };
-  }, [density]);
+  }, []);
 
-  return <canvas ref={canvasRef} className={`block w-full h-full ${className}`} aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" aria-hidden="true" />;
 };
 
 export default NexusField;
