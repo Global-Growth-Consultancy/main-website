@@ -10,13 +10,14 @@ gsap.registerPlugin(ScrollTrigger);
 // ------------------------------------------------------------------
 // StudentPerformer — a fully code-built living character.
 //
-// • SVG student mascot ("Aarav") performs a scroll-scrubbed story:
-//   waves, talks with lipsync, gestures and points with two-joint
-//   (shoulder + elbow) arms — as the user scrolls through the hero.
-// • Always-on idle life: blinking, breathing, gentle head sway and
-//   eyes that look around — so he feels real, not stiff.
+// • SVG student mascot ("Aarav") performs in REAL TIME, on its own —
+//   no scroll required. Every quote is a "chapter": the character
+//   gestures (wave, talk with hands, point, open arms) and talks with
+//   real-time lipsync, then settles back to a calm idle loop.
+// • Always-on idle life: blinking, breathing, gentle head sway.
 // • A timed quote bar on top cycles 5 captions with a countdown timer
-//   and an advancing progress bar; each quote auto-rotates.
+//   and an advancing progress bar; each quote auto-rotates and the
+//   character performs its matching chapter live.
 // ------------------------------------------------------------------
 
 const QUOTES = [
@@ -28,6 +29,7 @@ const QUOTES = [
 ];
 
 const QUOTE_SECONDS = 4.8;
+const TALK_MS = 3200;
 
 const formatTime = (s) => {
   const m = Math.floor(s / 60);
@@ -37,6 +39,7 @@ const formatTime = (s) => {
 
 const StudentPerformer = () => {
   const wrapRef = useRef(null);
+  const svgRef = useRef(null);
   const figureRef = useRef(null);
   const breatheRef = useRef(null);
   const headRef = useRef(null);
@@ -50,11 +53,11 @@ const StudentPerformer = () => {
   const mouthRef = useRef(null);
   const eyesRef = useRef(null);
   const hoverRef = useRef(false);
+  const reducedRef = useRef(false);
 
   const [qIndex, setQIndex] = useState(0);
   const [typed, setTyped] = useState("");
   const [countdown, setCountdown] = useState(QUOTE_SECONDS);
-  const [showHint, setShowHint] = useState(true);
 
   // ---- timed quote rotation + countdown ----
   useEffect(() => {
@@ -72,33 +75,13 @@ const StudentPerformer = () => {
     return () => clearInterval(id);
   }, []);
 
-  // ---- typewriter text per quote + small character "pop" ----
-  useEffect(() => {
-    const full = QUOTES[qIndex];
-    setTyped("");
-    setCountdown(QUOTE_SECONDS);
-    if (qIndex > 0 && figureRef.current) {
-      gsap.fromTo(
-        figureRef.current,
-        { scale: 1 },
-        { scale: 1.025, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out" }
-      );
-    }
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setTyped(full.slice(0, i));
-      if (i >= full.length) clearInterval(id);
-    }, 26);
-    return () => clearInterval(id);
-  }, [qIndex]);
-
-  // ---- main choreography (scroll scrub + idle loops) ----
+  // ---- idle life: blinking + breathing + head sway + scroll tilt ----
   useEffect(() => {
     const root = wrapRef.current;
     if (!root) return undefined;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = reducedRef.current;
     const triggerEl = root.closest("section") || root;
     const lenis = window.__lenis;
     if (lenis) lenis.on("scroll", ScrollTrigger.update);
@@ -123,162 +106,31 @@ const StudentPerformer = () => {
 
       if (reduced) return;
 
-      // ---- idle life: blinking + breathing + head sway ----
-      const blink = gsap.timeline({ repeat: -1, repeatDelay: 2.4 });
+      // blinking
+      const blink = gsap.timeline({ repeat: -1, repeatDelay: 2.2 });
       blink
         .to(eyesRef.current, { scaleY: 0.08, duration: 0.07, ease: "power2.in" })
         .to(eyesRef.current, { scaleY: 1, duration: 0.1, ease: "power2.out" });
 
+      // breathing
       const breathe = gsap.timeline({ repeat: -1, yoyo: true });
       breathe
         .to(breatheRef.current, { scaleY: 1.014, scaleX: 1.004, duration: 2.1, ease: "sine.inOut" })
         .to(breatheRef.current, { scaleY: 1, scaleX: 1, duration: 2.3, ease: "sine.inOut" });
 
+      // head sway
       const sway = gsap.timeline({ repeat: -1, yoyo: true });
       sway
-        .to(headIdleRef.current, { rotation: 2, duration: 2.2, ease: "sine.inOut" })
-        .to(headIdleRef.current, { rotation: -2, duration: 2.4, ease: "sine.inOut" });
+        .to(headIdleRef.current, { rotation: 1.6, duration: 2.2, ease: "sine.inOut" })
+        .to(headIdleRef.current, { rotation: -1.6, duration: 2.4, ease: "sine.inOut" });
 
-      const tl = gsap.timeline({ defaults: { ease: "none" }, paused: true });
-
-      // --- head ---
-      tl.to(headRef.current, { rotation: -6, duration: 0.05 }, 0)
-        .to(headRef.current, { rotation: 4, duration: 0.05 }, 0.05)
-        .to(headRef.current, { rotation: 0, duration: 0.04 }, 0.1)
-        .to(headRef.current, { rotation: 3, duration: 0.11 }, 0.14)
-        .to(headRef.current, { rotation: -3, duration: 0.11 }, 0.25)
-        .to(headRef.current, { rotation: 0, duration: 0.04 }, 0.36)
-        .to(headRef.current, { rotation: 4, duration: 0.12 }, 0.4)
-        .to(headRef.current, { rotation: -4, duration: 0.12 }, 0.52)
-        .to(headRef.current, { rotation: 0, duration: 0.06 }, 0.58)
-        .to(headRef.current, { rotation: -3, duration: 0.08 }, 0.64)
-        .to(headRef.current, { rotation: 2, duration: 0.08 }, 0.72)
-        .to(headRef.current, { rotation: 0, duration: 0.06 }, 0.78)
-        .to(headRef.current, { rotation: 3, duration: 0.1 }, 0.84)
-        .to(headRef.current, { rotation: -2, duration: 0.1 }, 0.94);
-
-      // --- eyes look around while talking ---
-      tl.to(eyesRef.current, { x: 1.5, duration: 0.12 }, 0.16)
-        .to(eyesRef.current, { x: -1, duration: 0.12 }, 0.3)
-        .to(eyesRef.current, { x: 2, duration: 0.12 }, 0.42)
-        .to(eyesRef.current, { x: 0, duration: 0.12 }, 0.56)
-        .to(eyesRef.current, { x: -1.5, duration: 0.12 }, 0.7)
-        .to(eyesRef.current, { x: 2.5, duration: 0.12 }, 0.86)
-        .to(eyesRef.current, { x: 0, duration: 0.1 }, 0.98);
-
-      // --- right arm: shoulder (wave → talk → point out → open → point fwd) ---
-      tl.to(armRRef.current, { rotation: -32, duration: 0.02 }, 0.01)
-        .to(armRRef.current, { rotation: -18, duration: 0.02 }, 0.03)
-        .to(armRRef.current, { rotation: -34, duration: 0.02 }, 0.05)
-        .to(armRRef.current, { rotation: -16, duration: 0.02 }, 0.07)
-        .to(armRRef.current, { rotation: -30, duration: 0.02 }, 0.09)
-        .to(armRRef.current, { rotation: -20, duration: 0.02 }, 0.11)
-        .to(armRRef.current, { rotation: 0, duration: 0.03 }, 0.12)
-        .to(armRRef.current, { rotation: 20, duration: 0.04 }, 0.18)
-        .to(armRRef.current, { rotation: 12, duration: 0.06 }, 0.24)
-        .to(armRRef.current, { rotation: 22, duration: 0.06 }, 0.3)
-        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.36)
-        .to(armRRef.current, { rotation: -55, duration: 0.04 }, 0.4)
-        .to(armRRef.current, { rotation: -38, duration: 0.06 }, 0.46)
-        .to(armRRef.current, { rotation: -50, duration: 0.06 }, 0.52)
-        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.58)
-        .to(armRRef.current, { rotation: -40, duration: 0.04 }, 0.62)
-        .to(armRRef.current, { rotation: -24, duration: 0.06 }, 0.68)
-        .to(armRRef.current, { rotation: -42, duration: 0.06 }, 0.74)
-        .to(armRRef.current, { rotation: 0, duration: 0.04 }, 0.78)
-        .to(armRRef.current, { rotation: -25, duration: 0.04 }, 0.82)
-        .to(armRRef.current, { rotation: -12, duration: 0.08 }, 0.9)
-        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.96);
-
-      // --- right arm: elbow ---
-      tl.to(armRElbowRef.current, { rotation: 30, duration: 0.02 }, 0.01)
-        .to(armRElbowRef.current, { rotation: -28, duration: 0.02 }, 0.03)
-        .to(armRElbowRef.current, { rotation: 26, duration: 0.02 }, 0.05)
-        .to(armRElbowRef.current, { rotation: -24, duration: 0.02 }, 0.07)
-        .to(armRElbowRef.current, { rotation: 22, duration: 0.02 }, 0.09)
-        .to(armRElbowRef.current, { rotation: -20, duration: 0.02 }, 0.11)
-        .to(armRElbowRef.current, { rotation: 6, duration: 0.03 }, 0.12)
-        .to(armRElbowRef.current, { rotation: -30, duration: 0.04 }, 0.18)
-        .to(armRElbowRef.current, { rotation: -12, duration: 0.06 }, 0.24)
-        .to(armRElbowRef.current, { rotation: -26, duration: 0.06 }, 0.3)
-        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.36)
-        .to(armRElbowRef.current, { rotation: 45, duration: 0.04 }, 0.4)
-        .to(armRElbowRef.current, { rotation: 20, duration: 0.06 }, 0.46)
-        .to(armRElbowRef.current, { rotation: 40, duration: 0.06 }, 0.52)
-        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.58)
-        .to(armRElbowRef.current, { rotation: -15, duration: 0.04 }, 0.62)
-        .to(armRElbowRef.current, { rotation: 8, duration: 0.06 }, 0.68)
-        .to(armRElbowRef.current, { rotation: -18, duration: 0.06 }, 0.74)
-        .to(armRElbowRef.current, { rotation: 6, duration: 0.04 }, 0.78)
-        .to(armRElbowRef.current, { rotation: 65, duration: 0.04 }, 0.82)
-        .to(armRElbowRef.current, { rotation: 30, duration: 0.08 }, 0.9)
-        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.96);
-
-      // --- left arm: shoulder (soft mirror) ---
-      tl.to(armLRef.current, { rotation: -20, duration: 0.04 }, 0.18)
-        .to(armLRef.current, { rotation: -10, duration: 0.06 }, 0.24)
-        .to(armLRef.current, { rotation: -22, duration: 0.06 }, 0.3)
-        .to(armLRef.current, { rotation: 0, duration: 0.06 }, 0.36)
-        .to(armLRef.current, { rotation: 40, duration: 0.04 }, 0.62)
-        .to(armLRef.current, { rotation: 24, duration: 0.06 }, 0.68)
-        .to(armLRef.current, { rotation: 42, duration: 0.06 }, 0.74)
-        .to(armLRef.current, { rotation: 0, duration: 0.04 }, 0.78)
-        .to(armLRef.current, { rotation: 25, duration: 0.04 }, 0.82)
-        .to(armLRef.current, { rotation: 10, duration: 0.08 }, 0.9)
-        .to(armLRef.current, { rotation: 0, duration: 0.06 }, 0.96);
-
-      // --- left arm: elbow ---
-      tl.to(armLElbowRef.current, { rotation: -12, duration: 0.04 }, 0.18)
-        .to(armLElbowRef.current, { rotation: 4, duration: 0.06 }, 0.24)
-        .to(armLElbowRef.current, { rotation: -10, duration: 0.06 }, 0.3)
-        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.36)
-        .to(armLElbowRef.current, { rotation: -15, duration: 0.04 }, 0.62)
-        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.68)
-        .to(armLElbowRef.current, { rotation: -18, duration: 0.06 }, 0.74)
-        .to(armLElbowRef.current, { rotation: 6, duration: 0.04 }, 0.78)
-        .to(armLElbowRef.current, { rotation: 50, duration: 0.04 }, 0.82)
-        .to(armLElbowRef.current, { rotation: 20, duration: 0.08 }, 0.9)
-        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.96);
-
-      // --- body bob ---
-      tl.to(bodyRef.current, { y: 2.5, duration: 0.03 }, 0.03)
-        .to(bodyRef.current, { y: 0, duration: 0.02 }, 0.05)
-        .to(bodyRef.current, { y: 2, duration: 0.04 }, 0.09)
-        .to(bodyRef.current, { y: 0, duration: 0.05 }, 0.14)
-        .to(bodyRef.current, { y: 2, duration: 0.14 }, 0.3)
-        .to(bodyRef.current, { y: 0, duration: 0.06 }, 0.36)
-        .to(bodyRef.current, { y: 2, duration: 0.12 }, 0.5)
-        .to(bodyRef.current, { y: 0, duration: 0.08 }, 0.58)
-        .to(bodyRef.current, { y: 2, duration: 0.1 }, 0.7)
-        .to(bodyRef.current, { y: 0, duration: 0.08 }, 0.78)
-        .to(bodyRef.current, { y: 2, duration: 0.1 }, 0.9)
-        .to(bodyRef.current, { y: 0, duration: 0.1 }, 1);
-
-      // --- cap tassel sway ---
-      tl.to(tasselRef.current, { rotation: 12, duration: 0.12 }, 0)
-        .to(tasselRef.current, { rotation: -10, duration: 0.16 }, 0.14)
-        .to(tasselRef.current, { rotation: 14, duration: 0.12 }, 0.4)
-        .to(tasselRef.current, { rotation: -10, duration: 0.18 }, 0.58)
-        .to(tasselRef.current, { rotation: 12, duration: 0.2 }, 0.78);
-
-      // --- lipsync: fast open/close keyframes across talking windows ---
-      gsap.set(mouthRef.current, { scaleY: 0.2 });
-      for (let t = 0.02; t < 0.96; t += 0.024 + Math.random() * 0.014) {
-        const amp = t < 0.12 ? 0.5 : t < 0.58 ? 1 : 0.8;
-        tl.to(mouthRef.current, { scaleY: amp, duration: 0.012 }, t)
-          .to(mouthRef.current, { scaleY: 0.25, duration: 0.012 }, t + 0.012);
-      }
-
-      // --- scroll scrub drives the whole performance ---
+      // gentle scroll parallax lean (subtle — the character performs on its own)
+      const tilt = gsap.quickTo(svgRef.current, "rotation", { duration: 0.5, ease: "power1.out" });
       ScrollTrigger.create({
         trigger: triggerEl,
         start: "top top",
         end: "bottom top",
-        scrub: 0.5,
-        onUpdate: (self) => {
-          tl.progress(self.progress);
-          setShowHint(self.progress < 0.03);
-        },
+        onUpdate: (self) => tilt(self.progress * 2.4 - 1.2),
       });
     }, root);
 
@@ -288,6 +140,155 @@ const StudentPerformer = () => {
       if (lenis) lenis.off("scroll", ScrollTrigger.update);
     };
   }, []);
+
+  // ---- chapter performance + typewriter per quote ----
+  useEffect(() => {
+    const full = QUOTES[qIndex];
+    setTyped("");
+    setCountdown(QUOTE_SECONDS);
+
+    if (qIndex > 0 && figureRef.current) {
+      gsap.fromTo(
+        figureRef.current,
+        { scale: 1 },
+        { scale: 1.02, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out" }
+      );
+    }
+
+    let i = 0;
+    const typeId = setInterval(() => {
+      i += 1;
+      setTyped(full.slice(0, i));
+      if (i >= full.length) clearInterval(typeId);
+    }, 26);
+
+    let talkTween = null;
+    let stopTalkId = null;
+
+    if (!reducedRef.current && svgRef.current) {
+      gsap.context(() => {
+        const armR = armRRef.current;
+        const armE = armRElbowRef.current;
+        const armL = armLRef.current;
+        const armLE = armLElbowRef.current;
+        const head = headRef.current;
+        const body = bodyRef.current;
+        const eyes = eyesRef.current;
+
+        const gesture = gsap.timeline();
+        const ch = qIndex;
+
+        if (ch === 0) {
+          // intro — wave
+          gesture
+            .to(armR, { rotation: -30, duration: 0.55, ease: "power3.out" }, 0.1)
+            .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 0.95)
+            .to(armR, { rotation: -34, duration: 0.4, ease: "sine.inOut" }, 1.55)
+            .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 2.15)
+            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.4)
+            .to(armE, { rotation: 24, duration: 0.4, ease: "sine.inOut" }, 0.95)
+            .to(armE, { rotation: -26, duration: 0.4, ease: "sine.inOut" }, 1.55)
+            .to(armE, { rotation: 20, duration: 0.4, ease: "sine.inOut" }, 2.15)
+            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.4)
+            .to(head, { rotation: -5, duration: 0.5, ease: "power2.out" }, 0.15)
+            .to(head, { rotation: 0, duration: 0.6, ease: "power2.inOut" }, 0.85)
+            .to(body, { y: -1.5, duration: 0.5, ease: "sine.inOut" }, 0.15)
+            .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.3);
+        } else if (ch === 1) {
+          // admission — hands-on talk
+          gesture
+            .to(armR, { rotation: 18, duration: 0.6, ease: "power3.out" }, 0.2)
+            .to(armR, { rotation: 10, duration: 0.6, ease: "sine.inOut" }, 1.5)
+            .to(armR, { rotation: 20, duration: 0.6, ease: "sine.inOut" }, 2.5)
+            .to(armR, { rotation: 0, duration: 0.6, ease: "power3.inOut" }, 3.5)
+            .to(armE, { rotation: -28, duration: 0.6, ease: "power3.out" }, 0.3)
+            .to(armE, { rotation: -14, duration: 0.6, ease: "sine.inOut" }, 1.6)
+            .to(armE, { rotation: -26, duration: 0.6, ease: "sine.inOut" }, 2.6)
+            .to(armE, { rotation: 6, duration: 0.6, ease: "power3.inOut" }, 3.6)
+            .to(head, { rotation: 3, duration: 0.7, ease: "sine.inOut" }, 0.3)
+            .to(head, { rotation: -2, duration: 0.7, ease: "sine.inOut" }, 1.6)
+            .to(head, { rotation: 0, duration: 0.6, ease: "sine.inOut" }, 3.1)
+            .to(eyes, { x: 1.5, duration: 0.5, ease: "sine.inOut" }, 0.5)
+            .to(eyes, { x: -1, duration: 0.5, ease: "sine.inOut" }, 1.7)
+            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
+        } else if (ch === 2) {
+          // BSCC loan — point out
+          gesture
+            .to(armR, { rotation: -52, duration: 0.6, ease: "power3.out" }, 0.3)
+            .to(armR, { rotation: -40, duration: 0.5, ease: "sine.inOut" }, 1.7)
+            .to(armR, { rotation: -48, duration: 0.5, ease: "sine.inOut" }, 2.4)
+            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+            .to(armE, { rotation: 42, duration: 0.6, ease: "power3.out" }, 0.4)
+            .to(armE, { rotation: 22, duration: 0.5, ease: "sine.inOut" }, 1.8)
+            .to(armE, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+            .to(body, { y: -1, duration: 0.5, ease: "sine.inOut" }, 0.4)
+            .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.2)
+            .to(head, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 0.5)
+            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.0)
+            .to(eyes, { x: 2, duration: 0.5, ease: "sine.inOut" }, 0.6)
+            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
+        } else if (ch === 3) {
+          // support — open arms
+          gesture
+            .to(armR, { rotation: -38, duration: 0.6, ease: "power3.out" }, 0.2)
+            .to(armR, { rotation: -26, duration: 0.5, ease: "sine.inOut" }, 1.8)
+            .to(armR, { rotation: -38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+            .to(armE, { rotation: -18, duration: 0.6, ease: "power3.out" }, 0.3)
+            .to(armE, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 1.9)
+            .to(armE, { rotation: -16, duration: 0.5, ease: "sine.inOut" }, 2.6)
+            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+            .to(armL, { rotation: 38, duration: 0.6, ease: "power3.out" }, 0.2)
+            .to(armL, { rotation: 26, duration: 0.5, ease: "sine.inOut" }, 1.8)
+            .to(armL, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+            .to(armL, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+            .to(armLE, { rotation: -16, duration: 0.6, ease: "power3.out" }, 0.3)
+            .to(armLE, { rotation: -5, duration: 0.5, ease: "sine.inOut" }, 1.9)
+            .to(armLE, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 2.6)
+            .to(armLE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+            .to(head, { rotation: 2, duration: 0.8, ease: "sine.inOut" }, 0.5)
+            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 2.8);
+        } else {
+          // CTA — point forward
+          gesture
+            .to(armR, { rotation: -22, duration: 0.6, ease: "power3.out" }, 0.3)
+            .to(armR, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 1.9)
+            .to(armR, { rotation: -20, duration: 0.5, ease: "sine.inOut" }, 2.6)
+            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+            .to(armE, { rotation: 58, duration: 0.6, ease: "power3.out" }, 0.4)
+            .to(armE, { rotation: 34, duration: 0.5, ease: "sine.inOut" }, 2)
+            .to(armE, { rotation: 52, duration: 0.5, ease: "sine.inOut" }, 2.7)
+            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+            .to(head, { rotation: 3, duration: 0.5, ease: "sine.inOut" }, 0.6)
+            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.1)
+            .to(eyes, { x: 2.5, duration: 0.5, ease: "sine.inOut" }, 0.7)
+            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.1);
+        }
+
+        // real-time lipsync while the text is typing
+        talkTween = gsap.to(mouthRef.current, {
+          scaleY: 1,
+          duration: 0.075,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          repeatDelay: 0.03,
+        });
+      }, svgRef.current);
+
+      stopTalkId = setTimeout(() => {
+        if (talkTween) talkTween.kill();
+        gsap.to(mouthRef.current, { scaleY: 0.2, duration: 0.3, ease: "power2.out" });
+      }, TALK_MS);
+    }
+
+    return () => {
+      clearInterval(typeId);
+      if (stopTalkId) clearTimeout(stopTalkId);
+      if (talkTween) talkTween.kill();
+    };
+  }, [qIndex]);
 
   return (
     <div
@@ -353,6 +354,7 @@ const StudentPerformer = () => {
         {/* Character */}
         <div className="absolute inset-0 flex items-end justify-center pb-1 z-10">
           <svg
+            ref={svgRef}
             viewBox="0 0 200 240"
             className="h-[94%] w-auto max-w-[92%] drop-shadow-[0_0_26px_rgba(56,189,248,0.3)]"
             aria-hidden="true"
@@ -529,23 +531,6 @@ const StudentPerformer = () => {
             </g>
           </svg>
         </div>
-
-        {/* Scroll hint */}
-        <AnimatePresence>
-          {showHint && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-premium-dark/80 backdrop-blur px-3 py-1.5"
-            >
-              <svg className="animate-bounce w-3 h-3 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7 7 7-7" />
-              </svg>
-              <span className="text-[10px] font-medium text-neutral-300 tracking-wide">Scroll to explore</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   );
