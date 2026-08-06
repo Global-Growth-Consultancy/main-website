@@ -1,484 +1,757 @@
-import React, { useEffect, useMemo, useRef } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer, Sparkles } from "@react-three/drei";
-import { Bloom, DepthOfField, EffectComposer, Vignette } from "@react-three/postprocessing";
+﻿import React, { useEffect, useMemo, useRef } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 
 // ------------------------------------------------------------------
-// Student3D — premium abstract "education" scene (Stripe/Linear style).
+// Student3D ΓÇö "Aarav", a premium stylised 3D graduate.
 //
-// No human character (brief Phase A fallback §10): the focal element is
-// a floating graduation cap, orbited by a diploma scroll, study-abroad
-// globe, BSCC coin and admission document, threaded on a thin orbit ring
-// with a soft accent glow + sparkle field.
+// Built from zero as real 3D (react-three-fiber), NOT a flat cartoon:
+//   ΓÇó proper human proportions (no oversized head, no bug eyes)
+//   ΓÇó natural skin tone, modern haircut, clean face
+//   ΓÇó premium graduation gown + cap, white shirt, gold tie, formal shoes
+//   ΓÇó fully rigged: blink, breathe, head + iris track the user's cursor,
+//     syllable-synced jaw lipsync, brow emotions, natural smile,
+//     confident chapter gestures, wave, and a success-celebration hop
+//   ΓÇó stylised-Pixar look (not photorealism) ΓåÆ zero uncanny valley
+//   ΓÇó soft warm key light + cyan/violet rim light = premium studio grade
 //
-//   • Chapter-reactive accent lighting + glow (scene color)
-//   • Cinematic camera drift + pointer parallax + hover push-in
-//   • Bloom / Vignette / subtle DepthOfField (desktop only)
-//   • prefers-reduced-motion: static, no post-processing
-//   • frameloop "never" when off-screen (performance hardening)
+// Every motion is damped (THREE.MathUtils.damp) ΓåÆ smooth, 60 FPS.
 // ------------------------------------------------------------------
 
-const SCENE_ACCENTS = ["#38BDF8", "#A78BFA", "#34D399", "#FBBF24", "#F472B6", "#FBBF24"];
+// ---- procedural textures (browser-only, created once) ----
+const makeIrisTexture = () => {
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 128;
+  const ctx = c.getContext("2d");
+  const g = ctx.createRadialGradient(64, 64, 4, 64, 64, 60);
+  g.addColorStop(0, "#2B1A0E");
+  g.addColorStop(0.55, "#5A3A22");
+  g.addColorStop(0.82, "#3A2314");
+  g.addColorStop(1, "#1C0F06");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 128, 128);
+  ctx.strokeStyle = "rgba(0,0,0,0.35)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(64, 64, 56, 0, Math.PI * 2);
+  ctx.stroke();
+  return new THREE.CanvasTexture(c);
+};
 
-const DPR = typeof window !== "undefined" && window.innerWidth < 768 ? [1, 1.5] : [1, 1.75];
-
-const makeGlowTexture = () => {
+const makeShadowTexture = () => {
   const c = document.createElement("canvas");
   c.width = 256;
   c.height = 256;
   const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
-  g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.35, "rgba(255,255,255,0.55)");
-  g.addColorStop(1, "rgba(255,255,255,0)");
+  const g = ctx.createRadialGradient(128, 128, 8, 128, 128, 128);
+  g.addColorStop(0, "rgba(0,0,0,0.55)");
+  g.addColorStop(0.6, "rgba(0,0,0,0.28)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
+  return new THREE.CanvasTexture(c);
 };
 
-const makeBgTexture = () => {
-  const c = document.createElement("canvas");
-  c.width = 512;
-  c.height = 512;
-  const ctx = c.getContext("2d");
-  const g = ctx.createRadialGradient(256, 256, 60, 256, 256, 300);
-  g.addColorStop(0, "rgba(8,12,24,0)");
-  g.addColorStop(0.55, "rgba(8,12,24,0.32)");
-  g.addColorStop(1, "rgba(6,9,18,0.9)");
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, 512, 512);
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  return t;
-};
+const irisTex = makeIrisTexture();
+const shadowTex = makeShadowTexture();
 
-const glowTex = makeGlowTexture();
-const bgTex = makeBgTexture();
-
-const createMaterials = () => ({
-  capBase: new THREE.MeshPhysicalMaterial({
-    color: "#161F36", roughness: 0.38, metalness: 0.22, clearcoat: 0.55, clearcoatRoughness: 0.25,
-  }),
-  capBoard: new THREE.MeshPhysicalMaterial({
-    color: "#0C1424", roughness: 0.42, metalness: 0.12, clearcoat: 0.4,
-  }),
-  gold: new THREE.MeshPhysicalMaterial({
-    color: "#E9A83A", roughness: 0.22, metalness: 1, clearcoat: 0.4,
-    emissive: "#FFC964", emissiveIntensity: 1.35,
-  }),
-  goldDim: new THREE.MeshStandardMaterial({ color: "#C99A2B", roughness: 0.3, metalness: 0.9 }),
-  parchment: new THREE.MeshPhysicalMaterial({
-    color: "#F3EBD8", roughness: 0.55, metalness: 0, clearcoat: 0.25,
-  }),
-  paper: new THREE.MeshStandardMaterial({ color: "#FAFAFA", roughness: 0.5, metalness: 0.02 }),
-  lineAccent: new THREE.MeshStandardMaterial({ color: "#38BDF8", roughness: 0.4, emissive: "#38BDF8", emissiveIntensity: 0.35 }),
-  lineFaint: new THREE.MeshStandardMaterial({ color: "#B9C2D4", roughness: 0.55 }),
-  glass: new THREE.MeshPhysicalMaterial({
-    color: "#6FB1FF", roughness: 0.12, metalness: 0.05, transparent: true, opacity: 0.24,
-    clearcoat: 1, clearcoatRoughness: 0.1,
-  }),
-  ringGold: new THREE.MeshStandardMaterial({ color: "#FFD27A", roughness: 0.3, metalness: 0.8, emissive: "#FFC964", emissiveIntensity: 0.9 }),
-  ringGoldDim: new THREE.MeshStandardMaterial({ color: "#C9A24B", roughness: 0.35, metalness: 0.6, emissive: "#B98A2E", emissiveIntensity: 0.35 }),
-  coin: new THREE.MeshStandardMaterial({ color: "#D8A82E", roughness: 0.26, metalness: 0.95 }),
-  coinRim: new THREE.MeshStandardMaterial({ color: "#FFD27A", roughness: 0.24, metalness: 0.9, emissive: "#FFC964", emissiveIntensity: 0.7 }),
-  coinEmblem: new THREE.MeshStandardMaterial({ color: "#E9A83A", roughness: 0.3, metalness: 1, emissive: "#FFC964", emissiveIntensity: 0.5 }),
+// ---- materials ----
+const skinMat = new THREE.MeshStandardMaterial({ color: "#E3B183", roughness: 0.55 });
+const hairMat = new THREE.MeshStandardMaterial({ color: "#26313F", roughness: 0.42 });
+const gownMat = new THREE.MeshStandardMaterial({ color: "#1D2A47", roughness: 0.62, metalness: 0.04 });
+const gownTrimMat = new THREE.MeshStandardMaterial({ color: "#141D33", roughness: 0.6 });
+const pantsMat = new THREE.MeshStandardMaterial({ color: "#151E33", roughness: 0.6 });
+const shirtMat = new THREE.MeshStandardMaterial({ color: "#F4F6FA", roughness: 0.7 });
+const tieMat = new THREE.MeshStandardMaterial({ color: "#FBBF24", roughness: 0.35, metalness: 0.12 });
+const shoeMat = new THREE.MeshStandardMaterial({ color: "#0B0F1A", roughness: 0.32, metalness: 0.08 });
+const capMat = new THREE.MeshStandardMaterial({ color: "#0F172A", roughness: 0.5 });
+const scleraMat = new THREE.MeshStandardMaterial({ color: "#FFF6EC", roughness: 0.15 });
+const pupilMat = new THREE.MeshStandardMaterial({ color: "#12090A", roughness: 0.2 });
+const lipMat = new THREE.MeshStandardMaterial({ color: "#C4757F", roughness: 0.45 });
+const mouthInnerMat = new THREE.MeshStandardMaterial({ color: "#4A1523", roughness: 0.7 });
+const teethMat = new THREE.MeshStandardMaterial({ color: "#FFFFFF", roughness: 0.3 });
+const blushMat = new THREE.MeshStandardMaterial({
+  color: "#F0B8A8",
+  roughness: 0.6,
+  emissive: "#E8937F",
+  emissiveIntensity: 0.08,
 });
+const irisMat = new THREE.MeshStandardMaterial({ map: irisTex, roughness: 0.25 });
 
-const MAT = createMaterials();
+// ---- gown skirt profile (radius, y) bottom ΓåÆ top ----
+const SKIRT_POINTS = [
+  new THREE.Vector2(0.44, -0.62),
+  new THREE.Vector2(0.4, -0.5),
+  new THREE.Vector2(0.35, -0.34),
+  new THREE.Vector2(0.31, -0.18),
+  new THREE.Vector2(0.29, -0.02),
+];
+
+// ---- chapter pose targets ----
+// right shoulder rs / right elbow re / left shoulder ls / left elbow le
+const POSE = {
+  rest: { rs: [-0.04, 0.05, 0.05], re: [-0.06, 0, 0], ls: [-0.04, 0.05, -0.05], le: [-0.06, 0, 0] },
+  wave: { rs: [-0.3, 0.08, 1.05], re: [-0.35, 0, 0], ls: [-0.02, 0.05, -0.04], le: [-0.05, 0, 0] },
+  talk: { rs: [-0.5, 0.08, 0.12], re: [1.15, 0, 0], ls: [-0.45, 0.08, -0.12], le: [1.1, 0, 0] },
+  point: { rs: [-1.15, 0.3, 0.1], re: [-0.5, 0, 0], ls: [-0.03, 0.05, -0.05], le: [-0.05, 0, 0] },
+  open: { rs: [-0.45, 0.05, 0.9], re: [-0.25, 0, 0], ls: [-0.45, 0.05, -0.9], le: [-0.25, 0, 0] },
+  present: { rs: [-0.95, 0.35, 0.1], re: [-0.4, 0, 0], ls: [-0.5, 0.1, -0.05], le: [-0.5, 0, 0] },
+  celebrate: { rs: [-0.5, 0.05, 0.95], re: [-0.3, 0, 0], ls: [-0.5, 0.05, -0.95], le: [-0.3, 0, 0] },
+  hover: { rs: [-0.5, 0.05, 0.8], re: [-0.3, 0, 0], ls: [-0.5, 0.05, -0.8], le: [-0.3, 0, 0] },
+};
+
+const GESTURE_POSE = { 0: "wave", 1: "talk", 2: "point", 3: "open", 4: "present" };
+
+const EMOTION = {
+  0: { brow: 0.02 },
+  1: { brow: 0.008 },
+  2: { brow: 0.016 },
+  3: { brow: 0.014 },
+  4: { brow: 0.012 },
+};
 
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-// ------------------------------------------------------------------
-// Camera — slow drift + pointer parallax + hover push-in
-// ------------------------------------------------------------------
-const CameraRig = ({ reducedMotion, hover }) => {
-  const { camera } = useThree();
-  const target = useRef(new THREE.Vector3(0, 0.95, 0));
-  const basePos = useRef(new THREE.Vector3(0, 0.95, 4.3));
-
-  useFrame((state, dtRaw) => {
-    const dt = Math.min(dtRaw, 0.05);
-    if (reducedMotion) {
-      camera.position.lerp(basePos.current, 0.08);
-      camera.lookAt(target.current);
-      return;
-    }
-    const t = state.clock.elapsedTime;
-    const push = hover ? 3.95 : 4.3;
-    camera.position.x = THREE.MathUtils.damp(camera.position.x, basePos.current.x + state.pointer.x * 0.09, 4, dt);
-    camera.position.y = THREE.MathUtils.damp(
-      camera.position.y,
-      basePos.current.y + Math.sin(t * 0.5) * 0.02 - state.pointer.y * 0.05,
-      4,
-      dt
-    );
-    camera.position.z = THREE.MathUtils.damp(camera.position.z, push + Math.sin(t * 0.34) * 0.025, 3, dt);
-    camera.lookAt(
-      target.current.x + state.pointer.x * 0.04,
-      target.current.y + state.pointer.y * 0.03,
-      target.current.z
-    );
-  });
-
-  return null;
-};
-
-// ------------------------------------------------------------------
-// Accent light — chapter color tint
-// ------------------------------------------------------------------
-const AccentLight = ({ scene, reducedMotion }) => {
-  const lightRef = useRef(null);
-  const color = useMemo(() => new THREE.Color(SCENE_ACCENTS[scene] || SCENE_ACCENTS[0]), [scene]);
-
-  useFrame((_, dt) => {
-    if (!lightRef.current) return;
-    lightRef.current.color.lerp(color, reducedMotion ? 1 : dt * 2.4);
-    const target = reducedMotion ? 0.25 : 0.55;
-    lightRef.current.intensity = THREE.MathUtils.damp(lightRef.current.intensity, target, 4, dt);
-  });
-
-  return <pointLight ref={lightRef} position={[-1.7, 2.3, 2.3]} intensity={0.55} distance={9} decay={2} />;
-};
-
-// ------------------------------------------------------------------
-// Objects
-// ------------------------------------------------------------------
-const GradCap = () => (
-  <group rotation={[-0.28, 0.15, -0.12]}>
-    <mesh position={[0, -0.14, 0]}>
-      <sphereGeometry args={[0.34, 40, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
-      <primitive object={MAT.capBase} attach="material" />
-    </mesh>
-    <mesh position={[0, 0.02, 0]}>
-      <cylinderGeometry args={[0.47, 0.47, 0.035, 48]} />
-      <primitive object={MAT.capBoard} attach="material" />
-    </mesh>
-    <mesh position={[0, 0.075, 0]}>
-      <sphereGeometry args={[0.032, 16, 12]} />
-      <primitive object={MAT.gold} attach="material" />
-    </mesh>
-    <group position={[0.33, 0.035, 0]} rotation={[0, 0, 0.2]}>
-      <mesh position={[0, -0.12, 0]}>
-        <cylinderGeometry args={[0.007, 0.007, 0.24, 8]} />
-        <primitive object={MAT.gold} attach="material" />
-      </mesh>
-      <mesh position={[0, -0.245, 0]}>
-        <sphereGeometry args={[0.024, 12, 10]} />
-        <primitive object={MAT.gold} attach="material" />
-      </mesh>
-    </group>
-  </group>
-);
-
-const Diploma = () => (
-  <group rotation={[0.25, -0.5, 0.1]}>
-    <mesh rotation={[0, 0, Math.PI / 2]}>
-      <cylinderGeometry args={[0.13, 0.13, 0.8, 24]} />
-      <primitive object={MAT.parchment} attach="material" />
-    </mesh>
-    <mesh rotation={[0, 0, Math.PI / 2]} position={[0.43, 0, 0]}>
-      <cylinderGeometry args={[0.135, 0.135, 0.06, 24]} />
-      <primitive object={MAT.goldDim} attach="material" />
-    </mesh>
-    <mesh rotation={[0, 0, Math.PI / 2]} position={[-0.43, 0, 0]}>
-      <cylinderGeometry args={[0.135, 0.135, 0.06, 24]} />
-      <primitive object={MAT.goldDim} attach="material" />
-    </mesh>
-    <mesh rotation={[0, 0, Math.PI / 2]}>
-      <torusGeometry args={[0.135, 0.018, 10, 24]} />
-      <primitive object={MAT.gold} attach="material" />
-    </mesh>
-  </group>
-);
-
-const Globe = () => (
-  <group rotation={[0, 0.4, 0.35]}>
-    <mesh>
-      <sphereGeometry args={[0.4, 40, 28]} />
-      <primitive object={MAT.glass} attach="material" />
-    </mesh>
-    <mesh>
-      <torusGeometry args={[0.4, 0.012, 10, 48]} />
-      <primitive object={MAT.ringGold} attach="material" />
-    </mesh>
-    <mesh rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[0.4, 0.01, 10, 48]} />
-      <primitive object={MAT.ringGoldDim} attach="material" />
-    </mesh>
-    <mesh position={[0.12, 0.14, 0.36]}>
-      <sphereGeometry args={[0.03, 10, 8]} />
-      <primitive object={MAT.goldDim} attach="material" />
-    </mesh>
-    <mesh position={[-0.18, -0.05, 0.35]}>
-      <sphereGeometry args={[0.022, 10, 8]} />
-      <primitive object={MAT.goldDim} attach="material" />
-    </mesh>
-    <mesh position={[0.05, -0.22, 0.33]}>
-      <sphereGeometry args={[0.026, 10, 8]} />
-      <primitive object={MAT.goldDim} attach="material" />
-    </mesh>
-  </group>
-);
-
-const Coin = () => (
-  <group rotation={[0.3, 0.2, -0.25]}>
-    <mesh>
-      <cylinderGeometry args={[0.16, 0.16, 0.035, 40]} />
-      <primitive object={MAT.coin} attach="material" />
-    </mesh>
-    <mesh rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[0.16, 0.014, 10, 40]} />
-      <primitive object={MAT.coinRim} attach="material" />
-    </mesh>
-    <mesh>
-      <torusGeometry args={[0.06, 0.012, 8, 24]} />
-      <primitive object={MAT.coinEmblem} attach="material" />
-    </mesh>
-  </group>
-);
-
-const Document = () => (
-  <group rotation={[0.15, 0.35, 0.1]}>
-    <mesh>
-      <boxGeometry args={[0.44, 0.56, 0.015]} />
-      <primitive object={MAT.paper} attach="material" />
-    </mesh>
-    <mesh position={[0, 0.1, 0.01]}>
-      <boxGeometry args={[0.3, 0.02, 0.012]} />
-      <primitive object={MAT.lineAccent} attach="material" />
-    </mesh>
-    <mesh position={[0, 0.04, 0.01]}>
-      <boxGeometry args={[0.26, 0.02, 0.012]} />
-      <primitive object={MAT.lineFaint} attach="material" />
-    </mesh>
-    <mesh position={[0, -0.02, 0.01]}>
-      <boxGeometry args={[0.28, 0.02, 0.012]} />
-      <primitive object={MAT.lineFaint} attach="material" />
-    </mesh>
-  </group>
-);
-
-// ------------------------------------------------------------------
-// Scene — composition + animation loop
-// ------------------------------------------------------------------
-const AbstractScene = ({ scene, clicks, reducedMotion }) => {
-  const compRef = useRef(null);
-  const glowRef = useRef(null);
-  const shockRef = useRef(null);
-  const orbitRingRef = useRef(null);
+const StudentRig = (props) => {
+  const figureRef = useRef(null);
+  const groundRef = useRef(null);
+  const torsoRef = useRef(null);
+  const skirtRef = useRef(null);
+  const tieRef = useRef(null);
+  const legLRef = useRef(null);
+  const legRRef = useRef(null);
+  const armRS = useRef(null);
+  const armRE = useRef(null);
+  const armLS = useRef(null);
+  const armLE = useRef(null);
+  const headTrackRef = useRef(null);
+  const headBobRef = useRef(null);
+  const lidLRef = useRef(null);
+  const lidRRef = useRef(null);
+  const irisLRef = useRef(null);
+  const irisRRef = useRef(null);
+  const browLRef = useRef(null);
+  const browRRef = useRef(null);
+  const jawRef = useRef(null);
+  const cornerLRef = useRef(null);
+  const cornerRRef = useRef(null);
   const capRef = useRef(null);
-  const diplomaRef = useRef(null);
-  const globeRef = useRef(null);
-  const coinRef = useRef(null);
-  const docRef = useRef(null);
+  const tasselRef = useRef(null);
 
   const entrance = useRef(0);
-  const pulse = useRef(0);
-  const prevClicks = useRef(clicks);
-  const prevScene = useRef(scene);
-  const accentColor = useMemo(() => new THREE.Color(SCENE_ACCENTS[scene] || SCENE_ACCENTS[0]), [scene]);
-  const focus = useRef({ cap: 0, diploma: 0, globe: 0, coin: 0, doc: 0 });
-  const reducedRef = useRef(reducedMotion);
-
-  useEffect(() => { reducedRef.current = reducedMotion; }, [reducedMotion]);
-
-  useEffect(() => {
-    if (clicks !== prevClicks.current) {
-      prevClicks.current = clicks;
-      if (!reducedRef.current) pulse.current = 1;
-    }
-  }, [clicks]);
+  const blinkNext = useRef(1.6);
+  const blinkT = useRef(0);
+  const talkT = useRef(0);
+  const talkMs = useRef(props.talkMs);
+  const env = useRef([]);
+  const celebrateT = useRef(0);
+  const hop = useRef(0);
+  const smileAmt = useRef(0.6);
+  const gRef = useRef(props.gesture);
+  const hoverRef = useRef(props.isHovered);
+  const reducedRef = useRef(props.reducedMotion);
+  const prevClicks = useRef(props.clicks);
+  const prevScene = useRef(props.scene);
 
   useEffect(() => {
-    if (scene !== prevScene.current) {
-      prevScene.current = scene;
-      if (scene >= 4 && !reducedRef.current) pulse.current = 1;
+    gRef.current = props.gesture;
+  }, [props.gesture]);
+
+  useEffect(() => {
+    hoverRef.current = props.isHovered;
+  }, [props.isHovered]);
+
+  useEffect(() => {
+    reducedRef.current = props.reducedMotion;
+  }, [props.reducedMotion]);
+
+  useEffect(() => {
+    env.current = props.speech.split("").map((c) => (/[aeiouAEIOU]/i.test(c) ? 1 : 0));
+    talkMs.current = props.talkMs;
+    talkT.current = 0;
+  }, [props.speech, props.talkMs]);
+
+  useEffect(() => {
+    if (props.clicks !== prevClicks.current) {
+      prevClicks.current = props.clicks;
+      if (!reducedRef.current) {
+        celebrateT.current = 1.5;
+        hop.current = 1;
+      }
     }
-  }, [scene]);
+  }, [props.clicks]);
+
+  useEffect(() => {
+    if (props.scene !== prevScene.current) {
+      prevScene.current = props.scene;
+      talkT.current = 0;
+      if (props.scene === 5 && !reducedRef.current) {
+        celebrateT.current = 1.5;
+        hop.current = 1;
+      }
+    }
+  }, [props.scene]);
+
+  const applyPose = (rs, re, ls, le, lambda, dt) => {
+    armRS.current.rotation.x = THREE.MathUtils.damp(armRS.current.rotation.x, rs[0], lambda, dt);
+    armRS.current.rotation.y = THREE.MathUtils.damp(armRS.current.rotation.y, rs[1], lambda, dt);
+    armRS.current.rotation.z = THREE.MathUtils.damp(armRS.current.rotation.z, rs[2], lambda, dt);
+    armRE.current.rotation.x = THREE.MathUtils.damp(armRE.current.rotation.x, re[0], lambda, dt);
+    armLS.current.rotation.x = THREE.MathUtils.damp(armLS.current.rotation.x, ls[0], lambda, dt);
+    armLS.current.rotation.y = THREE.MathUtils.damp(armLS.current.rotation.y, ls[1], lambda, dt);
+    armLS.current.rotation.z = THREE.MathUtils.damp(armLS.current.rotation.z, ls[2], lambda, dt);
+    armLE.current.rotation.x = THREE.MathUtils.damp(armLE.current.rotation.x, le[0], lambda, dt);
+  };
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     const dt = Math.min(delta, 0.05);
     const reduced = reducedRef.current;
 
-    entrance.current = Math.min(entrance.current + dt * 1.2, 1);
-    compRef.current.position.y = (1 - easeOutCubic(entrance.current)) * -0.5;
+    // entrance rise
+    entrance.current = Math.min(entrance.current + dt * 1.3, 1);
+    const baseY = (1 - easeOutCubic(entrance.current)) * -1.15;
 
-    // accent color → glow disc + orbit ring
-    const targetAccent = new THREE.Color(SCENE_ACCENTS[scene] || SCENE_ACCENTS[0]);
-    accentColor.lerp(targetAccent, reduced ? 1 : dt * 2.2);
-    if (glowRef.current) {
-      glowRef.current.material.color.copy(accentColor).multiplyScalar(reduced ? 0.85 : 1.35);
-      glowRef.current.material.opacity = reduced ? 0.55 : 0.9;
-    }
-    if (orbitRingRef.current) {
-      orbitRingRef.current.material.color.copy(accentColor).multiplyScalar(0.9);
-      orbitRingRef.current.material.opacity = reduced ? 0.35 : 0.55;
-    }
+    // success hop (click / graduation chapter)
+    if (hop.current > 0) hop.current = Math.max(hop.current - dt * 1.7, 0);
+    const hopY = Math.sin(hop.current * Math.PI) * 0.26;
+    figureRef.current.position.y = baseY + hopY;
+
+    // ground shadow responds to height
+    const s = 1 + Math.max(hopY, 0) * 0.6;
+    groundRef.current.scale.set(s, s, 1);
+    groundRef.current.material.opacity = 0.6 - hopY * 0.35;
 
     if (reduced) {
-      capRef.current.position.y = 0.92;
-      capRef.current.rotation.y = 0.15;
-      capRef.current.scale.setScalar(0.95);
-      diplomaRef.current.position.set(-1.0, 0.55, -0.15);
-      globeRef.current.position.set(1.0, 0.6, -0.2);
-      globeRef.current.rotation.y = 0.25;
-      coinRef.current.position.set(-0.68, 0.35, 0.38);
-      docRef.current.position.set(0.72, 0.32, 0.34);
-      shockRef.current.material.opacity = 0;
+      smileAmt.current = THREE.MathUtils.damp(smileAmt.current, 0.5, 4, dt);
+      headTrackRef.current.rotation.y = THREE.MathUtils.damp(headTrackRef.current.rotation.y, 0.02, 3, dt);
+      headTrackRef.current.rotation.x = THREE.MathUtils.damp(headTrackRef.current.rotation.x, -0.02, 3, dt);
+      applyPose(POSE.rest.rs, POSE.rest.re, POSE.rest.ls, POSE.rest.le, 3, dt);
+      jawRef.current.rotation.x = THREE.MathUtils.damp(jawRef.current.rotation.x, -0.02, 8, dt);
+      cornerLRef.current.position.y = 0.008;
+      cornerRRef.current.position.y = 0.008;
       return;
     }
 
-    // pulse (click / graduation / success)
-    pulse.current = Math.max(pulse.current - dt * 0.75, 0);
-    shockRef.current.scale.setScalar(1 + (1 - pulse.current) * 3);
-    shockRef.current.material.opacity = pulse.current * 0.5;
+    // ---- idle life ----
+    // breathing
+    const br = 1 + Math.sin(t * 1.15) * 0.012;
+    torsoRef.current.scale.set(1, br, 1);
 
-    // per-chapter focus emphasis
-    const f = focus.current;
-    const targets = {
-      cap: scene === 4 || scene === 5,
-      diploma: scene === 1 || scene === 5,
-      globe: scene === 3 || scene === 5,
-      coin: scene === 2 || scene === 5,
-      doc: scene === 0 || scene === 5,
-    };
-    f.cap = THREE.MathUtils.damp(f.cap, targets.cap ? 1 : 0, 4, dt);
-    f.diploma = THREE.MathUtils.damp(f.diploma, targets.diploma ? 1 : 0, 4, dt);
-    f.globe = THREE.MathUtils.damp(f.globe, targets.globe ? 1 : 0, 4, dt);
-    f.coin = THREE.MathUtils.damp(f.coin, targets.coin ? 1 : 0, 4, dt);
-    f.doc = THREE.MathUtils.damp(f.doc, targets.doc ? 1 : 0, 4, dt);
+    // blinking
+    if (t >= blinkNext.current) {
+      blinkT.current += dt;
+      if (blinkT.current >= 0.16) {
+        blinkT.current = 0;
+        blinkNext.current = t + 2.4 + Math.random() * 2.6;
+      }
+    }
+    const bp = blinkT.current / 0.16;
+    const lid = bp < 0.5 ? bp * 2 : (1 - bp) * 2;
+    const lidRot = -1.35 * lid;
+    lidLRef.current.rotation.x = THREE.MathUtils.damp(lidLRef.current.rotation.x, lidRot, 60, dt);
+    lidRRef.current.rotation.x = THREE.MathUtils.damp(lidRRef.current.rotation.x, lidRot, 60, dt);
 
-    // float + slow rotation
-    capRef.current.position.y = 0.92 + Math.sin(t * 1.1) * 0.05;
-    capRef.current.rotation.y = t * 0.35;
-    capRef.current.scale.setScalar(0.95 * (1 + f.cap * 0.08) * (1 + pulse.current * 0.18));
+    // syllable-synced lipsync + head bob while talking
+    let jawTarget = 0.015;
+    if (talkT.current < talkMs.current) {
+      const idx = Math.min(Math.floor((talkT.current / talkMs.current) * env.current.length), env.current.length - 1);
+      if (env.current[idx]) jawTarget = 0.15;
+      talkT.current += dt;
+      headBobRef.current.position.y = Math.sin(t * 8) * 0.005;
+    } else {
+      headBobRef.current.position.y = THREE.MathUtils.damp(headBobRef.current.position.y, 0, 6, dt);
+    }
+    jawRef.current.rotation.x = THREE.MathUtils.damp(jawRef.current.rotation.x, -jawTarget, 20, dt);
 
-    diplomaRef.current.position.y = 0.55 + Math.sin(t * 1.0 + 1) * 0.06;
-    diplomaRef.current.rotation.y = -0.15 + Math.sin(t * 0.5) * 0.18;
-    diplomaRef.current.scale.setScalar(0.85 * (1 + f.diploma * 0.09));
+    // natural smile (always present, stronger when happy)
+    const happy = hoverRef.current || gRef.current === 4;
+    smileAmt.current = THREE.MathUtils.damp(smileAmt.current, happy ? 1 : 0.6, 5, dt);
+    cornerLRef.current.position.y = 0.004 + smileAmt.current * 0.006;
+    cornerRRef.current.position.y = 0.004 + smileAmt.current * 0.006;
+    blushMat.emissiveIntensity = 0.08 + smileAmt.current * 0.45;
 
-    globeRef.current.position.y = 0.6 + Math.sin(t * 1.2 + 2) * 0.07;
-    globeRef.current.rotation.y = t * 0.25;
-    globeRef.current.scale.setScalar(0.8 * (1 + f.globe * 0.09));
+    // head looks toward the user's cursor + gentle idle sway
+    headTrackRef.current.rotation.y = THREE.MathUtils.damp(
+      headTrackRef.current.rotation.y,
+      Math.sin(t * 0.5) * 0.015 + state.pointer.x * 0.13,
+      6,
+      dt
+    );
+    headTrackRef.current.rotation.x = THREE.MathUtils.damp(
+      headTrackRef.current.rotation.x,
+      Math.sin(t * 0.4 + 1) * 0.018 - state.pointer.y * 0.07,
+      6,
+      dt
+    );
+    headTrackRef.current.rotation.z = THREE.MathUtils.damp(headTrackRef.current.rotation.z, 0.02, 4, dt);
 
-    coinRef.current.position.y = 0.35 + Math.sin(t * 1.3 + 3) * 0.08;
-    coinRef.current.rotation.y = t * 0.9;
-    coinRef.current.scale.setScalar(0.95 * (1 + f.coin * 0.09));
+    // iris follows the cursor
+    irisLRef.current.position.x = THREE.MathUtils.damp(irisLRef.current.position.x, state.pointer.x * 0.02, 10, dt);
+    irisLRef.current.position.y = THREE.MathUtils.damp(irisLRef.current.position.y, state.pointer.y * 0.014, 10, dt);
+    irisRRef.current.position.x = THREE.MathUtils.damp(irisRRef.current.position.x, state.pointer.x * 0.02, 10, dt);
+    irisRRef.current.position.y = THREE.MathUtils.damp(irisRRef.current.position.y, state.pointer.y * 0.014, 10, dt);
 
-    docRef.current.position.y = 0.32 + Math.sin(t * 1.15 + 4) * 0.07;
-    docRef.current.rotation.z = Math.sin(t * 0.6) * 0.1;
-    docRef.current.scale.setScalar(0.9 * (1 + f.doc * 0.09));
+    // brow emotion per chapter
+    const emo = EMOTION[gRef.current] || EMOTION[0];
+    browLRef.current.position.y = 0.125 + emo.brow;
+    browRRef.current.position.y = 0.125 + emo.brow;
 
-    orbitRingRef.current.rotation.z = t * 0.12;
+    // chapter gestures
+    const celebrate = celebrateT.current > 0;
+    if (celebrate) celebrateT.current -= dt;
+    const pose =
+      celebrate || hop.current > 0.02
+        ? POSE.celebrate
+        : hoverRef.current
+          ? POSE.hover
+          : GESTURE_POSE[gRef.current]
+            ? POSE[GESTURE_POSE[gRef.current]]
+            : POSE.rest;
+
+    if (gRef.current === 0 && !celebrate && !hoverRef.current) {
+      // intro ΓÇö wave
+      const w = Math.sin(t * 7);
+      applyPose(
+        [POSE.wave.rs[0], POSE.wave.rs[1], POSE.wave.rs[2] + w * 0.12],
+        [POSE.wave.re[0] - w * 0.18, 0, 0],
+        POSE.wave.ls,
+        POSE.wave.le,
+        5,
+        dt
+      );
+    } else {
+      applyPose(pose.rs, pose.re, pose.ls, pose.le, 5, dt);
+    }
+
+    // secondary cloth motion
+    skirtRef.current.rotation.z = Math.sin(t * 0.9) * 0.012;
+    skirtRef.current.rotation.x = Math.sin(t * 0.7 + 0.6) * 0.008;
+    tieRef.current.rotation.z = Math.sin(t * 1.3) * 0.05;
+    tasselRef.current.rotation.z = Math.sin(t * 1.6) * 0.12;
+    capRef.current.rotation.x = 0.05 + Math.sin(t * 1.2) * 0.012;
+
+    // weight shift
+    legLRef.current.rotation.z = Math.sin(t * 0.9) * 0.02;
+    legRRef.current.rotation.z = -Math.sin(t * 0.9) * 0.02;
   });
 
   return (
-    <group ref={compRef}>
-      {/* background void */}
-      <mesh position={[0, 0.95, -2.6]} scale={[10, 7, 1]}>
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial map={bgTex} transparent depthWrite={false} toneMapped={false} />
+    <group ref={figureRef}>
+      {/* ground shadow */}
+      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.012, 0]}>
+        <circleGeometry args={[0.9, 48]} />
+        <meshBasicMaterial map={shadowTex} transparent opacity={0.6} depthWrite={false} />
       </mesh>
 
-      {/* accent glow */}
-      <mesh ref={glowRef} position={[0, 0.9, -1.5]} scale={[3.2, 3.2, 1]}>
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial map={glowTex} transparent depthWrite={false} blending={THREE.AdditiveBlending} toneMapped={false} />
-      </mesh>
+      <group position={[0, 1.0, 0]}>
+        {/* ---- legs + premium shoes ---- */}
+        <group ref={legLRef} position={[-0.12, 0.02, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.075, 0.32, 4, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <mesh position={[0, -0.52, 0]}>
+            <capsuleGeometry args={[0.06, 0.3, 4, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <group position={[0, -0.66, 0]}>
+            <mesh position={[0, -0.02, 0.04]}>
+              <boxGeometry args={[0.09, 0.06, 0.22]} />
+              <primitive object={shoeMat} />
+            </mesh>
+            <mesh position={[0, -0.02, 0.12]} scale={[0.7, 0.6, 0.9]}>
+              <sphereGeometry args={[0.05, 16, 12]} />
+              <primitive object={shoeMat} />
+            </mesh>
+          </group>
+        </group>
+        <group ref={legRRef} position={[0.12, 0.02, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.075, 0.32, 4, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <mesh position={[0, -0.52, 0]}>
+            <capsuleGeometry args={[0.06, 0.3, 4, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <group position={[0, -0.66, 0]}>
+            <mesh position={[0, -0.02, 0.04]}>
+              <boxGeometry args={[0.09, 0.06, 0.22]} />
+              <primitive object={shoeMat} />
+            </mesh>
+            <mesh position={[0, -0.02, 0.12]} scale={[0.7, 0.6, 0.9]}>
+              <sphereGeometry args={[0.05, 16, 12]} />
+              <primitive object={shoeMat} />
+            </mesh>
+          </group>
+        </group>
 
-      {/* shock ring (click / success) */}
-      <mesh ref={shockRef} position={[0, 0.9, -0.4]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.9, 0.95, 64]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0} blending={THREE.AdditiveBlending} toneMapped={false} depthWrite={false} side={THREE.DoubleSide} />
-      </mesh>
+        {/* ---- gown skirt ---- */}
+        <group ref={skirtRef}>
+          <mesh>
+            <latheGeometry args={[SKIRT_POINTS, 40]} />
+            <primitive object={gownMat} />
+          </mesh>
+          <mesh position={[0, -0.62, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.44, 0.014, 10, 40]} />
+            <primitive object={gownTrimMat} />
+          </mesh>
+        </group>
 
-      {/* orbit ring */}
-      <mesh ref={orbitRingRef} position={[0, 0.9, -0.3]} rotation={[Math.PI / 2.4, 0.2, 0]}>
-        <torusGeometry args={[1.35, 0.008, 8, 90]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.55} blending={THREE.AdditiveBlending} toneMapped={false} depthWrite={false} />
-      </mesh>
+        {/* ---- torso / robe + white shirt + gold tie ---- */}
+        <group ref={torsoRef}>
+          <mesh position={[0, 0.3, 0]} scale={[0.95, 1, 0.8]}>
+            <capsuleGeometry args={[0.27, 0.42, 6, 16]} />
+            <primitive object={gownMat} />
+          </mesh>
+          <mesh position={[-0.085, 0.4, 0.215]} rotation={[0, 0, 0.5]}>
+            <boxGeometry args={[0.14, 0.2, 0.02]} />
+            <primitive object={shirtMat} />
+          </mesh>
+          <mesh position={[0.085, 0.4, 0.215]} rotation={[0, 0, -0.5]}>
+            <boxGeometry args={[0.14, 0.2, 0.02]} />
+            <primitive object={shirtMat} />
+          </mesh>
+          <group ref={tieRef}>
+            <mesh position={[0, 0.44, 0.222]}>
+              <boxGeometry args={[0.05, 0.05, 0.02]} />
+              <primitive object={tieMat} />
+            </mesh>
+            <mesh position={[0, 0.35, 0.222]}>
+              <boxGeometry args={[0.028, 0.16, 0.016]} />
+              <primitive object={tieMat} />
+            </mesh>
+          </group>
+          <mesh position={[-0.05, 0.5, 0.235]} rotation={[0, 0, 0.55]}>
+            <boxGeometry args={[0.02, 0.1, 0.015]} />
+            <primitive object={gownTrimMat} />
+          </mesh>
+          <mesh position={[0.05, 0.5, 0.235]} rotation={[0, 0, -0.55]}>
+            <boxGeometry args={[0.02, 0.1, 0.015]} />
+            <primitive object={gownTrimMat} />
+          </mesh>
+          <mesh position={[-0.5, 0.52, 0]}>
+            <sphereGeometry args={[0.15, 20, 16]} />
+            <primitive object={gownMat} />
+          </mesh>
+          <mesh position={[0.5, 0.52, 0]}>
+            <sphereGeometry args={[0.15, 20, 16]} />
+            <primitive object={gownMat} />
+          </mesh>
+        </group>
 
-      {/* focal objects */}
-      <group ref={capRef} position={[0, 0.92, 0]} scale={0.95}>
-        <GradCap />
-      </group>
-      <group ref={diplomaRef} position={[-1.0, 0.55, -0.15]} scale={0.85}>
-        <Diploma />
-      </group>
-      <group ref={globeRef} position={[1.0, 0.6, -0.2]} scale={0.8}>
-        <Globe />
-      </group>
-      <group ref={coinRef} position={[-0.68, 0.35, 0.38]} scale={0.95}>
-        <Coin />
-      </group>
-      <group ref={docRef} position={[0.72, 0.32, 0.34]} scale={0.9}>
-        <Document />
-      </group>
+        {/* ---- left arm (gown sleeve + white cuff + hand) ---- */}
+        <group ref={armLS} position={[-0.5, 0.52, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.075, 0.3, 4, 12]} />
+            <primitive object={gownMat} />
+          </mesh>
+          <group ref={armLE} position={[0, -0.36, 0]}>
+            <mesh position={[0, -0.17, 0]}>
+              <capsuleGeometry args={[0.068, 0.26, 4, 12]} />
+              <primitive object={gownMat} />
+            </mesh>
+            <mesh position={[0, -0.3, 0]}>
+              <cylinderGeometry args={[0.072, 0.072, 0.07, 14]} />
+              <primitive object={shirtMat} />
+            </mesh>
+            <group position={[0, -0.34, 0]}>
+              <mesh scale={[1, 1.2, 0.85]}>
+                <sphereGeometry args={[0.065, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[-0.02, -0.05, 0.03]} rotation={[0, 0, 0.15]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0, -0.055, 0.03]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.02, -0.05, 0.03]} rotation={[0, 0, -0.15]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+            </group>
+          </group>
+        </group>
 
-      {!reducedMotion && (
-        <Sparkles count={90} scale={[4, 2.8, 2]} size={2.6} speed={0.35} opacity={0.65} color="#FFD98A" position={[0, 0.9, 0]} />
-      )}
+        {/* ---- right arm ---- */}
+        <group ref={armRS} position={[0.5, 0.52, 0]}>
+          <mesh position={[0, -0.18, 0]}>
+            <capsuleGeometry args={[0.075, 0.3, 4, 12]} />
+            <primitive object={gownMat} />
+          </mesh>
+          <group ref={armRE} position={[0, -0.36, 0]}>
+            <mesh position={[0, -0.17, 0]}>
+              <capsuleGeometry args={[0.068, 0.26, 4, 12]} />
+              <primitive object={gownMat} />
+            </mesh>
+            <mesh position={[0, -0.3, 0]}>
+              <cylinderGeometry args={[0.072, 0.072, 0.07, 14]} />
+              <primitive object={shirtMat} />
+            </mesh>
+            <group position={[0, -0.34, 0]}>
+              <mesh scale={[1, 1.2, 0.85]}>
+                <sphereGeometry args={[0.065, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[-0.02, -0.05, 0.03]} rotation={[0, 0, 0.15]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0, -0.055, 0.03]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.02, -0.05, 0.03]} rotation={[0, 0, -0.15]}>
+                <capsuleGeometry args={[0.012, 0.05, 4, 8]} />
+                <primitive object={skinMat} />
+              </mesh>
+            </group>
+          </group>
+        </group>
 
-      <ContactShadows position={[0, 0.02, 0]} opacity={0.22} scale={5} blur={2.6} far={3} color="#000000" frames={1} resolution={256} />
+        {/* ---- neck + head ---- */}
+        <mesh position={[0, 0.6, 0.02]}>
+          <cylinderGeometry args={[0.065, 0.07, 0.16, 16]} />
+          <primitive object={skinMat} />
+        </mesh>
+
+        <group position={[0, 0.76, 0]}>
+          <group ref={headTrackRef}>
+            <group ref={headBobRef}>
+              {/* skull */}
+              <mesh position={[0, 0.09, 0]} scale={[1, 1.1, 0.98]}>
+                <sphereGeometry args={[0.21, 32, 24]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* chin / jaw volume */}
+              <mesh position={[0, -0.04, 0.04]} scale={[0.9, 0.7, 0.8]}>
+                <sphereGeometry args={[0.11, 24, 18]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* ears */}
+              <mesh position={[-0.2, 0.04, 0]} scale={[0.45, 0.85, 0.5]}>
+                <sphereGeometry args={[0.045, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.2, 0.04, 0]} scale={[0.45, 0.85, 0.5]}>
+                <sphereGeometry args={[0.045, 16, 12]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* blush */}
+              <mesh position={[-0.12, 0.0, 0.195]} scale={[1, 0.7, 0.5]}>
+                <sphereGeometry args={[0.026, 16, 12]} />
+                <primitive object={blushMat} />
+              </mesh>
+              <mesh position={[0.12, 0.0, 0.195]} scale={[1, 0.7, 0.5]}>
+                <sphereGeometry args={[0.026, 16, 12]} />
+                <primitive object={blushMat} />
+              </mesh>
+
+              {/* ---- eyes (flat premium iris discs ΓÇö no bug-eye bulge) ---- */}
+              <group position={[-0.11, 0.055, 0.16]}>
+                <mesh scale={[1, 1.05, 0.5]}>
+                  <sphereGeometry args={[0.085, 24, 18]} />
+                  <primitive object={scleraMat} />
+                </mesh>
+                <group ref={lidLRef}>
+                  <mesh position={[0, 0.06, 0.01]} scale={[1, 0.55, 0.6]}>
+                    <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                    <primitive object={skinMat} />
+                  </mesh>
+                </group>
+                <mesh position={[0, -0.06, 0.01]} scale={[1, 0.55, 0.6]}>
+                  <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+                  <primitive object={skinMat} />
+                </mesh>
+                <group ref={irisLRef} position={[0, 0, 0.038]}>
+                  <mesh>
+                    <circleGeometry args={[0.035, 24]} />
+                    <primitive object={irisMat} />
+                  </mesh>
+                  <mesh position={[0, 0, 0.002]}>
+                    <circleGeometry args={[0.016, 20]} />
+                    <primitive object={pupilMat} />
+                  </mesh>
+                  <mesh position={[0.012, 0.012, 0.004]}>
+                    <circleGeometry args={[0.01, 16]} />
+                    <meshStandardMaterial color="#ffffff" roughness={0.1} />
+                  </mesh>
+                </group>
+              </group>
+
+              <group position={[0.11, 0.055, 0.16]}>
+                <mesh scale={[1, 1.05, 0.5]}>
+                  <sphereGeometry args={[0.085, 24, 18]} />
+                  <primitive object={scleraMat} />
+                </mesh>
+                <group ref={lidRRef}>
+                  <mesh position={[0, 0.06, 0.01]} scale={[1, 0.55, 0.6]}>
+                    <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                    <primitive object={skinMat} />
+                  </mesh>
+                </group>
+                <mesh position={[0, -0.06, 0.01]} scale={[1, 0.55, 0.6]}>
+                  <sphereGeometry args={[0.095, 24, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2]} />
+                  <primitive object={skinMat} />
+                </mesh>
+                <group ref={irisRRef} position={[0, 0, 0.038]}>
+                  <mesh>
+                    <circleGeometry args={[0.035, 24]} />
+                    <primitive object={irisMat} />
+                  </mesh>
+                  <mesh position={[0, 0, 0.002]}>
+                    <circleGeometry args={[0.016, 20]} />
+                    <primitive object={pupilMat} />
+                  </mesh>
+                  <mesh position={[0.012, 0.012, 0.004]}>
+                    <circleGeometry args={[0.01, 16]} />
+                    <meshStandardMaterial color="#ffffff" roughness={0.1} />
+                  </mesh>
+                </group>
+              </group>
+
+              {/* brows */}
+              <mesh ref={browLRef} position={[-0.115, 0.125, 0.2]} rotation={[0, 0, 0.06]}>
+                <boxGeometry args={[0.095, 0.018, 0.02]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh ref={browRRef} position={[0.115, 0.125, 0.2]} rotation={[0, 0, -0.06]}>
+                <boxGeometry args={[0.095, 0.018, 0.02]} />
+                <primitive object={hairMat} />
+              </mesh>
+
+              {/* nose */}
+              <mesh position={[0, 0.005, 0.2]} scale={[0.7, 0.9, 0.5]}>
+                <sphereGeometry args={[0.03, 18, 14]} />
+                <primitive object={skinMat} />
+              </mesh>
+
+              {/* jaw rig (hinges at the back of the mouth) */}
+              <group ref={jawRef} position={[0, -0.05, 0.16]}>
+                <mesh position={[0, 0, 0.02]} scale={[1.1, 0.6, 0.5]}>
+                  <sphereGeometry args={[0.05, 18, 14]} />
+                  <primitive object={mouthInnerMat} />
+                </mesh>
+                <mesh position={[0, 0.01, 0.045]}>
+                  <boxGeometry args={[0.05, 0.018, 0.01]} />
+                  <primitive object={teethMat} />
+                </mesh>
+                <mesh position={[0, -0.018, 0.05]} rotation={[0, 0, Math.PI]}>
+                  <torusGeometry args={[0.042, 0.013, 8, 18, Math.PI]} />
+                  <primitive object={lipMat} />
+                </mesh>
+              </group>
+              {/* upper lip (static) */}
+              <mesh position={[0, -0.02, 0.19]}>
+                <torusGeometry args={[0.048, 0.013, 8, 20, Math.PI]} />
+                <primitive object={lipMat} />
+              </mesh>
+              {/* smile corners */}
+              <mesh ref={cornerLRef} position={[-0.05, -0.02, 0.19]}>
+                <sphereGeometry args={[0.014, 12, 10]} />
+                <primitive object={lipMat} />
+              </mesh>
+              <mesh ref={cornerRRef} position={[0.05, -0.02, 0.19]}>
+                <sphereGeometry args={[0.014, 12, 10]} />
+                <primitive object={lipMat} />
+              </mesh>
+
+              {/* modern hair */}
+              <mesh position={[0, 0.1, -0.01]} scale={[1.02, 0.82, 1.06]}>
+                <sphereGeometry args={[0.225, 32, 24]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[0, 0.1, 0.02]} scale={[1.02, 0.85, 1.06]}>
+                <sphereGeometry args={[0.225, 32, 24, 0, Math.PI * 2, 0.7, 0.35]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[-0.19, 0.08, 0.02]} scale={[0.035, 0.09, 0.05]}>
+                <boxGeometry args={[1, 1, 1]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[0.19, 0.08, 0.02]} scale={[0.035, 0.09, 0.05]}>
+                <boxGeometry args={[1, 1, 1]} />
+                <primitive object={hairMat} />
+              </mesh>
+
+              {/* graduation cap */}
+              <group ref={capRef} position={[0, 0.22, 0]} rotation={[0.05, 0, 0]}>
+                <mesh position={[0, 0.03, 0]}>
+                  <sphereGeometry args={[0.24, 28, 20, 0, Math.PI * 2, 0, Math.PI / 2 + 0.35]} />
+                  <primitive object={capMat} />
+                </mesh>
+                <mesh position={[0, 0.095, 0]} rotation={[0.06, 0, 0]}>
+                  <cylinderGeometry args={[0.26, 0.26, 0.014, 40]} />
+                  <primitive object={capMat} />
+                </mesh>
+                <mesh position={[0, 0.105, 0]}>
+                  <sphereGeometry args={[0.022, 12, 10]} />
+                  <primitive object={tieMat} />
+                </mesh>
+                <group ref={tasselRef} position={[0.22, 0.095, 0.02]}>
+                  <mesh position={[0, -0.03, 0]}>
+                    <cylinderGeometry args={[0.004, 0.004, 0.08, 8]} />
+                    <primitive object={tieMat} />
+                  </mesh>
+                  <mesh position={[0, -0.06, 0]}>
+                    <sphereGeometry args={[0.02, 10, 8]} />
+                    <primitive object={tieMat} />
+                  </mesh>
+                </group>
+              </group>
+            </group>
+          </group>
+        </group>
+      </group>
     </group>
   );
 };
 
-const SceneContainer = ({ isHovered, scene, clicks, reducedMotion, visible, isMobile }) => (
-  <div className="absolute inset-0">
-    <Canvas
-      frameloop={visible ? "always" : "never"}
-      dpr={DPR}
-      camera={{ position: [0, 0.95, 4.3], fov: 30 }}
-      gl={{
-        antialias: true,
-        alpha: true,
-        powerPreference: "high-performance",
-        toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.05,
-      }}
-      onCreated={({ camera }) => camera.lookAt(0, 0.95, 0)}
-    >
-      <fog attach="fog" args={["#0A0F1C", 4.2, 8.5]} />
+const SceneContainer = (props) => {
+  const { visible = true, isMobile } = props;
+  return (
+    <div className="absolute inset-0">
+      <Canvas
+        frameloop={visible ? "always" : "never"}
+        dpr={isMobile ? [1, 1.5] : [1, 1.75]}
+        camera={{ position: [0, 1.3, 5.8], fov: 34 }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.05,
+        }}
+        onCreated={({ camera }) => camera.lookAt(0, 1.12, 0)}
+      >
+        <ambientLight intensity={0.55} />
+        <directionalLight position={[4, 6, 5]} intensity={1.5} color="#fff4e6" />
+        <directionalLight position={[-4, 4, -5]} intensity={0.85} color="#7dd3fc" />
+        <directionalLight position={[0, 3, -4]} intensity={0.4} color="#a78bfa" />
+        <pointLight position={[0, 1.2, 2.6]} intensity={0.35} color="#ffffff" />
+        {/* procedural studio env (no CDN fetch — premium reflections) */}
+        <Environment resolution={256}>
+          <group rotation={[-Math.PI / 4, 0, 0]}>
+            <Lightformer form="rect" intensity={3} color="#FFF4E6" position={[0, 3, 3]} scale={[5, 2.5, 1]} />
+            <Lightformer form="rect" intensity={1.5} color="#7DD3FC" position={[-4, 2, 1]} rotation-y={Math.PI / 2} scale={[3, 1.5, 1]} />
+            <Lightformer form="rect" intensity={1} color="#A78BFA" position={[4, 1, 1]} rotation-y={-Math.PI / 2} scale={[3, 1.5, 1]} />
+          </group>
+        </Environment>
+        <StudentRig {...props} />
+      </Canvas>
+    </div>
+  );
+};
 
-      <ambientLight intensity={0.45} />
-      <directionalLight position={[3, 5, 4]} intensity={1.1} color="#FFF1E0" />
-      <directionalLight position={[-3.5, 3, -3.5]} intensity={0.5} color="#7DD3FC" />
-      <directionalLight position={[0, 2.5, -3]} intensity={0.3} color="#A78BFA" />
-
-      <AccentLight scene={scene} reducedMotion={reducedMotion} />
-      {/* procedural studio env (no CDN fetch — self-contained reflections) */}
-      <Environment resolution={256}>
-        <group rotation={[-Math.PI / 4, 0, 0]}>
-          <Lightformer form="rect" intensity={4} color="#FFF1E0" position={[0, 3, 2]} scale={[4, 2, 1]} />
-          <Lightformer form="rect" intensity={2} color="#7DD3FC" position={[-4, 2, 1]} rotation-y={Math.PI / 2} scale={[3, 1.5, 1]} />
-          <Lightformer form="rect" intensity={1.5} color="#A78BFA" position={[4, 1, 1]} rotation-y={-Math.PI / 2} scale={[3, 1.5, 1]} />
-          <Lightformer form="circle" intensity={2.5} color="#FFE9C8" position={[0, 4, -4]} scale={[2, 2, 1]} />
-        </group>
-      </Environment>
-
-      <AbstractScene scene={scene} clicks={clicks} reducedMotion={reducedMotion} />
-      <CameraRig reducedMotion={reducedMotion} hover={isHovered} />
-
-      {/* post-FX: desktop + full-motion only (renderer keeps ACES tone mapping) */}
-      {!reducedMotion && !isMobile && (
-        <EffectComposer multisampling={4}>
-          <DepthOfField worldFocusDistance={4.3} focalLength={0.018} bokehScale={0.6} />
-          <Bloom intensity={0.35} luminanceThreshold={0.85} luminanceSmoothing={0.4} mipmapBlur />
-          <Vignette offset={0.3} darkness={0.45} />
-        </EffectComposer>
-      )}
-    </Canvas>
-  </div>
-);
-
-const Student3D = ({ isHovered, scene, clicks, reducedMotion, visible = true }) => {
+const Student3D = (props) => {
   const isMobile = useMemo(() => typeof window !== "undefined" && window.innerWidth < 768, []);
-  return <SceneContainer visible={visible} isMobile={isMobile} isHovered={isHovered} scene={scene} clicks={clicks} reducedMotion={reducedMotion} />;
+  return <SceneContainer {...props} isMobile={isMobile} />;
 };
 
 export default Student3D;

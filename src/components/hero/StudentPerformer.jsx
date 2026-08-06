@@ -25,12 +25,13 @@ const Student3D = lazy(() => import("./Student3D"));
 //  • a chapter-reactive 3D scene (rendered by Student3D)
 //  • a scene accent colour (HUD dots, badge, glow)
 //
-// The hero visual is a premium abstract 3D scene (Student3D,
-// react-three-fiber + @react-three/postprocessing): floating grad cap,
-// diploma, globe, loan coin and document, with a cinematic chapter accent
-// light, bloom, depth-of-field and vignette (Stripe/Linear style — §10
-// fallback). DOM tweens are transform/opacity-only → buttery 60 FPS; the
-// WebGL canvas idles (frameloop "never") when scrolled out of view.
+// The hero visual is a premium stylised 3D graduate "Aarav" (Student3D,
+// react-three-fiber): proper proportions, cap + gown + gold tie, blinking,
+// breathing, cursor-tracked head/eyes, syllable-synced lipsync and chapter
+// gestures, plus a success-celebration hop. Procedural studio reflections
+// (drei Lightformer) add premium material sheen — no CDN fetch. DOM tweens
+// are transform/opacity-only → buttery 60 FPS; the WebGL canvas idles
+// (frameloop "never") when scrolled out of view.
 // ------------------------------------------------------------------
 
 const STORY = [
@@ -85,6 +86,7 @@ const STORY = [
 ];
 
 const SCENE_SECONDS = 5.6;
+const TALK_MS = 3400;
 
 const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
@@ -771,7 +773,10 @@ const StudentPerformer = () => {
             <Student3D
               isHovered={isHovered}
               scene={scene}
+              gesture={STORY[scene].gesture}
+              speech={STORY[scene].speech}
               clicks={clicks}
+              talkMs={TALK_MS}
               reducedMotion={reduced}
               visible={onScreen}
             />
