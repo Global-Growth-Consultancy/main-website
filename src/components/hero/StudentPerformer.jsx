@@ -3,8 +3,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  FaUniversity, FaHandHoldingUsd, FaGlobeAsia, FaGraduationCap,
-  FaFolderOpen, FaStamp, FaTrophy,
+  FaUniversity, FaHandHoldingUsd, FaGlobeAsia, FaPassport,
+  FaStar, FaStamp, FaAward, FaPlaneDeparture, FaTrophy,
 } from "react-icons/fa";
 import NexusField from "./NexusField";
 
@@ -17,31 +17,31 @@ const Student3D = lazy(() => import("./Student3D"));
 //
 // The stage runs a continuous 6-chapter cinematic loop that sells the
 // company's business end-to-end:
-//   Documents → Admission → BSCC Loan → Dream University → Graduation → Success
+//   Dream → Admission → Scholarship → Visa → Study Abroad → Career
 //
 // Each chapter drives:
 //  • a live hologram speech line (typewriter)
-//  • a signature stage effect (flying docs / APPROVED stamp / ₹ loan coin / rays)
+//  • a signature stage effect (flying docs / APPROVED stamp / gold coin / rays)
 //  • a chapter-reactive 3D scene (rendered by Student3D)
 //  • a scene accent colour (HUD dots, badge, glow)
 //
-// The hero visual is a premium stylised 3D graduate "Aarav" (Student3D,
-// react-three-fiber): proper proportions, cap + gown + gold tie, blinking,
-// breathing, cursor-tracked head/eyes, syllable-synced lipsync and chapter
-// gestures, plus a success-celebration hop. Procedural studio reflections
-// (drei Lightformer) add premium material sheen — no CDN fetch. DOM tweens
-// are transform/opacity-only → buttery 60 FPS; the WebGL canvas idles
-// (frameloop "never") when scrolled out of view.
+// The hero visual is a premium stylised 3D international student "Aarav"
+// (Student3D, react-three-fiber): navy blazer, white shirt, backpack,
+// passport in hand, floating laptop — blinking, breathing, cursor-tracked
+// head/eyes, syllable-synced lipsync, chapter gestures and a success hop.
+// Cinematic lighting, soft contact shadows and an additive halo glow keep
+// the frame premium. DOM tweens are transform/opacity-only → 60 FPS; the
+// WebGL canvas idles (frameloop "never") when scrolled out of view.
 // ------------------------------------------------------------------
 
 const STORY = [
   {
-    label: "Documents",
-    status: "Collected",
-    icon: FaFolderOpen,
+    label: "Dream",
+    status: "Ignited",
+    icon: FaStar,
     accent: "#38BDF8",
     gesture: 0,
-    speech: "Hi! I'm Aarav — my journey started right here at Global Growth Consultancy.",
+    speech: "Hi, I'm Aarav. My dream was simple — study abroad at a top global university.",
   },
   {
     label: "Admission",
@@ -49,39 +49,39 @@ const STORY = [
     icon: FaStamp,
     accent: "#A78BFA",
     gesture: 1,
-    speech: "They filled my forms and locked my college admission instantly.",
+    speech: "GGC locked my admission at a top-ranked university — completely stress-free.",
   },
   {
-    label: "BSCC Loan",
-    status: "Approved",
-    icon: FaHandHoldingUsd,
-    accent: "#34D399",
-    gesture: 2,
-    speech: "My education loan cleared — 0% interest, zero collateral.",
-  },
-  {
-    label: "University",
-    status: "Confirmed",
-    icon: FaUniversity,
+    label: "Scholarship",
+    status: "Awarded",
+    icon: FaAward,
     accent: "#FBBF24",
-    gesture: 3,
-    speech: "Now I'm studying at my dream university — confirmed in a few clicks.",
+    gesture: 2,
+    speech: "They secured my scholarship too — tuition covered, no financial burden.",
   },
   {
-    label: "Graduation",
-    status: "Graduated",
-    icon: FaGraduationCap,
+    label: "Visa",
+    status: "Stamped",
+    icon: FaPassport,
+    accent: "#34D399",
+    gesture: 3,
+    speech: "Visa approved! Passport stamped, and ready to fly to my dream campus.",
+  },
+  {
+    label: "Study Abroad",
+    status: "Enrolled",
+    icon: FaPlaneDeparture,
     accent: "#F472B6",
     gesture: 4,
-    speech: "Fast-forward... this is me on graduation day, degree in hand.",
+    speech: "From GGC's office to a world-class campus — my dream came to life.",
   },
   {
-    label: "Success",
+    label: "Career",
     status: "Achieved",
     icon: FaTrophy,
     accent: "#FBBF24",
     gesture: 4,
-    speech: "Dream funded. Dream achieved. Thank you, Global Growth Consultancy!",
+    speech: "Graduated with honors. Building a global career — and so can you.",
   },
 ];
 
@@ -92,9 +92,10 @@ const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
 // floating service chips orbiting the character
 const ORBITS = [
-  { icon: FaUniversity, label: "200+ Colleges", pos: "right-2 top-4", accent: "#A78BFA" },
-  { icon: FaHandHoldingUsd, label: "BSCC Loan", pos: "right-2 top-[42%]", accent: "#34D399" },
-  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-2 bottom-12", accent: "#38BDF8" },
+  { icon: FaUniversity, label: "200+ Partner Colleges", pos: "right-2 top-6", accent: "#A78BFA" },
+  { icon: FaPassport, label: "98% Visa Success", pos: "left-2 top-10", accent: "#34D399" },
+  { icon: FaHandHoldingUsd, label: "0% BSCC Loan", pos: "right-2 top-[42%]", accent: "#FBBF24" },
+  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-2 bottom-14", accent: "#38BDF8" },
 ];
 
 // education ecosystem network (viewBox 100x100)
@@ -332,6 +333,16 @@ const StudentPerformer = () => {
       if (rayBurstRef.current) gsap.set(rayBurstRef.current, { yPercent: -50 });
 
       if (reducedRef.current) return;
+
+      // staggered mount entrance for floating chips
+      orbitRefs.current.forEach((el, i) => {
+        if (!el) return;
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 22, scale: 0.86 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.9, delay: 0.45 + i * 0.13, ease: "power3.out" }
+        );
+      });
 
       // aura + back glow breathe softly
       const aura = gsap.timeline({ repeat: -1, yoyo: true });
@@ -647,7 +658,7 @@ const StudentPerformer = () => {
           }}
         />
 
-        {/* floating service chips */}
+        {/* floating service chips — premium glass */}
         {ORBITS.map((o, i) => (
           <div
             key={o.label}
@@ -656,16 +667,24 @@ const StudentPerformer = () => {
           >
             <div ref={(el) => { orbitRefs.current[i] = el; }}>
               <div
-                className="glass flex items-center gap-1.5 rounded-xl border border-white/10 px-2 py-1.5 opacity-90"
+                className="relative rounded-xl p-px"
                 style={{
-                  borderColor: `${o.accent}28`,
-                  background: "rgba(8,12,22,0.65)",
-                  boxShadow: `0 6px 20px -10px ${o.accent}33`,
-                  backdropFilter: "blur(8px)",
+                  background: `linear-gradient(135deg, ${o.accent}59, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.03))`,
+                  boxShadow: `0 18px 44px -18px ${o.accent}55, 0 8px 22px -12px rgba(0,0,0,0.7)`,
                 }}
               >
-                <o.icon className="text-[13px]" style={{ color: o.accent }} />
-                <span className="text-[9px] font-semibold text-neutral-200 whitespace-nowrap">{o.label}</span>
+                <div
+                  className="rounded-[11px] px-2.5 py-1.5 flex items-center gap-1.5"
+                  style={{
+                    background: "linear-gradient(180deg, rgba(14,20,38,0.78), rgba(8,12,22,0.86))",
+                    backdropFilter: "blur(14px)",
+                    WebkitBackdropFilter: "blur(14px)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <o.icon className="text-[13px]" style={{ color: o.accent, filter: `drop-shadow(0 0 6px ${o.accent}88)` }} />
+                  <span className="text-[9px] font-semibold text-neutral-200 whitespace-nowrap">{o.label}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -692,24 +711,26 @@ const StudentPerformer = () => {
         {/* admission approval stamp — step 2 */}
         <div ref={stampRef} className="absolute z-20 pointer-events-none opacity-0 right-4 top-[36%]">
           <div
-            className="px-3 py-2 rounded-xl border-[3px] bg-premium-navy/60 backdrop-blur-sm font-display font-black tracking-[0.18em] text-sm rotate-[-12deg]"
+            className="px-3.5 py-2 rounded-xl border-[3px] font-display font-black tracking-[0.18em] text-sm rotate-[-12deg]"
             style={{
-              borderColor: "rgba(52,211,153,0.8)",
+              borderColor: "rgba(52,211,153,0.85)",
               color: "#34D399",
-              boxShadow: "0 0 34px rgba(52,211,153,0.35)",
+              background: "linear-gradient(180deg, rgba(6,20,26,0.7), rgba(4,14,20,0.85))",
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 0 40px rgba(52,211,153,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
             }}
           >
             APPROVED
           </div>
         </div>
 
-        {/* BSCC loan coin — step 3 */}
+        {/* scholarship gold coin — step 3 */}
         <div ref={coinRef} className="absolute z-20 pointer-events-none opacity-0 right-6 top-[24%]">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-black text-emerald-950 border-2 border-emerald-300/60"
+            className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-black text-emerald-950 border border-yellow-200/70"
             style={{
-              background: "radial-gradient(circle at 35% 30%, #34D399, #047857)",
-              boxShadow: "0 0 30px rgba(52,211,153,0.55)",
+              background: "radial-gradient(circle at 35% 30%, #FDE68A, #D97706 58%, #92400E)",
+              boxShadow: "0 0 34px rgba(251,191,36,0.6), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.35)",
             }}
           >
             ₹
@@ -719,25 +740,37 @@ const StudentPerformer = () => {
         {/* story badge — live chapter widget */}
         <div ref={storyBadgeRef} className="absolute left-3 top-4 z-20 pointer-events-none">
           <div
-            className="rounded-2xl border px-2.5 py-2 flex items-center gap-2"
+            className="relative rounded-2xl p-px"
             style={{
-              borderColor: `${accent}55`,
-              background: "rgba(8,12,22,0.62)",
-              backdropFilter: "blur(6px)",
-              boxShadow: `0 10px 30px -12px ${accent}55`,
+              background: `linear-gradient(135deg, ${accent}77, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.03))`,
+              boxShadow: `0 18px 44px -16px ${accent}66`,
             }}
           >
-            <span
-              key={scene}
-              className="story-pop relative w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
-              style={{ background: `${accent}22`, color: accent }}
+            <div
+              className="rounded-[15px] px-2.5 py-2 flex items-center gap-2"
+              style={{
+                background: "linear-gradient(180deg, rgba(14,20,38,0.74), rgba(8,12,22,0.88))",
+                backdropFilter: "blur(14px)",
+                WebkitBackdropFilter: "blur(14px)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+              }}
             >
-              <SceneIcon className="text-[13px]" />
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[8px] uppercase tracking-[0.18em] text-neutral-500">{STORY[scene].label}</span>
-              <span className="block text-[11px] font-bold text-white">Step {scene + 1} · {STORY[scene].status}</span>
-            </span>
+              <span
+                key={scene}
+                className="story-pop relative w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(160deg, ${accent}2e, ${accent}14)`,
+                  color: accent,
+                  boxShadow: `inset 0 0 0 1px ${accent}33, 0 0 14px ${accent}44`,
+                }}
+              >
+                <SceneIcon className="text-[13px]" />
+              </span>
+              <span className="leading-tight">
+                <span className="block text-[8px] uppercase tracking-[0.18em] text-neutral-500">{STORY[scene].label}</span>
+                <span className="block text-[11px] font-bold text-white">Step {scene + 1} · {STORY[scene].status}</span>
+              </span>
+            </div>
           </div>
         </div>
 
@@ -779,6 +812,7 @@ const StudentPerformer = () => {
               talkMs={TALK_MS}
               reducedMotion={reduced}
               visible={onScreen}
+              accent={accent}
             />
           </Suspense>
         </div>
