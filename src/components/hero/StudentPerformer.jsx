@@ -13,11 +13,13 @@ gsap.registerPlugin(ScrollTrigger);
 // • SVG student mascot ("Aarav") performs in REAL TIME, on its own —
 //   no scroll required. Every quote is a "chapter": the character
 //   gestures (wave, talk with hands, point, open arms) and talks with
-//   real-time lipsync, then settles back to a calm idle loop.
-// • Always-on idle life: blinking, breathing, gentle head sway.
-// • A timed quote bar on top cycles 5 captions with a countdown timer
-//   and an advancing progress bar; each quote auto-rotates and the
-//   character performs its matching chapter live.
+//   syllable-synced lipsync (the mouth pulses on every vowel of the
+//   actual caption), then settles back to a calm idle loop.
+// • Micro-expressions per quote: eyebrows, eyelids (squint) and smile
+//   shape driven by an emotion profile.
+// • Always-on secondary life: blinking, breathing, head sway, tassel
+//   sway, tie sway, blush pulse, breathing shadow.
+// • Entrance rise + chapter pulse ring on every new quote.
 // ------------------------------------------------------------------
 
 const QUOTES = [
@@ -30,6 +32,21 @@ const QUOTES = [
 
 const QUOTE_SECONDS = 4.8;
 const TALK_MS = 3200;
+
+// speech envelope: 1 = vowel (mouth open), 0 = consonant (mouth closed)
+const SPEECH = QUOTES.map((q) =>
+  q.split("").map((c) => (/[aeiouAEIOU]/i.test(c) ? 1 : 0))
+);
+
+// emotion profile per quote: brow rotation (pos = furrow), squint px,
+// smile scaleX, head tilt
+const EMOTIONS = [
+  { brow: -4, squint: 1.6, smile: 1.16 }, // intro wave — excited
+  { brow: -1, squint: 1.0, smile: 1.06 }, // admission — confident
+  { brow: 2.2, squint: 1.5, smile: 1.0 }, // loan point — focused
+  { brow: -3, squint: 1.6, smile: 1.12 }, // support — warm
+  { brow: -2.5, squint: 1.2, smile: 1.12 }, // CTA — strong
+];
 
 const formatTime = (s) => {
   const m = Math.floor(s / 60);
@@ -46,17 +63,27 @@ const StudentPerformer = () => {
   const headIdleRef = useRef(null);
   const bodyRef = useRef(null);
   const tasselRef = useRef(null);
+  const tieRef = useRef(null);
+  const blushRef = useRef(null);
+  const shadowRef = useRef(null);
+  const ringRef = useRef(null);
   const armLRef = useRef(null);
   const armLElbowRef = useRef(null);
   const armRRef = useRef(null);
   const armRElbowRef = useRef(null);
   const mouthRef = useRef(null);
   const eyesRef = useRef(null);
+  const browLRef = useRef(null);
+  const browRRef = useRef(null);
+  const lidLRef = useRef(null);
+  const lidRRef = useRef(null);
   const hoverRef = useRef(false);
   const reducedRef = useRef(false);
+  const enteredRef = useRef(false);
 
   const [qIndex, setQIndex] = useState(0);
   const [typed, setTyped] = useState("");
+  const [done, setDone] = useState(false);
   const [countdown, setCountdown] = useState(QUOTE_SECONDS);
 
   // ---- timed quote rotation + countdown ----
@@ -75,7 +102,7 @@ const StudentPerformer = () => {
     return () => clearInterval(id);
   }, []);
 
-  // ---- idle life: blinking + breathing + head sway + scroll tilt ----
+  // ---- idle life: blink + breathe + head sway + secondary motion ----
   useEffect(() => {
     const root = wrapRef.current;
     if (!root) return undefined;
@@ -96,6 +123,10 @@ const StudentPerformer = () => {
       setOrigin(headIdleRef.current, 100, 146);
       setOrigin(bodyRef.current, 100, 190);
       setOrigin(tasselRef.current, 120, 74);
+      setOrigin(tieRef.current, 100, 150);
+      setOrigin(browLRef.current, 95, 101);
+      setOrigin(browRRef.current, 105, 101);
+      setOrigin(shadowRef.current, 100, 236);
       setOrigin(armLRef.current, 74, 152);
       setOrigin(armLElbowRef.current, 70, 181);
       setOrigin(armRRef.current, 126, 152);
@@ -103,6 +134,11 @@ const StudentPerformer = () => {
       setOrigin(mouthRef.current, 100, 126);
       setOrigin(eyesRef.current, 100, 109);
       setOrigin(breatheRef.current, 100, 200);
+
+      // neutral resting pose
+      if (mouthRef.current) gsap.set(mouthRef.current, { scaleY: 0.22, scaleX: 1 });
+      if (lidLRef.current) gsap.set(lidLRef.current, { y: 0 });
+      if (lidRRef.current) gsap.set(lidRRef.current, { y: 0 });
 
       if (reduced) return;
 
@@ -118,11 +154,32 @@ const StudentPerformer = () => {
         .to(breatheRef.current, { scaleY: 1.014, scaleX: 1.004, duration: 2.1, ease: "sine.inOut" })
         .to(breatheRef.current, { scaleY: 1, scaleX: 1, duration: 2.3, ease: "sine.inOut" });
 
+      // shadow breathes opposite to the body
+      const shadowBreath = gsap.timeline({ repeat: -1, yoyo: true });
+      shadowBreath
+        .to(shadowRef.current, { scaleX: 1.04, scaleY: 0.94, duration: 2.1, ease: "sine.inOut" })
+        .to(shadowRef.current, { scaleX: 1, scaleY: 1, duration: 2.3, ease: "sine.inOut" });
+
       // head sway
       const sway = gsap.timeline({ repeat: -1, yoyo: true });
       sway
         .to(headIdleRef.current, { rotation: 1.6, duration: 2.2, ease: "sine.inOut" })
         .to(headIdleRef.current, { rotation: -1.6, duration: 2.4, ease: "sine.inOut" });
+
+      // tassel sways lazily
+      const tassel = gsap.timeline({ repeat: -1, yoyo: true, repeatDelay: 0.4 });
+      tassel.to(tasselRef.current, { rotation: 12, duration: 1.4, ease: "sine.inOut" })
+        .to(tasselRef.current, { rotation: -10, duration: 1.6, ease: "sine.inOut" });
+
+      // tie sways with the breath
+      const tie = gsap.timeline({ repeat: -1, yoyo: true });
+      tie.to(tieRef.current, { rotation: 1.4, duration: 2.1, ease: "sine.inOut" })
+        .to(tieRef.current, { rotation: -1.2, duration: 2.3, ease: "sine.inOut" });
+
+      // blush pulses faintly
+      const blush = gsap.timeline({ repeat: -1, yoyo: true });
+      blush.to(blushRef.current, { opacity: 0.65, duration: 2.6, ease: "sine.inOut" })
+        .to(blushRef.current, { opacity: 0.4, duration: 2.8, ease: "sine.inOut" });
 
       // gentle scroll parallax lean (subtle — the character performs on its own)
       const tilt = gsap.quickTo(svgRef.current, "rotation", { duration: 0.5, ease: "power1.out" });
@@ -141,152 +198,206 @@ const StudentPerformer = () => {
     };
   }, []);
 
-  // ---- chapter performance + typewriter per quote ----
+  // ---- chapter performance + typewriter + emotion + lipsync ----
   useEffect(() => {
     const full = QUOTES[qIndex];
     setTyped("");
+    setDone(false);
     setCountdown(QUOTE_SECONDS);
 
-    if (qIndex > 0 && figureRef.current) {
-      gsap.fromTo(
-        figureRef.current,
-        { scale: 1 },
-        { scale: 1.02, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out" }
-      );
-    }
+    const emo = EMOTIONS[qIndex];
 
     let i = 0;
     const typeId = setInterval(() => {
       i += 1;
       setTyped(full.slice(0, i));
-      if (i >= full.length) clearInterval(typeId);
+      if (i >= full.length) {
+        clearInterval(typeId);
+        setDone(true);
+      }
     }, 26);
 
-    let talkTween = null;
-    let stopTalkId = null;
-
-    if (!reducedRef.current && svgRef.current) {
-      gsap.context(() => {
-        const armR = armRRef.current;
-        const armE = armRElbowRef.current;
-        const armL = armLRef.current;
-        const armLE = armLElbowRef.current;
-        const head = headRef.current;
-        const body = bodyRef.current;
-        const eyes = eyesRef.current;
-
-        const gesture = gsap.timeline();
-        const ch = qIndex;
-
-        if (ch === 0) {
-          // intro — wave
-          gesture
-            .to(armR, { rotation: -30, duration: 0.55, ease: "power3.out" }, 0.1)
-            .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 0.95)
-            .to(armR, { rotation: -34, duration: 0.4, ease: "sine.inOut" }, 1.55)
-            .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 2.15)
-            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.4)
-            .to(armE, { rotation: 24, duration: 0.4, ease: "sine.inOut" }, 0.95)
-            .to(armE, { rotation: -26, duration: 0.4, ease: "sine.inOut" }, 1.55)
-            .to(armE, { rotation: 20, duration: 0.4, ease: "sine.inOut" }, 2.15)
-            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.4)
-            .to(head, { rotation: -5, duration: 0.5, ease: "power2.out" }, 0.15)
-            .to(head, { rotation: 0, duration: 0.6, ease: "power2.inOut" }, 0.85)
-            .to(body, { y: -1.5, duration: 0.5, ease: "sine.inOut" }, 0.15)
-            .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.3);
-        } else if (ch === 1) {
-          // admission — hands-on talk
-          gesture
-            .to(armR, { rotation: 18, duration: 0.6, ease: "power3.out" }, 0.2)
-            .to(armR, { rotation: 10, duration: 0.6, ease: "sine.inOut" }, 1.5)
-            .to(armR, { rotation: 20, duration: 0.6, ease: "sine.inOut" }, 2.5)
-            .to(armR, { rotation: 0, duration: 0.6, ease: "power3.inOut" }, 3.5)
-            .to(armE, { rotation: -28, duration: 0.6, ease: "power3.out" }, 0.3)
-            .to(armE, { rotation: -14, duration: 0.6, ease: "sine.inOut" }, 1.6)
-            .to(armE, { rotation: -26, duration: 0.6, ease: "sine.inOut" }, 2.6)
-            .to(armE, { rotation: 6, duration: 0.6, ease: "power3.inOut" }, 3.6)
-            .to(head, { rotation: 3, duration: 0.7, ease: "sine.inOut" }, 0.3)
-            .to(head, { rotation: -2, duration: 0.7, ease: "sine.inOut" }, 1.6)
-            .to(head, { rotation: 0, duration: 0.6, ease: "sine.inOut" }, 3.1)
-            .to(eyes, { x: 1.5, duration: 0.5, ease: "sine.inOut" }, 0.5)
-            .to(eyes, { x: -1, duration: 0.5, ease: "sine.inOut" }, 1.7)
-            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
-        } else if (ch === 2) {
-          // BSCC loan — point out
-          gesture
-            .to(armR, { rotation: -52, duration: 0.6, ease: "power3.out" }, 0.3)
-            .to(armR, { rotation: -40, duration: 0.5, ease: "sine.inOut" }, 1.7)
-            .to(armR, { rotation: -48, duration: 0.5, ease: "sine.inOut" }, 2.4)
-            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
-            .to(armE, { rotation: 42, duration: 0.6, ease: "power3.out" }, 0.4)
-            .to(armE, { rotation: 22, duration: 0.5, ease: "sine.inOut" }, 1.8)
-            .to(armE, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
-            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
-            .to(body, { y: -1, duration: 0.5, ease: "sine.inOut" }, 0.4)
-            .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.2)
-            .to(head, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 0.5)
-            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.0)
-            .to(eyes, { x: 2, duration: 0.5, ease: "sine.inOut" }, 0.6)
-            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
-        } else if (ch === 3) {
-          // support — open arms
-          gesture
-            .to(armR, { rotation: -38, duration: 0.6, ease: "power3.out" }, 0.2)
-            .to(armR, { rotation: -26, duration: 0.5, ease: "sine.inOut" }, 1.8)
-            .to(armR, { rotation: -38, duration: 0.5, ease: "sine.inOut" }, 2.5)
-            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
-            .to(armE, { rotation: -18, duration: 0.6, ease: "power3.out" }, 0.3)
-            .to(armE, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 1.9)
-            .to(armE, { rotation: -16, duration: 0.5, ease: "sine.inOut" }, 2.6)
-            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
-            .to(armL, { rotation: 38, duration: 0.6, ease: "power3.out" }, 0.2)
-            .to(armL, { rotation: 26, duration: 0.5, ease: "sine.inOut" }, 1.8)
-            .to(armL, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
-            .to(armL, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
-            .to(armLE, { rotation: -16, duration: 0.6, ease: "power3.out" }, 0.3)
-            .to(armLE, { rotation: -5, duration: 0.5, ease: "sine.inOut" }, 1.9)
-            .to(armLE, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 2.6)
-            .to(armLE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
-            .to(head, { rotation: 2, duration: 0.8, ease: "sine.inOut" }, 0.5)
-            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 2.8);
-        } else {
-          // CTA — point forward
-          gesture
-            .to(armR, { rotation: -22, duration: 0.6, ease: "power3.out" }, 0.3)
-            .to(armR, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 1.9)
-            .to(armR, { rotation: -20, duration: 0.5, ease: "sine.inOut" }, 2.6)
-            .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
-            .to(armE, { rotation: 58, duration: 0.6, ease: "power3.out" }, 0.4)
-            .to(armE, { rotation: 34, duration: 0.5, ease: "sine.inOut" }, 2)
-            .to(armE, { rotation: 52, duration: 0.5, ease: "sine.inOut" }, 2.7)
-            .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
-            .to(head, { rotation: 3, duration: 0.5, ease: "sine.inOut" }, 0.6)
-            .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.1)
-            .to(eyes, { x: 2.5, duration: 0.5, ease: "sine.inOut" }, 0.7)
-            .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.1);
-        }
-
-        // real-time lipsync while the text is typing
-        talkTween = gsap.to(mouthRef.current, {
-          scaleY: 1,
-          duration: 0.075,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          repeatDelay: 0.03,
-        });
-      }, svgRef.current);
-
-      stopTalkId = setTimeout(() => {
-        if (talkTween) talkTween.kill();
-        gsap.to(mouthRef.current, { scaleY: 0.2, duration: 0.3, ease: "power2.out" });
-      }, TALK_MS);
+    if (reducedRef.current || !svgRef.current || !figureRef.current) {
+      return () => clearInterval(typeId);
     }
+
+    const ctx = gsap.context(() => {
+      // ---- entrance (first time only) ----
+      if (!enteredRef.current) {
+        enteredRef.current = true;
+        gsap.fromTo(
+          figureRef.current,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1.1, ease: "power3.out" }
+        );
+        gsap.fromTo(
+          shadowRef.current,
+          { opacity: 0, scaleX: 0.6, scaleY: 1.4 },
+          { opacity: 1, scaleX: 1, scaleY: 1, duration: 1.2, ease: "power3.out", delay: 0.2 }
+        );
+      }
+
+      // ---- chapter pulse ring ----
+      gsap.fromTo(
+        ringRef.current,
+        { width: 0, height: 0, opacity: 0.5 },
+        { width: 380, height: 380, opacity: 0, duration: 1.1, ease: "power2.out" }
+      );
+
+      // ---- life pop + shadow response ----
+      gsap.fromTo(
+        figureRef.current,
+        { scale: 1 },
+        { scale: 1.02, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out" }
+      );
+      gsap.fromTo(
+        shadowRef.current,
+        { scaleX: 1, scaleY: 1 },
+        { scaleX: 1.1, scaleY: 0.88, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out", delay: 0.02 }
+      );
+
+      // ---- micro-expression: brows + eyelids + smile ----
+      const exp = gsap.timeline();
+      exp.to(browLRef.current, { rotation: emo.brow, duration: 0.5, ease: "power3.out" }, 0.06)
+        .to(browRRef.current, { rotation: emo.brow, duration: 0.5, ease: "power3.out" }, 0.06)
+        .to(lidLRef.current, { y: emo.squint, duration: 0.5, ease: "power3.out" }, 0.06)
+        .to(lidRRef.current, { y: emo.squint, duration: 0.5, ease: "power3.out" }, 0.06);
+
+      // ---- chapter gesture ----
+      const armR = armRRef.current;
+      const armE = armRElbowRef.current;
+      const armL = armLRef.current;
+      const armLE = armLElbowRef.current;
+      const head = headRef.current;
+      const body = bodyRef.current;
+      const eyes = eyesRef.current;
+
+      const gesture = gsap.timeline();
+      const ch = qIndex;
+
+      if (ch === 0) {
+        // intro — wave
+        gesture
+          .to(armR, { rotation: -30, duration: 0.55, ease: "power3.out" }, 0.1)
+          .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 0.95)
+          .to(armR, { rotation: -34, duration: 0.4, ease: "sine.inOut" }, 1.55)
+          .to(armR, { rotation: -20, duration: 0.4, ease: "sine.inOut" }, 2.15)
+          .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.4)
+          .to(armE, { rotation: 24, duration: 0.4, ease: "sine.inOut" }, 0.95)
+          .to(armE, { rotation: -26, duration: 0.4, ease: "sine.inOut" }, 1.55)
+          .to(armE, { rotation: 20, duration: 0.4, ease: "sine.inOut" }, 2.15)
+          .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.4)
+          .to(head, { rotation: -5, duration: 0.5, ease: "power2.out" }, 0.15)
+          .to(head, { rotation: 0, duration: 0.6, ease: "power2.inOut" }, 0.85)
+          .to(body, { y: -1.5, duration: 0.5, ease: "sine.inOut" }, 0.15)
+          .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.3);
+      } else if (ch === 1) {
+        // admission — hands-on talk
+        gesture
+          .to(armR, { rotation: 18, duration: 0.6, ease: "power3.out" }, 0.2)
+          .to(armR, { rotation: 10, duration: 0.6, ease: "sine.inOut" }, 1.5)
+          .to(armR, { rotation: 20, duration: 0.6, ease: "sine.inOut" }, 2.5)
+          .to(armR, { rotation: 0, duration: 0.6, ease: "power3.inOut" }, 3.5)
+          .to(armE, { rotation: -28, duration: 0.6, ease: "power3.out" }, 0.3)
+          .to(armE, { rotation: -14, duration: 0.6, ease: "sine.inOut" }, 1.6)
+          .to(armE, { rotation: -26, duration: 0.6, ease: "sine.inOut" }, 2.6)
+          .to(armE, { rotation: 6, duration: 0.6, ease: "power3.inOut" }, 3.6)
+          .to(head, { rotation: 3, duration: 0.7, ease: "sine.inOut" }, 0.3)
+          .to(head, { rotation: -2, duration: 0.7, ease: "sine.inOut" }, 1.6)
+          .to(head, { rotation: 0, duration: 0.6, ease: "sine.inOut" }, 3.1)
+          .to(eyes, { x: 1.5, duration: 0.5, ease: "sine.inOut" }, 0.5)
+          .to(eyes, { x: -1, duration: 0.5, ease: "sine.inOut" }, 1.7)
+          .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
+      } else if (ch === 2) {
+        // BSCC loan — point out
+        gesture
+          .to(armR, { rotation: -52, duration: 0.6, ease: "power3.out" }, 0.3)
+          .to(armR, { rotation: -40, duration: 0.5, ease: "sine.inOut" }, 1.7)
+          .to(armR, { rotation: -48, duration: 0.5, ease: "sine.inOut" }, 2.4)
+          .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+          .to(armE, { rotation: 42, duration: 0.6, ease: "power3.out" }, 0.4)
+          .to(armE, { rotation: 22, duration: 0.5, ease: "sine.inOut" }, 1.8)
+          .to(armE, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+          .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+          .to(body, { y: -1, duration: 0.5, ease: "sine.inOut" }, 0.4)
+          .to(body, { y: 0, duration: 0.6, ease: "sine.inOut" }, 3.2)
+          .to(head, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 0.5)
+          .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.0)
+          .to(eyes, { x: 2, duration: 0.5, ease: "sine.inOut" }, 0.6)
+          .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.0);
+      } else if (ch === 3) {
+        // support — open arms
+        gesture
+          .to(armR, { rotation: -38, duration: 0.6, ease: "power3.out" }, 0.2)
+          .to(armR, { rotation: -26, duration: 0.5, ease: "sine.inOut" }, 1.8)
+          .to(armR, { rotation: -38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+          .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+          .to(armE, { rotation: -18, duration: 0.6, ease: "power3.out" }, 0.3)
+          .to(armE, { rotation: -6, duration: 0.5, ease: "sine.inOut" }, 1.9)
+          .to(armE, { rotation: -16, duration: 0.5, ease: "sine.inOut" }, 2.6)
+          .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+          .to(armL, { rotation: 38, duration: 0.6, ease: "power3.out" }, 0.2)
+          .to(armL, { rotation: 26, duration: 0.5, ease: "sine.inOut" }, 1.8)
+          .to(armL, { rotation: 38, duration: 0.5, ease: "sine.inOut" }, 2.5)
+          .to(armL, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+          .to(armLE, { rotation: -16, duration: 0.6, ease: "power3.out" }, 0.3)
+          .to(armLE, { rotation: -5, duration: 0.5, ease: "sine.inOut" }, 1.9)
+          .to(armLE, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 2.6)
+          .to(armLE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+          .to(head, { rotation: 2, duration: 0.8, ease: "sine.inOut" }, 0.5)
+          .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 2.8);
+      } else {
+        // CTA — point forward
+        gesture
+          .to(armR, { rotation: -22, duration: 0.6, ease: "power3.out" }, 0.3)
+          .to(armR, { rotation: -14, duration: 0.5, ease: "sine.inOut" }, 1.9)
+          .to(armR, { rotation: -20, duration: 0.5, ease: "sine.inOut" }, 2.6)
+          .to(armR, { rotation: 0, duration: 0.7, ease: "power3.inOut" }, 3.5)
+          .to(armE, { rotation: 58, duration: 0.6, ease: "power3.out" }, 0.4)
+          .to(armE, { rotation: 34, duration: 0.5, ease: "sine.inOut" }, 2)
+          .to(armE, { rotation: 52, duration: 0.5, ease: "sine.inOut" }, 2.7)
+          .to(armE, { rotation: 6, duration: 0.7, ease: "power3.inOut" }, 3.6)
+          .to(head, { rotation: 3, duration: 0.5, ease: "sine.inOut" }, 0.6)
+          .to(head, { rotation: 0, duration: 0.8, ease: "sine.inOut" }, 3.1)
+          .to(eyes, { x: 2.5, duration: 0.5, ease: "sine.inOut" }, 0.7)
+          .to(eyes, { x: 0, duration: 0.5, ease: "sine.inOut" }, 3.1);
+      }
+
+      // ---- syllable-synced lipsync over the actual caption ----
+      const mouth = mouthRef.current;
+      const envelope = SPEECH[qIndex];
+      const step = TALK_MS / (envelope.length || 1);
+      const talk = gsap.timeline({ delay: 0.1 });
+
+      envelope.forEach((v, i) => {
+        if (!v) return;
+        const at = i * step;
+        talk
+          .to(mouth, { scaleY: 0.9, duration: 0.05, ease: "power2.out" }, at)
+          .to(mouth, { scaleY: 0.28, duration: 0.07, ease: "power2.in" }, at + 0.055);
+      });
+
+      // gentle head bob while talking (separate so the talk timeline stays finite)
+      const headBob = gsap.to(headRef.current, {
+        y: -0.9,
+        duration: 0.26,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+        delay: 0.12,
+      });
+
+      // settle into the resting smile once the line is delivered
+      talk.eventCallback("onComplete", () => {
+        headBob.kill();
+        gsap.to(headRef.current, { y: 0, duration: 0.4, ease: "power2.out" });
+        gsap.to(mouth, { scaleY: 0.22, scaleX: emo.smile, duration: 0.45, ease: "power2.out" });
+      });
+    }, svgRef.current);
 
     return () => {
       clearInterval(typeId);
-      if (stopTalkId) clearTimeout(stopTalkId);
-      if (talkTween) talkTween.kill();
+      ctx.revert();
     };
   }, [qIndex]);
 
@@ -323,7 +434,7 @@ const StudentPerformer = () => {
               >
                 <FaQuoteLeft className="text-brand-400 text-[9px] sm:text-[11px] mr-2 shrink-0" />
                 <span>{typed}</span>
-                <span className="caret ml-0.5 inline-block w-[2px] h-3.5 bg-brand-400" />
+                {!done && <span className="caret ml-0.5 inline-block w-[2px] h-3.5 bg-brand-400" />}
               </motion.p>
             </AnimatePresence>
           </div>
@@ -344,6 +455,12 @@ const StudentPerformer = () => {
           <NexusField />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-premium-charcoal via-transparent to-transparent pointer-events-none" />
+
+        {/* Chapter pulse ring */}
+        <div
+          ref={ringRef}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-0 h-0 rounded-full border-2 border-brand-400/40 opacity-0 pointer-events-none"
+        />
 
         {/* Character aura */}
         <div
@@ -375,9 +492,11 @@ const StudentPerformer = () => {
               </linearGradient>
             </defs>
 
-            {/* Ground pedestal */}
-            <ellipse cx="100" cy="236" rx="56" ry="8" fill="rgba(56,189,248,0.08)" />
-            <ellipse cx="100" cy="236" rx="44" ry="6" fill="rgba(0,0,0,0.5)" />
+            {/* Ground pedestal (responds to movement) */}
+            <g ref={shadowRef}>
+              <ellipse cx="100" cy="236" rx="56" ry="8" fill="rgba(56,189,248,0.08)" />
+              <ellipse cx="100" cy="236" rx="44" ry="6" fill="rgba(0,0,0,0.5)" />
+            </g>
 
             <g ref={figureRef}>
               <g ref={breatheRef}>
@@ -398,10 +517,13 @@ const StudentPerformer = () => {
                     stroke="rgba(56,189,248,0.35)"
                     strokeWidth="1.5"
                   />
-                  {/* shirt + tie */}
+                  {/* shirt */}
                   <path d="M90 148 Q100 160 110 148 L110 156 Q100 170 90 156 Z" fill="#E9EFF7" />
-                  <rect x="97" y="147" width="6" height="6" rx="1.5" fill="#FBBF24" />
-                  <path d="M98 153 L102 153 L104 172 L100 177 L96 172 Z" fill="#FBBF24" />
+                  {/* tie (sways with the breath) */}
+                  <g ref={tieRef}>
+                    <rect x="97" y="147" width="6" height="6" rx="1.5" fill="#FBBF24" />
+                    <path d="M98 153 L102 153 L104 172 L100 177 L96 172 Z" fill="#FBBF24" />
+                  </g>
                   {/* lapel notch */}
                   <path d="M92 150 L100 162 L108 150" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="2.5" strokeLinecap="round" />
                   {/* buttons + pocket */}
@@ -463,12 +585,20 @@ const StudentPerformer = () => {
                     />
                     <circle cx="74" cy="110" r="4.5" fill="url(#ggcSkin)" />
                     <circle cx="126" cy="110" r="4.5" fill="url(#ggcSkin)" />
-                    <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
-                    <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
 
-                    {/* brows */}
-                    <path d="M79 100 Q87 94 95 99" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
-                    <path d="M105 99 Q113 94 121 100" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                    {/* blush (pulses faintly) */}
+                    <g ref={blushRef}>
+                      <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
+                      <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
+                    </g>
+
+                    {/* brows (micro-expression) */}
+                    <g ref={browLRef}>
+                      <path d="M79 100 Q87 94 95 99" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                    </g>
+                    <g ref={browRRef}>
+                      <path d="M105 99 Q113 94 121 100" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                    </g>
 
                     {/* eyes (blink + look) */}
                     <g ref={eyesRef}>
@@ -484,6 +614,10 @@ const StudentPerformer = () => {
                     <path d="M82.5 105.5 Q88 102.5 93.5 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
                     <path d="M106.5 105.5 Q112 102.5 117.5 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
 
+                    {/* eyelids (squint on emotion) */}
+                    <rect ref={lidLRef} x="82.5" y="101.5" width="11" height="4.5" rx="2.2" fill="#E3AC7E" />
+                    <rect ref={lidRRef} x="106.5" y="101.5" width="11" height="4.5" rx="2.2" fill="#E3AC7E" />
+
                     {/* glasses */}
                     <circle cx="88" cy="109" r="8" fill="none" stroke="#38BDF8" strokeWidth="2" />
                     <circle cx="112" cy="109" r="8" fill="none" stroke="#38BDF8" strokeWidth="2" />
@@ -497,7 +631,7 @@ const StudentPerformer = () => {
                     <path d="M99 114 Q101 118 100 120" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
                     <path d="M95.5 118.5 Q97.5 121 100.5 120" fill="none" stroke="#C98F63" strokeWidth="1.4" strokeLinecap="round" />
 
-                    {/* mouth (lipsync) */}
+                    {/* mouth (lipsync + smile) */}
                     <g ref={mouthRef}>
                       <ellipse cx="100" cy="127" rx="5.5" ry="6.5" fill="#4A1523" />
                       <path d="M96.5 129 Q100 133.5 103.5 129 Q100 136 96.5 129 Z" fill="#D96C7C" />
