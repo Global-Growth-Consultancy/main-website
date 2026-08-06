@@ -182,7 +182,7 @@ const PremiumHero = () => {
       />
 
       {/* ---------------- Content ---------------- */}
-      <motion.div style={{ opacity }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 sm:pt-32 lg:pt-40 pb-12">
+      <motion.div style={{ opacity }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* ---------- Left: Copy ---------- */}
           <div className="lg:col-span-7">

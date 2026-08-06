@@ -716,8 +716,9 @@ const Student3D = (props) => (
   <div className="absolute inset-0">
     <Canvas
       dpr={[1, 1.75]}
-      camera={{ position: [0, 1.35, 5.6], fov: 34 }}
+      camera={{ position: [0, 1.3, 5.8], fov: 34 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      onCreated={({ camera }) => camera.lookAt(0, 1.12, 0)}
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.5} color="#fff4e6" />
