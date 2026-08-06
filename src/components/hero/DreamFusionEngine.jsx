@@ -4,8 +4,7 @@ import { PerspectiveCamera, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 // ---------------------------------------------------------------
-// Visibility hook — pauses the render loop while off-screen so the
-// canvas costs nothing once you scroll past the hero.
+// Visibility hook — pauses the render loop while off-screen.
 // ---------------------------------------------------------------
 const useInViewport = ({ rootMargin = "300px" } = {}) => {
   const ref = useRef(null);
@@ -27,7 +26,7 @@ const useInViewport = ({ rootMargin = "300px" } = {}) => {
 };
 
 // ---------------------------------------------------------------
-// Glow texture (radial gradient) used for soft halo sprites
+// Glow texture (radial gradient) used for soft halos
 // ---------------------------------------------------------------
 const makeGlowTexture = () => {
   const canvas = document.createElement('canvas');
@@ -43,10 +42,10 @@ const makeGlowTexture = () => {
   return new THREE.CanvasTexture(canvas);
 };
 
-const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacity = 0.7 }) => {
+const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacity = 0.7, spriteRef }) => {
   const texture = useMemo(makeGlowTexture, []);
   return (
-    <sprite position={position} scale={[scale, scale, 1]}>
+    <sprite ref={spriteRef} position={position} scale={[scale, scale, 1]}>
       <spriteMaterial
         map={texture}
         color={color}
@@ -60,74 +59,119 @@ const GlowSprite = ({ position = [0, 0, 0], color = '#ffffff', scale = 3, opacit
 };
 
 // ---------------------------------------------------------------
-// Deep-space nebula — large, soft colour fields behind the scene
-// for atmosphere and depth. Static, GPU-cheap sprites.
+// Aurora — a large colour field that drifts slowly behind the
+// scene. Pure light, no geometry: atmosphere without noise.
 // ---------------------------------------------------------------
-const Nebula = ({ position, color, scale = 10, opacity = 0.14 }) => (
-  <GlowSprite position={position} color={color} scale={scale} opacity={opacity} />
-);
-
-// ---------------------------------------------------------------
-// Particle stream — LUT-sampled for maximum performance.
-// The curve is pre-sampled into a lookup table once; per frame we
-// only index/lerp the table instead of running arc-length math.
-// ---------------------------------------------------------------
-const ParticleStream = ({ curve, count = 400, color, size = 0.1, speed = 0.14, opacity = 0.9 }) => {
+const Aurora = ({ position, color, scale, opacity, drift = 1 }) => {
   const ref = useRef();
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.getElapsedTime();
+    ref.current.position.x = position[0] + Math.sin(t * 0.09 * drift) * 0.4;
+    ref.current.position.y = position[1] + Math.cos(t * 0.07 * drift) * 0.3;
+  });
+  return <GlowSprite spriteRef={ref} position={position} color={color} scale={scale} opacity={opacity} />;
+};
 
-  const { positions, seeds } = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const seeds = new Float32Array(count);
-    for (let i = 0; i < count; i++) {
-      seeds[i] = Math.random();
-      const p = curve.getPointAt(seeds[i]);
-      positions[i * 3] = p.x;
-      positions[i * 3 + 1] = p.y;
-      positions[i * 3 + 2] = p.z;
-    }
-    return { positions, seeds };
-  }, [curve, count]);
-
-  const lut = useMemo(() => {
-    const n = 300;
-    const arr = new Float32Array(n * 3);
-    for (let i = 0; i < n; i++) {
-      const p = curve.getPointAt(i / (n - 1));
-      arr[i * 3] = p.x;
-      arr[i * 3 + 1] = p.y;
-      arr[i * 3 + 2] = p.z;
-    }
-    return arr;
-  }, [curve]);
+// ---------------------------------------------------------------
+// Refractive core — a dark polished sphere ("black pearl") lit by
+// blue / gold / indigo lights so it glints as it turns. No
+// cartoon primitives: pure material, light and a soft pulsing halo.
+// ---------------------------------------------------------------
+const RefractiveCore = () => {
+  const core = useRef();
+  const haloMat = useRef();
 
   useFrame((state) => {
-    const t = state.clock.getElapsedTime() * speed;
-    const arr = ref.current.geometry.attributes.position.array;
-    const n = lut.length / 3;
-    for (let i = 0; i < count; i++) {
-      const f = (seeds[i] + t) % 1;
-      const idx = f * (n - 1);
-      const i0 = Math.floor(idx);
-      const i1 = i0 + 1 > n - 1 ? n - 1 : i0 + 1;
-      const a = idx - i0;
-      arr[i * 3] = lut[i0 * 3] + (lut[i1 * 3] - lut[i0 * 3]) * a;
-      arr[i * 3 + 1] = lut[i0 * 3 + 1] + (lut[i1 * 3 + 1] - lut[i0 * 3 + 1]) * a;
-      arr[i * 3 + 2] = lut[i0 * 3 + 2] + (lut[i1 * 3 + 2] - lut[i0 * 3 + 2]) * a;
+    const t = state.clock.getElapsedTime();
+    if (core.current) {
+      core.current.rotation.y = t * 0.3;
+      core.current.rotation.x = Math.sin(t * 0.16) * 0.08;
     }
-    ref.current.geometry.attributes.position.needsUpdate = true;
+    if (haloMat.current) {
+      haloMat.current.opacity = 0.3 + Math.sin(t * 1.1) * 0.08;
+    }
   });
 
   return (
-    <points ref={ref} frustumCulled={false}>
+    <group>
+      <mesh ref={core}>
+        <sphereGeometry args={[1.02, 64, 64]} />
+        <meshPhysicalMaterial
+          color="#0a0e1a"
+          metalness={0.55}
+          roughness={0.08}
+          clearcoat={1}
+          clearcoatRoughness={0.12}
+          specularIntensity={1.2}
+          emissive="#2a2a6e"
+          emissiveIntensity={0.4}
+        />
+      </mesh>
+      <GlowSprite scale={3.6} color="#6366f1" opacity={0.28} />
+      <GlowSprite spriteRef={haloMat} scale={1.25} color="#c7d2fe" opacity={0.55} />
+      <GlowSprite scale={5.5} color="#1e3a8a" opacity={0.14} />
+    </group>
+  );
+};
+
+// ---------------------------------------------------------------
+// Constellation field — a shell of fine particles (vertex-coloured,
+// a few gold sparkles) that rotates slowly. Reads as a living
+// network of students and institutions — abstract, futuristic.
+// ---------------------------------------------------------------
+const ConstellationField = ({ count = 500 }) => {
+  const ref = useRef();
+
+  const { positions, colors } = useMemo(() => {
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const indigo = new THREE.Color('#9db4ff');
+    const cyan = new THREE.Color('#7dd3fc');
+    const gold = new THREE.Color('#fbbf24');
+    const tint = new THREE.Color();
+    for (let i = 0; i < count; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = 2 * Math.PI * u;
+      const phi = Math.acos(2 * v - 1);
+      const r = 2.3 * (0.82 + Math.random() * 0.36);
+      positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = r * Math.cos(phi);
+      const sparkle = Math.random();
+      if (sparkle > 0.92) {
+        tint.copy(gold);
+      } else {
+        tint.copy(indigo).lerp(cyan, Math.random());
+      }
+      const glow = 0.55 + Math.random() * 0.45;
+      colors[i * 3] = tint.r * glow;
+      colors[i * 3 + 1] = tint.g * glow;
+      colors[i * 3 + 2] = tint.b * glow;
+    }
+    return { positions, colors };
+  }, [count]);
+
+  useFrame((_, delta) => {
+    if (ref.current) {
+      ref.current.rotation.y += delta * 0.05;
+      ref.current.rotation.x += delta * 0.012;
+    }
+  });
+
+  return (
+    <points ref={ref}>
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color={color}
-        size={size}
+        size={0.035}
         sizeAttenuation
+        vertexColors
         transparent
-        opacity={opacity}
+        opacity={0.85}
         depthWrite={false}
         blending={THREE.AdditiveBlending}
       />
@@ -136,281 +180,185 @@ const ParticleStream = ({ curve, count = 400, color, size = 0.1, speed = 0.14, o
 };
 
 // ---------------------------------------------------------------
-// Glowing energy conduit (the visible path tube)
+// Dust ring — a fine annulus of particles (data-rings). Two tilted
+// rings give the composition a calm orbital motion.
 // ---------------------------------------------------------------
-const GlowTube = ({ curve, color, opacity = 0.28 }) => {
-  const geometry = useMemo(() => new THREE.TubeGeometry(curve, 90, 0.035, 8, false), [curve]);
-  const material = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color,
-        transparent: true,
-        opacity,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-      }),
-    [color, opacity]
-  );
-  return <mesh geometry={geometry} material={material} />;
-};
+const DustRing = ({ innerR = 1.75, outerR = 2.1, count = 300, color, opacity = 0.5, tilt, speed = 0.3 }) => {
+  const group = useRef();
 
-// ---------------------------------------------------------------
-// Central fusion core — a polished, softly lit sphere. No wobble,
-// no distortion: calm, confident, cinematic. This is where every
-// student journey (admission + loan) converges.
-// ---------------------------------------------------------------
-const FusionCore = () => {
-  const core = useRef();
-
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (core.current) {
-      core.current.rotation.y = t * 0.22;
-      core.current.rotation.x = Math.sin(t * 0.18) * 0.05;
+  const positions = useMemo(() => {
+    const arr = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = innerR + Math.random() * (outerR - innerR);
+      arr[i * 3] = Math.cos(angle) * r;
+      arr[i * 3 + 1] = (Math.random() - 0.5) * 0.045;
+      arr[i * 3 + 2] = Math.sin(angle) * r;
     }
+    return arr;
+  }, [count, innerR, outerR]);
+
+  useFrame((_, delta) => {
+    if (group.current) group.current.rotation.z += delta * speed;
   });
 
   return (
-    <group position={[0, -0.25, 0]}>
-      <mesh ref={core}>
-        <sphereGeometry args={[0.78, 48, 48]} />
-        <meshPhysicalMaterial
-          color="#1e1b4b"
-          emissive="#4f46e5"
-          emissiveIntensity={0.65}
-          metalness={0.9}
-          roughness={0.22}
-          clearcoat={1}
-          clearcoatRoughness={0.18}
+    <group ref={group} rotation={tilt}>
+      <points>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial
+          color={color}
+          size={0.022}
+          sizeAttenuation
+          transparent
+          opacity={opacity}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
-      </mesh>
-      <GlowSprite scale={5.2} color="#6366f1" opacity={0.3} />
-      <GlowSprite scale={2} color="#c7d2fe" opacity={0.55} />
+      </points>
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Orbiting rings (opportunity field around the core)
+// Connection threads — faint arcs of light linking the shell to the
+// core. Subtle enough to read as network texture, not a diagram.
 // ---------------------------------------------------------------
-const OrbitRing = ({ radius, color, tilt, speed, opacity = 0.4 }) => {
-  const ref = useRef();
-  useFrame((state) => {
-    if (ref.current) ref.current.rotation.z = state.clock.getElapsedTime() * speed;
-  });
-  return (
-    <group rotation={tilt} position={[0, -0.25, 0]}>
-      <mesh ref={ref}>
-        <torusGeometry args={[radius, 0.018, 8, 128]} />
-        <meshBasicMaterial color={color} transparent opacity={opacity} blending={THREE.AdditiveBlending} depthWrite={false} />
-      </mesh>
-    </group>
-  );
-};
-
-// ---------------------------------------------------------------
-// Origin gem — a crystal that quietly floats and rotates at the
-// start of each path. Abstract and elegant (no demo-style labels).
-// ---------------------------------------------------------------
-const EnergyNode = ({ position, color, size = 0.3 }) => {
-  const ref = useRef();
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.position.y = position[1] + Math.sin(t * 0.9 + position[0] * 2) * 0.06;
-      ref.current.rotation.y = t * 0.35;
-      ref.current.rotation.z = Math.sin(t * 0.5) * 0.15;
+const ConnectionThreads = () => {
+  const threads = useMemo(() => {
+    const list = [];
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2 + Math.random() * 0.5;
+      const rOut = 2.5 + Math.random() * 0.3;
+      const yOut = (Math.random() - 0.5) * 1.6;
+      const curve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(Math.cos(angle) * rOut, yOut, Math.sin(angle) * rOut),
+        new THREE.Vector3(Math.cos(angle + 0.25) * 1.2, yOut * 0.35, Math.sin(angle + 0.25) * 1.2),
+        new THREE.Vector3(Math.cos(angle + 0.5) * 0.45, yOut * 0.1, Math.sin(angle + 0.5) * 0.45),
+      ]);
+      list.push({
+        geometry: new THREE.TubeGeometry(curve, 32, 0.008, 6, false),
+        color: i % 3 === 0 ? '#fbbf24' : '#7dd3fc',
+      });
     }
-  });
+    return list;
+  }, []);
 
   return (
-    <group position={position}>
-      <group ref={ref}>
-        <mesh>
-          <octahedronGeometry args={[size, 0]} />
-          <meshPhysicalMaterial
-            color="#0e1428"
-            emissive={color}
-            emissiveIntensity={0.9}
-            metalness={0.9}
-            roughness={0.18}
-            clearcoat={1}
-            clearcoatRoughness={0.2}
+    <group>
+      {threads.map((t, i) => (
+        <mesh key={i} geometry={t.geometry}>
+          <meshBasicMaterial
+            color={t.color}
+            transparent
+            opacity={0.11}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
           />
         </mesh>
-        <GlowSprite scale={size * 6} color={color} opacity={0.45} />
-      </group>
+      ))}
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Graduation cap — the final outcome, the hero of the scene.
-// A refined glass board with gold trim, resting on a deep base,
-// crowned with a gold button and emerald tassel. Gently floats,
-// never bobs.
+// Glass shards — a few small faceted dark-glass pieces tumbling in
+// the field. Adds depth and a faint "hologram" texture without any
+// mascot objects.
 // ---------------------------------------------------------------
-const GraduationCap = ({ position, scale = 1 }) => {
-  const ref = useRef();
+const shardData = [
+  { pos: [-2.4, 1.5, -0.6], scale: 0.2, color: '#7dd3fc' },
+  { pos: [2.5, 0.6, -1.1], scale: 0.15, color: '#a78bfa' },
+  { pos: [0.8, -2.2, 0.4], scale: 0.12, color: '#fbbf24' },
+  { pos: [-1.4, -1.6, 1.2], scale: 0.18, color: '#38bdf8' },
+  { pos: [2.2, 2.1, 0.3], scale: 0.13, color: '#6366f1' },
+  { pos: [-0.6, 2.4, -1.4], scale: 0.16, color: '#34d399' },
+];
+
+const GlassShards = () => {
+  const refs = useRef([]);
+
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.rotation.y = Math.sin(t * 0.35) * 0.35;
-      ref.current.position.y = position[1] + Math.sin(t * 1.05) * 0.05;
-    }
+    refs.current.forEach((m, i) => {
+      if (!m) return;
+      m.rotation.x = t * (0.12 + i * 0.02) + i * 1.7;
+      m.rotation.y = t * (0.18 + i * 0.015) + i * 2.4;
+      m.position.y = shardData[i].pos[1] + Math.sin(t * 0.6 + i * 1.3) * 0.1;
+    });
   });
 
   return (
-    <group ref={ref} position={position} scale={scale}>
-      {/* Board — dark glass with gold rim */}
-      <mesh>
-        <boxGeometry args={[2.05, 0.09, 2.05]} />
-        <meshPhysicalMaterial
-          color="#0b1220"
-          emissive="#111c3a"
-          emissiveIntensity={0.5}
-          metalness={0.85}
-          roughness={0.2}
-          clearcoat={0.95}
-          clearcoatRoughness={0.12}
-        />
-      </mesh>
-      <mesh position={[0, -0.055, 0]}>
-        <boxGeometry args={[2.1, 0.035, 2.1]} />
-        <meshPhysicalMaterial
-          color="#f59e0b"
-          emissive="#fbbf24"
-          emissiveIntensity={0.45}
-          metalness={0.95}
-          roughness={0.18}
-        />
-      </mesh>
-      {/* Button — gold pyramid */}
-      <mesh position={[0, 0.1, 0]} rotation={[0, Math.PI / 4, 0]}>
-        <coneGeometry args={[0.52, 0.3, 4]} />
-        <meshPhysicalMaterial
-          color="#fbbf24"
-          emissive="#f59e0b"
-          emissiveIntensity={0.55}
-          metalness={0.9}
-          roughness={0.22}
-        />
-      </mesh>
-      {/* Base band */}
-      <mesh position={[0, -0.26, 0]}>
-        <cylinderGeometry args={[0.58, 0.66, 0.36, 32]} />
-        <meshPhysicalMaterial
-          color="#1e293b"
-          emissive="#10b981"
-          emissiveIntensity={0.22}
-          metalness={0.7}
-          roughness={0.4}
-        />
-      </mesh>
-      {/* Tassel cord + emerald end */}
-      <mesh position={[0.68, -0.55, 0.68]}>
-        <cylinderGeometry args={[0.02, 0.02, 0.6, 8]} />
-        <meshBasicMaterial color="#fbbf24" />
-      </mesh>
-      <mesh position={[0.68, -0.88, 0.68]}>
-        <sphereGeometry args={[0.075, 16, 16]} />
-        <meshBasicMaterial color="#34d399" />
-      </mesh>
-      <GlowSprite scale={4.8} color="#34d399" opacity={0.2} />
-      <GlowSprite scale={1.7} color="#fde68a" opacity={0.5} />
+    <group>
+      {shardData.map((s, i) => (
+        <mesh
+          key={i}
+          position={s.pos}
+          scale={s.scale}
+          ref={(el) => { refs.current[i] = el; }}
+        >
+          <icosahedronGeometry args={[1, 0]} />
+          <meshPhysicalMaterial
+            color="#0b1220"
+            emissive={s.color}
+            emissiveIntensity={0.5}
+            metalness={0.7}
+            roughness={0.12}
+            clearcoat={1}
+            clearcoatRoughness={0.15}
+            flatShading
+          />
+        </mesh>
+      ))}
     </group>
   );
 };
 
 // ---------------------------------------------------------------
-// Full scene: admissions + loan converge into guidance, then bloom
-// into graduation — the achieved dream.
+// Full scene — abstract network of light, matter and particles.
 // ---------------------------------------------------------------
-const DreamScene = () => {
+const ConstellationScene = () => {
   const group = useRef();
   const { viewport } = useThree();
 
   const fit = useMemo(() => {
-    const HALF_W = 5.6;
-    const HALF_H = 4.9;
-    const CENTER_Y = 1.0;
-    const MARGIN = 0.94;
-    const s = Math.min(viewport.width / (HALF_W * 2), viewport.height / (HALF_H * 2)) * MARGIN;
-    return { scale: s, y: -CENTER_Y * s };
+    const HALF = 3.6;
+    const MARGIN = 0.9;
+    const s = Math.min(viewport.width / (HALF * 2), viewport.height / (HALF * 2)) * MARGIN;
+    return { scale: s, y: -0.15 * s };
   }, [viewport.width, viewport.height]);
-
-  // Admission path: bottom-left → core
-  const pathA = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-4.5, 2.4, 0.2),
-        new THREE.Vector3(-2.6, 1.3, 0.6),
-        new THREE.Vector3(-1.0, 0.4, 0.3),
-        new THREE.Vector3(0, -0.25, 0),
-      ]),
-    []
-  );
-  // Loan path: top-right → core
-  const pathB = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(4.3, 3.2, -1.0),
-        new THREE.Vector3(2.3, 2.1, -0.4),
-        new THREE.Vector3(0.8, 0.7, 0.2),
-        new THREE.Vector3(0, -0.25, 0),
-      ]),
-    []
-  );
-  // Success path: core → graduation cap
-  const pathC = useMemo(
-    () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(0, -0.25, 0),
-        new THREE.Vector3(1.2, 0.7, 0.6),
-        new THREE.Vector3(2.6, 1.7, 0.4),
-        new THREE.Vector3(3.5, 2.6, 0),
-      ]),
-    []
-  );
 
   useFrame((state) => {
     if (group.current) {
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.06, 0.05);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.045, 0.05);
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, state.pointer.x * 0.12, 0.05);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, -state.pointer.y * 0.08, 0.05);
     }
   });
 
   return (
     <group ref={group} scale={fit.scale} position={[0, fit.y, 0]}>
-      <ambientLight intensity={0.55} />
-      <pointLight position={[6, 6, 8]} intensity={1.4} color="#38bdf8" />
-      <pointLight position={[-6, 6, 4]} intensity={1.0} color="#fbbf24" />
-      <pointLight position={[0, -4, 2]} intensity={0.5} color="#6366f1" />
+      <ambientLight intensity={0.35} />
+      <pointLight position={[5, 3.5, 6]} intensity={2.4} color="#38bdf8" />
+      <pointLight position={[-5, 4, 3]} intensity={1.6} color="#fbbf24" />
+      <pointLight position={[0, -5, 2]} intensity={1.2} color="#6366f1" />
 
-      <Stars radius={30} depth={25} count={1000} factor={2} saturation={0} fade speed={0.5} />
+      <Stars radius={28} depth={22} count={900} factor={2.2} saturation={0} fade speed={0.4} />
 
       {/* Atmosphere */}
-      <Nebula position={[-4.5, 1.5, -6]} color="#4338ca" scale={12} opacity={0.16} />
-      <Nebula position={[4, 0, -7]} color="#0ea5e9" scale={10} opacity={0.12} />
-      <Nebula position={[0, 3.2, -5]} color="#a855f7" scale={9} opacity={0.1} />
+      <Aurora position={[-4.5, 1.8, -5]} color="#4338ca" scale={11} opacity={0.16} drift={1} />
+      <Aurora position={[4.2, 0.2, -6]} color="#0ea5e9" scale={9} opacity={0.13} drift={1.3} />
+      <Aurora position={[0, 3.4, -5]} color="#7c3aed" scale={8} opacity={0.1} drift={0.8} />
 
-      <GlowTube curve={pathA} color="#38bdf8" />
-      <GlowTube curve={pathB} color="#fbbf24" />
-      <GlowTube curve={pathC} color="#34d399" />
+      <ConnectionThreads />
+      <ConstellationField count={500} />
 
-      <ParticleStream curve={pathA} count={360} color="#38bdf8" size={0.1} speed={0.16} />
-      <ParticleStream curve={pathB} count={360} color="#fbbf24" size={0.1} speed={0.16} />
-      <ParticleStream curve={pathC} count={300} color="#34d399" size={0.09} speed={0.14} />
+      <DustRing innerR={1.72} outerR={2.05} count={320} color="#7dd3fc" opacity={0.5} tilt={[Math.PI / 2.55, 0.25, 0]} speed={0.32} />
+      <DustRing innerR={1.3} outerR={1.55} count={220} color="#fbbf24" opacity={0.35} tilt={[Math.PI / 2.1, -0.35, 0.4]} speed={-0.22} />
 
-      <EnergyNode position={[-4.5, 2.4, 0.2]} color="#38bdf8" size={0.3} />
-      <EnergyNode position={[4.3, 3.2, -1.0]} color="#fbbf24" size={0.34} />
-
-      <FusionCore />
-      <GraduationCap position={[3.5, 2.6, 0]} scale={1.25} />
-
-      <OrbitRing radius={1.55} color="#8b5cf6" tilt={[Math.PI / 2.6, 0.2, 0]} speed={0.5} opacity={0.35} />
-      <OrbitRing radius={2.0} color="#38bdf8" tilt={[Math.PI / 2.2, -0.4, 0.3]} speed={-0.35} opacity={0.3} />
-      <OrbitRing radius={2.5} color="#fbbf24" tilt={[Math.PI / 2.9, 0.5, -0.2]} speed={0.28} opacity={0.22} />
+      <RefractiveCore />
+      <GlassShards />
     </group>
   );
 };
@@ -423,10 +371,10 @@ const DreamFusionEngine = () => {
 
   return (
     <div ref={containerRef} className="relative w-full h-[380px] sm:h-[460px] md:h-[540px] select-none">
-      <Canvas dpr={[1, 1.75]} frameloop={isInView ? "always" : "never"} gl={{ antialias: true, powerPreference: 'high-performance' }}>
-        <PerspectiveCamera makeDefault position={[0, 0.4, 10]} fov={50} />
+      <Canvas dpr={[1, 1.6]} frameloop={isInView ? "always" : "never"} gl={{ antialias: true, powerPreference: 'high-performance' }}>
+        <PerspectiveCamera makeDefault position={[0, 0.2, 8]} fov={50} />
         <Suspense fallback={null}>
-          <DreamScene />
+          <ConstellationScene />
         </Suspense>
       </Canvas>
       <div className="absolute inset-0 bg-gradient-to-t from-premium-navy via-transparent to-transparent pointer-events-none" />
