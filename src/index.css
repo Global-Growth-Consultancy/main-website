@@ -295,22 +295,76 @@
     }
   }
 
-  .faq-slide-card {
+  .faq-lux-card {
     position: relative;
     overflow: hidden;
-    border-radius: 1.1rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.014));
-    box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.8);
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease, border-color 0.45s ease;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background:
+      radial-gradient(120% 70% at 50% 0%, rgba(56, 189, 248, 0.05), transparent 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.008));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 24px 50px -30px rgba(0, 0, 0, 0.8);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.5s ease, box-shadow 0.5s ease;
   }
 
-  .faq-slide-card:hover {
+  .faq-lux-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(56, 189, 248, 0.28);
     box-shadow:
-      0 28px 56px -32px rgba(0, 0, 0, 0.9),
-      0 0 46px -16px var(--card-glow, rgba(56, 189, 248, 0.45));
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 32px 64px -34px rgba(0, 0, 0, 0.9),
+      0 0 44px -18px rgba(56, 189, 248, 0.28);
+  }
+
+  /* soft stage light bleeding from the top edge */
+  .faq-lux-card__light {
+    position: absolute;
+    top: -45%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65%;
+    height: 90%;
+    background: radial-gradient(ellipse at top, rgba(56, 189, 248, 0.07), transparent 70%);
+    pointer-events: none;
+  }
+
+  /* diagonal sheen that sweeps across on hover */
+  .faq-lux-card__sheen {
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .faq-lux-card:hover .faq-lux-card__sheen {
+    left: 130%;
+  }
+
+  /* giant ghost index numeral */
+  .faq-lux-card__num {
+    position: absolute;
+    right: 0.9rem;
+    bottom: -0.6rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 6rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: rgba(255, 255, 255, 0.028);
+    pointer-events: none;
+    user-select: none;
+    transition: color 0.5s ease;
+  }
+
+  .faq-lux-card:hover .faq-lux-card__num {
+    color: rgba(56, 189, 248, 0.09);
   }
 
   .progress-fill {

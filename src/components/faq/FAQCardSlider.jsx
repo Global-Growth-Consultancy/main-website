@@ -1,48 +1,20 @@
 import React, { useRef, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
-  FaCreditCard, FaHandHoldingUsd, FaUserCheck, FaUniversity,
-  FaCoins, FaRupeeSign, FaHeadset, FaClipboardList, FaQuestionCircle,
-  FaWhatsapp, FaPhone, FaChevronLeft, FaChevronRight,
+  FaHeadset, FaWhatsapp, FaPhone, FaChevronLeft, FaChevronRight,
 } from "react-icons/fa";
 
 // ------------------------------------------------------------------
 // FAQCardSlider — an autoscrolling, super-advanced FAQ carousel.
 //
 // • Responsive slides-per-view: 3 on desktop, 2 on tablet, 2 on mobile.
-// • Auto-scrolls every 4s (pauses on hover / drag), with a live
-//   progress bar, arrows, drag-to-scroll, edge fade masks and a
-//   "01 / 08" counter.
-// • Every card is uniform size, question + answer always visible.
-// • Each category gets its own vivid colour identity (gradient icon,
-//   chip, top accent bar, corner glow, hover glow) — a completely
-//   different, premium look.
+// • Auto-scrolls every 4s (pauses on hover / drag), live progress bar,
+//   arrows, drag-to-scroll, edge fade masks and a "01 / 08" counter.
+// • Every card is uniform size; question + answer always visible.
+// • Luxury editorial card look: frosted dark glass, one cyan accent,
+//   oversized ghost index numeral, stage light, diagonal sheen sweep on
+//   hover. Monochrome + restraint = premium.
 // ------------------------------------------------------------------
-
-const themes = {
-  BSCC:        { from: "#0ea5e9", to: "#38bdf8", soft: "rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.38)" },
-  Loans:       { from: "#10b981", to: "#34d399", soft: "rgba(52,211,153,0.15)", border: "rgba(52,211,153,0.38)" },
-  Eligibility: { from: "#d97706", to: "#fbbf24", soft: "rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.38)" },
-  Admissions:  { from: "#7c3aed", to: "#a78bfa", soft: "rgba(167,139,250,0.17)", border: "rgba(167,139,250,0.38)" },
-  Repayment:   { from: "#ea580c", to: "#fb923c", soft: "rgba(251,146,60,0.15)", border: "rgba(251,146,60,0.38)" },
-  Fees:        { from: "#db2777", to: "#f472b6", soft: "rgba(244,114,182,0.15)", border: "rgba(244,114,182,0.38)" },
-  Support:     { from: "#c026d3", to: "#e879f9", soft: "rgba(232,121,249,0.15)", border: "rgba(232,121,249,0.38)" },
-  Process:     { from: "#0d9488", to: "#2dd4bf", soft: "rgba(45,212,191,0.15)", border: "rgba(45,212,191,0.38)" },
-};
-
-const icons = {
-  BSCC: FaCreditCard,
-  Loans: FaHandHoldingUsd,
-  Eligibility: FaUserCheck,
-  Admissions: FaUniversity,
-  Repayment: FaCoins,
-  Fees: FaRupeeSign,
-  Support: FaHeadset,
-  Process: FaClipboardList,
-};
-
-const themeFor = (category) => themes[category] || themes.BSCC;
-const iconFor = (category) => icons[category] || FaQuestionCircle;
 
 const AUTO_MS = 4000;
 
@@ -69,62 +41,42 @@ function useSlidesPerView() {
 }
 
 const SlideCard = ({ faq, index }) => {
-  const t = themeFor(faq.category);
-  const Icon = iconFor(faq.category);
   const num = String(index + 1).padStart(2, "0");
 
   return (
-    <div
-      className="faq-slide-card group h-full flex flex-col"
-      style={{ "--card-glow": `${t.to}66` }}
-    >
-      {/* top accent bar */}
-      <div
-        className="absolute top-0 left-5 right-5 h-[3px] rounded-b-full"
-        style={{ background: `linear-gradient(90deg, transparent, ${t.to}, transparent)` }}
-      />
-      {/* corner glow */}
-      <div
-        className="absolute -top-14 -right-14 w-40 h-40 rounded-full pointer-events-none"
-        style={{ background: `radial-gradient(circle, ${t.soft}, transparent 70%)` }}
-      />
+    <div className="faq-lux-card group h-full flex flex-col p-5 sm:p-6">
+      <span className="faq-lux-card__light" aria-hidden="true" />
+      <span className="faq-lux-card__sheen" aria-hidden="true" />
+      <span className="faq-lux-card__num" aria-hidden="true">{num}</span>
 
-      <div className="relative flex items-center justify-between mb-3 sm:mb-4">
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0"
-            style={{
-              background: `linear-gradient(135deg, ${t.from}, ${t.to})`,
-              boxShadow: `0 10px 24px -10px ${t.to}`,
-            }}
-          >
-            <Icon className="text-sm sm:text-base" />
-          </span>
-          <span
-            className="truncate text-[9px] sm:text-[10px] font-mono uppercase tracking-[0.16em] px-2 py-0.5 rounded-full border"
-            style={{ color: t.to, borderColor: t.border, background: t.soft }}
-          >
-            {faq.category}
-          </span>
-        </div>
-        <span className="font-mono text-[10px] sm:text-xs text-white/25">{num}</span>
+      {/* meta row */}
+      <div className="relative flex items-center justify-between mb-5">
+        <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-neutral-500">
+          {faq.category}
+        </span>
+        <span className="font-mono text-xs text-neutral-600">{num}</span>
       </div>
 
-      <h3 className="text-sm sm:text-base md:text-lg font-display font-bold text-white leading-snug min-h-[2.7rem] sm:min-h-[3.2rem] mb-3">
+      <div className="relative h-px w-full bg-white/5 mb-5" />
+
+      {/* question */}
+      <h3 className="relative text-base sm:text-lg xl:text-xl font-display font-bold text-white leading-snug tracking-tight mb-4">
         {faq.question}
       </h3>
 
-      <div className="h-px w-full mb-3" style={{ background: `linear-gradient(90deg, ${t.to}55, transparent)` }} />
+      <div className="relative h-px w-16 bg-brand-400/30 mb-4" />
 
-      <p className="flex-1 text-[11px] sm:text-xs md:text-sm text-neutral-400 leading-relaxed">
+      {/* answer — always visible, no clicks */}
+      <p className="relative flex-1 text-xs sm:text-sm text-neutral-400 leading-relaxed">
         {faq.answer}
       </p>
 
-      <div className="relative mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
-        <span className="text-[9px] font-mono uppercase tracking-[0.2em]" style={{ color: t.to }}>
+      {/* footer */}
+      <div className="relative mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+        <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-neutral-600">
           GGC · Answered
         </span>
-        <span className="text-[9px] font-mono text-white/25">{num}</span>
+        <span className="w-1.5 h-1.5 rounded-full bg-brand-400/80" />
       </div>
     </div>
   );
@@ -132,37 +84,22 @@ const SlideCard = ({ faq, index }) => {
 
 const CTACard = () => {
   return (
-    <div
-      className="faq-slide-card group h-full flex flex-col justify-center items-center text-center gap-3 sm:gap-4"
-      style={{ "--card-glow": "rgba(251,191,36,0.6)" }}
-    >
-      <div
-        className="absolute top-0 left-5 right-5 h-[3px] rounded-b-full"
-        style={{ background: "linear-gradient(90deg, transparent, #fbbf24, transparent)" }}
-      />
-      <div
-        className="absolute -top-14 -right-14 w-40 h-40 rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(circle, rgba(251,191,36,0.16), transparent 70%)" }}
-      />
+    <div className="faq-lux-card group h-full flex flex-col items-center justify-center text-center gap-4 p-6">
+      <span className="faq-lux-card__light" aria-hidden="true" />
+      <span className="faq-lux-card__sheen" aria-hidden="true" />
 
-      <span
-        className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-white"
-        style={{
-          background: "linear-gradient(135deg, #d97706, #fbbf24)",
-          boxShadow: "0 14px 34px -12px rgba(251,191,36,0.8)",
-        }}
-      >
-        <FaHeadset className="text-2xl" />
-      </span>
+      <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl border border-white/10 bg-white/[0.03] flex items-center justify-center text-brand-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <FaHeadset className="text-xl sm:text-2xl" />
+      </div>
 
-      <h3 className="text-lg sm:text-xl font-display font-bold text-white">
+      <h3 className="relative text-lg sm:text-xl font-display font-bold text-white">
         Still Have Questions?
       </h3>
-      <p className="text-xs sm:text-sm text-neutral-400 max-w-[240px] leading-relaxed">
+      <p className="relative text-xs sm:text-sm text-neutral-500 max-w-[240px] leading-relaxed">
         Talk to a real counselor — free, no obligation.
       </p>
 
-      <div className="flex flex-col items-center justify-center gap-2.5 mt-1">
+      <div className="relative flex flex-col items-center justify-center gap-2.5 mt-1">
         <a
           href="https://wa.me/917739973470?text=Hi%20GGC!%20I%20have%20a%20question%20about%20admissions%20or%20BSCC%20loans."
           target="_blank"
@@ -288,7 +225,7 @@ const FAQCardSlider = ({ faqs, eyebrow = "FAQ", title = "Common Questions", subt
         />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-[92rem] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
