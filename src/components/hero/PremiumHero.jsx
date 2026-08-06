@@ -5,7 +5,7 @@ import {
   FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd,
   FaCheckCircle, FaShieldAlt, FaWhatsapp,
 } from "react-icons/fa";
-import NexusField from "./NexusField";
+import StudentPerformer from "./StudentPerformer";
 
 // ------------------------------------------------------------------
 // Word-by-word masked reveal for the headline.
@@ -183,30 +183,8 @@ const PremiumHero = () => {
                 style={{ background: "radial-gradient(circle at 50% 40%, rgba(56,189,248,0.14), rgba(167,139,250,0.06) 45%, transparent 70%)" }}
               />
 
-              {/* Frame */}
-              <div className="relative rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/50 overflow-hidden">
-                {/* Top hairline */}
-                <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent" />
-
-                {/* Header row of the "card" */}
-                <div className="relative px-5 sm:px-6 pt-5 pb-3 flex items-center justify-between border-b border-white/5">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2 h-2 rounded-full bg-success-400/80" />
-                    <span className="w-2 h-2 rounded-full bg-accent-400/80" />
-                    <span className="w-2 h-2 rounded-full bg-brand-400/80" />
-                  </div>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500">
-                    GGC Network · Live
-                  </span>
-                </div>
-
-                {/* Canvas */}
-                <div className="relative h-[300px] sm:h-[360px] md:h-[400px]">
-                  <NexusField />
-                  {/* Legibility fade */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-premium-charcoal via-transparent to-transparent pointer-events-none" />
-                </div>
-              </div>
+              {/* Code-built "video" player: student mascot acts out a story */}
+              <StudentPerformer />
 
               {/* Floating stat cards (parallax with pointer) */}
               <motion.div
