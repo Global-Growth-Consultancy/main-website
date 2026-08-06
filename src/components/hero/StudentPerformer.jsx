@@ -11,10 +11,10 @@ gsap.registerPlugin(ScrollTrigger);
 // StudentPerformer — a fully code-built living character.
 //
 // • SVG student mascot ("Aarav") performs a scroll-scrubbed story:
-//   waves, talks with lipsync, gestures, points — as the user scrolls
-//   through the hero.
-// • Always-on idle life: blinking, breathing, and a gentle head sway,
-//   plus eye movement while talking — so he feels real, not stiff.
+//   waves, talks with lipsync, gestures and points with two-joint
+//   (shoulder + elbow) arms — as the user scrolls through the hero.
+// • Always-on idle life: blinking, breathing, gentle head sway and
+//   eyes that look around — so he feels real, not stiff.
 // • A timed quote bar on top cycles 5 captions with a countdown timer
 //   and an advancing progress bar; each quote auto-rotates.
 // ------------------------------------------------------------------
@@ -42,10 +42,11 @@ const StudentPerformer = () => {
   const headRef = useRef(null);
   const headIdleRef = useRef(null);
   const bodyRef = useRef(null);
-  const capRef = useRef(null);
   const tasselRef = useRef(null);
   const armLRef = useRef(null);
+  const armLElbowRef = useRef(null);
   const armRRef = useRef(null);
+  const armRElbowRef = useRef(null);
   const mouthRef = useRef(null);
   const eyesRef = useRef(null);
   const hoverRef = useRef(false);
@@ -113,7 +114,9 @@ const StudentPerformer = () => {
       setOrigin(bodyRef.current, 100, 190);
       setOrigin(tasselRef.current, 120, 74);
       setOrigin(armLRef.current, 74, 152);
+      setOrigin(armLElbowRef.current, 70, 181);
       setOrigin(armRRef.current, 126, 152);
+      setOrigin(armRElbowRef.current, 130, 181);
       setOrigin(mouthRef.current, 100, 126);
       setOrigin(eyesRef.current, 100, 109);
       setOrigin(breatheRef.current, 100, 200);
@@ -163,43 +166,79 @@ const StudentPerformer = () => {
         .to(eyesRef.current, { x: 2.5, duration: 0.12 }, 0.86)
         .to(eyesRef.current, { x: 0, duration: 0.1 }, 0.98);
 
-      // --- right arm (wave → gesture → point) ---
-      tl.to(armRRef.current, { rotation: 28, duration: 0.01 }, 0.01)
-        .to(armRRef.current, { rotation: -14, duration: 0.02 }, 0.02)
-        .to(armRRef.current, { rotation: 34, duration: 0.02 }, 0.04)
-        .to(armRRef.current, { rotation: -12, duration: 0.02 }, 0.06)
-        .to(armRRef.current, { rotation: 26, duration: 0.02 }, 0.08)
-        .to(armRRef.current, { rotation: -10, duration: 0.02 }, 0.1)
-        .to(armRRef.current, { rotation: -8, duration: 0.04 }, 0.12)
-        .to(armRRef.current, { rotation: 8, duration: 0.06 }, 0.18)
-        .to(armRRef.current, { rotation: -6, duration: 0.06 }, 0.24)
-        .to(armRRef.current, { rotation: 10, duration: 0.06 }, 0.3)
-        .to(armRRef.current, { rotation: -8, duration: 0.06 }, 0.36)
-        .to(armRRef.current, { rotation: 42, duration: 0.04 }, 0.4)
-        .to(armRRef.current, { rotation: 18, duration: 0.06 }, 0.46)
-        .to(armRRef.current, { rotation: 34, duration: 0.06 }, 0.52)
-        .to(armRRef.current, { rotation: -8, duration: 0.06 }, 0.58)
-        .to(armRRef.current, { rotation: -20, duration: 0.04 }, 0.62)
-        .to(armRRef.current, { rotation: 12, duration: 0.06 }, 0.68)
-        .to(armRRef.current, { rotation: -18, duration: 0.06 }, 0.74)
-        .to(armRRef.current, { rotation: -8, duration: 0.04 }, 0.78)
-        .to(armRRef.current, { rotation: 46, duration: 0.04 }, 0.82)
-        .to(armRRef.current, { rotation: 22, duration: 0.08 }, 0.9)
-        .to(armRRef.current, { rotation: -8, duration: 0.06 }, 0.96);
+      // --- right arm: shoulder (wave → talk → point out → open → point fwd) ---
+      tl.to(armRRef.current, { rotation: -32, duration: 0.02 }, 0.01)
+        .to(armRRef.current, { rotation: -18, duration: 0.02 }, 0.03)
+        .to(armRRef.current, { rotation: -34, duration: 0.02 }, 0.05)
+        .to(armRRef.current, { rotation: -16, duration: 0.02 }, 0.07)
+        .to(armRRef.current, { rotation: -30, duration: 0.02 }, 0.09)
+        .to(armRRef.current, { rotation: -20, duration: 0.02 }, 0.11)
+        .to(armRRef.current, { rotation: 0, duration: 0.03 }, 0.12)
+        .to(armRRef.current, { rotation: 20, duration: 0.04 }, 0.18)
+        .to(armRRef.current, { rotation: 12, duration: 0.06 }, 0.24)
+        .to(armRRef.current, { rotation: 22, duration: 0.06 }, 0.3)
+        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.36)
+        .to(armRRef.current, { rotation: -55, duration: 0.04 }, 0.4)
+        .to(armRRef.current, { rotation: -38, duration: 0.06 }, 0.46)
+        .to(armRRef.current, { rotation: -50, duration: 0.06 }, 0.52)
+        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.58)
+        .to(armRRef.current, { rotation: -40, duration: 0.04 }, 0.62)
+        .to(armRRef.current, { rotation: -24, duration: 0.06 }, 0.68)
+        .to(armRRef.current, { rotation: -42, duration: 0.06 }, 0.74)
+        .to(armRRef.current, { rotation: 0, duration: 0.04 }, 0.78)
+        .to(armRRef.current, { rotation: -25, duration: 0.04 }, 0.82)
+        .to(armRRef.current, { rotation: -12, duration: 0.08 }, 0.9)
+        .to(armRRef.current, { rotation: 0, duration: 0.06 }, 0.96);
 
-      // --- left arm (soft mirror) ---
-      tl.to(armLRef.current, { rotation: -8, duration: 0.06 }, 0.2)
-        .to(armLRef.current, { rotation: 4, duration: 0.06 }, 0.26)
-        .to(armLRef.current, { rotation: 6, duration: 0.04 }, 0.36)
-        .to(armLRef.current, { rotation: -10, duration: 0.06 }, 0.42)
-        .to(armLRef.current, { rotation: 6, duration: 0.06 }, 0.52)
-        .to(armLRef.current, { rotation: 6, duration: 0.06 }, 0.58)
-        .to(armLRef.current, { rotation: 22, duration: 0.04 }, 0.62)
-        .to(armLRef.current, { rotation: -12, duration: 0.06 }, 0.68)
-        .to(armLRef.current, { rotation: 18, duration: 0.06 }, 0.74)
-        .to(armLRef.current, { rotation: 6, duration: 0.04 }, 0.78)
-        .to(armLRef.current, { rotation: -12, duration: 0.06 }, 0.84)
-        .to(armLRef.current, { rotation: 6, duration: 0.1 }, 0.94);
+      // --- right arm: elbow ---
+      tl.to(armRElbowRef.current, { rotation: 30, duration: 0.02 }, 0.01)
+        .to(armRElbowRef.current, { rotation: -28, duration: 0.02 }, 0.03)
+        .to(armRElbowRef.current, { rotation: 26, duration: 0.02 }, 0.05)
+        .to(armRElbowRef.current, { rotation: -24, duration: 0.02 }, 0.07)
+        .to(armRElbowRef.current, { rotation: 22, duration: 0.02 }, 0.09)
+        .to(armRElbowRef.current, { rotation: -20, duration: 0.02 }, 0.11)
+        .to(armRElbowRef.current, { rotation: 6, duration: 0.03 }, 0.12)
+        .to(armRElbowRef.current, { rotation: -30, duration: 0.04 }, 0.18)
+        .to(armRElbowRef.current, { rotation: -12, duration: 0.06 }, 0.24)
+        .to(armRElbowRef.current, { rotation: -26, duration: 0.06 }, 0.3)
+        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.36)
+        .to(armRElbowRef.current, { rotation: 45, duration: 0.04 }, 0.4)
+        .to(armRElbowRef.current, { rotation: 20, duration: 0.06 }, 0.46)
+        .to(armRElbowRef.current, { rotation: 40, duration: 0.06 }, 0.52)
+        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.58)
+        .to(armRElbowRef.current, { rotation: -15, duration: 0.04 }, 0.62)
+        .to(armRElbowRef.current, { rotation: 8, duration: 0.06 }, 0.68)
+        .to(armRElbowRef.current, { rotation: -18, duration: 0.06 }, 0.74)
+        .to(armRElbowRef.current, { rotation: 6, duration: 0.04 }, 0.78)
+        .to(armRElbowRef.current, { rotation: 65, duration: 0.04 }, 0.82)
+        .to(armRElbowRef.current, { rotation: 30, duration: 0.08 }, 0.9)
+        .to(armRElbowRef.current, { rotation: 6, duration: 0.06 }, 0.96);
+
+      // --- left arm: shoulder (soft mirror) ---
+      tl.to(armLRef.current, { rotation: -20, duration: 0.04 }, 0.18)
+        .to(armLRef.current, { rotation: -10, duration: 0.06 }, 0.24)
+        .to(armLRef.current, { rotation: -22, duration: 0.06 }, 0.3)
+        .to(armLRef.current, { rotation: 0, duration: 0.06 }, 0.36)
+        .to(armLRef.current, { rotation: 40, duration: 0.04 }, 0.62)
+        .to(armLRef.current, { rotation: 24, duration: 0.06 }, 0.68)
+        .to(armLRef.current, { rotation: 42, duration: 0.06 }, 0.74)
+        .to(armLRef.current, { rotation: 0, duration: 0.04 }, 0.78)
+        .to(armLRef.current, { rotation: 25, duration: 0.04 }, 0.82)
+        .to(armLRef.current, { rotation: 10, duration: 0.08 }, 0.9)
+        .to(armLRef.current, { rotation: 0, duration: 0.06 }, 0.96);
+
+      // --- left arm: elbow ---
+      tl.to(armLElbowRef.current, { rotation: -12, duration: 0.04 }, 0.18)
+        .to(armLElbowRef.current, { rotation: 4, duration: 0.06 }, 0.24)
+        .to(armLElbowRef.current, { rotation: -10, duration: 0.06 }, 0.3)
+        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.36)
+        .to(armLElbowRef.current, { rotation: -15, duration: 0.04 }, 0.62)
+        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.68)
+        .to(armLElbowRef.current, { rotation: -18, duration: 0.06 }, 0.74)
+        .to(armLElbowRef.current, { rotation: 6, duration: 0.04 }, 0.78)
+        .to(armLElbowRef.current, { rotation: 50, duration: 0.04 }, 0.82)
+        .to(armLElbowRef.current, { rotation: 20, duration: 0.08 }, 0.9)
+        .to(armLElbowRef.current, { rotation: 6, duration: 0.06 }, 0.96);
 
       // --- body bob ---
       tl.to(bodyRef.current, { y: 2.5, duration: 0.03 }, 0.03)
@@ -308,14 +347,14 @@ const StudentPerformer = () => {
         {/* Character aura */}
         <div
           className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[70%] h-[55%] pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.16), transparent 68%)" }}
+          style={{ background: "radial-gradient(ellipse at center bottom, rgba(56,189,248,0.18), transparent 68%)" }}
         />
 
         {/* Character */}
         <div className="absolute inset-0 flex items-end justify-center pb-1 z-10">
           <svg
             viewBox="0 0 200 240"
-            className="h-[94%] w-auto max-w-[92%] drop-shadow-[0_0_24px_rgba(56,189,248,0.3)]"
+            className="h-[94%] w-auto max-w-[92%] drop-shadow-[0_0_26px_rgba(56,189,248,0.3)]"
             aria-hidden="true"
           >
             <defs>
@@ -324,17 +363,19 @@ const StudentPerformer = () => {
                 <stop offset="1" stopColor="#101726" />
               </linearGradient>
               <radialGradient id="ggcSkin" cx="0.4" cy="0.3" r="1">
-                <stop offset="0" stopColor="#F2CBA8" />
-                <stop offset="1" stopColor="#D9A173" />
+                <stop offset="0" stopColor="#F4CEAA" />
+                <stop offset="0.75" stopColor="#E3AC7E" />
+                <stop offset="1" stopColor="#CF9766" />
               </radialGradient>
               <linearGradient id="ggcHair" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="#26324A" />
+                <stop offset="0" stopColor="#2E3B55" />
                 <stop offset="1" stopColor="#0B1120" />
               </linearGradient>
             </defs>
 
-            {/* Ground shadow */}
-            <ellipse cx="100" cy="236" rx="46" ry="6" fill="rgba(0,0,0,0.5)" />
+            {/* Ground pedestal */}
+            <ellipse cx="100" cy="236" rx="56" ry="8" fill="rgba(56,189,248,0.08)" />
+            <ellipse cx="100" cy="236" rx="44" ry="6" fill="rgba(0,0,0,0.5)" />
 
             <g ref={figureRef}>
               <g ref={breatheRef}>
@@ -366,73 +407,117 @@ const StudentPerformer = () => {
                   <path d="M118 170 L130 170" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
                 </g>
 
-                {/* Left arm */}
+                {/* Left arm — two joints */}
                 <g ref={armLRef}>
                   <path
-                    d="M66 152 Q60 178 64 198 Q66 206 74 204 L80 202 Q78 192 80 180 Q82 160 78 154 Z"
+                    d="M68 152 Q60 164 62 176 Q64 184 72 183 Q80 182 78 172 Q78 162 74 152 Z"
                     fill="url(#ggcBlazer)"
                     stroke="rgba(56,189,248,0.3)"
                     strokeWidth="1.5"
                   />
-                  <rect x="70" y="196" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(-6 76 199)" />
-                  <circle cx="76" cy="206" r="7.5" fill="url(#ggcSkin)" />
+                  <g ref={armLElbowRef}>
+                    <path
+                      d="M70 181 Q62 190 64 200 Q66 208 73 206 Q80 204 78 194 Q78 186 76 179 Z"
+                      fill="url(#ggcBlazer)"
+                      stroke="rgba(56,189,248,0.3)"
+                      strokeWidth="1.5"
+                    />
+                    <rect x="68" y="197" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(-6 74 200)" />
+                    <circle cx="74" cy="206" r="7.5" fill="url(#ggcSkin)" />
+                  </g>
                 </g>
 
-                {/* Right arm */}
+                {/* Right arm — two joints */}
                 <g ref={armRRef}>
                   <path
-                    d="M134 152 Q140 178 136 198 Q134 206 126 204 L120 202 Q122 192 120 180 Q118 160 122 154 Z"
+                    d="M132 152 Q140 164 138 176 Q136 184 128 183 Q120 182 122 172 Q122 162 126 152 Z"
                     fill="url(#ggcBlazer)"
                     stroke="rgba(56,189,248,0.3)"
                     strokeWidth="1.5"
                   />
-                  <rect x="118" y="196" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(6 124 199)" />
-                  <circle cx="124" cy="206" r="7.5" fill="url(#ggcSkin)" />
+                  <g ref={armRElbowRef}>
+                    <path
+                      d="M130 181 Q138 190 136 200 Q134 208 127 206 Q120 204 122 194 Q122 186 124 179 Z"
+                      fill="url(#ggcBlazer)"
+                      stroke="rgba(56,189,248,0.3)"
+                      strokeWidth="1.5"
+                    />
+                    <rect x="120" y="197" width="12" height="6" rx="2" fill="#E9EFF7" transform="rotate(6 126 200)" />
+                    <circle cx="126" cy="206" r="7.5" fill="url(#ggcSkin)" />
+                  </g>
                 </g>
 
-                {/* Neck */}
-                <path d="M93 134 Q100 144 107 134 L107 142 Q100 152 93 142 Z" fill="#C98F63" />
+                {/* Neck + chin shadow */}
+                <path d="M94 133 Q100 143 106 133 L106 140 Q100 150 94 140 Z" fill="#C98F63" />
+                <path d="M93 134 Q100 143 107 134" stroke="rgba(0,0,0,0.18)" strokeWidth="3" fill="none" strokeLinecap="round" />
 
                 {/* Head */}
                 <g ref={headRef}>
                   <g ref={headIdleRef}>
-                    <ellipse cx="100" cy="112" rx="26" ry="28" fill="url(#ggcSkin)" />
-                    <circle cx="74" cy="112" r="4.5" fill="url(#ggcSkin)" />
-                    <circle cx="126" cy="112" r="4.5" fill="url(#ggcSkin)" />
-                    <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
-                    <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.28)" />
-                    <path d="M81 99 Q88 94 95 98" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
-                    <path d="M105 98 Q112 94 119 99" fill="none" stroke="#1E293B" strokeWidth="2.2" strokeLinecap="round" />
+                    {/* face */}
+                    <path
+                      d="M74 90 Q72 106 79 123 Q86 137 100 139 Q114 137 121 123 Q128 106 126 90 Q123 77 100 75 Q77 77 74 90 Z"
+                      fill="url(#ggcSkin)"
+                    />
+                    <circle cx="74" cy="110" r="4.5" fill="url(#ggcSkin)" />
+                    <circle cx="126" cy="110" r="4.5" fill="url(#ggcSkin)" />
+                    <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
+                    <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
+
+                    {/* brows */}
+                    <path d="M79 100 Q87 94 95 99" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                    <path d="M105 99 Q113 94 121 100" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+
+                    {/* eyes (blink + look) */}
                     <g ref={eyesRef}>
-                      <circle cx="88" cy="109" r="2.6" fill="#0F172A" />
-                      <circle cx="112" cy="109" r="2.6" fill="#0F172A" />
-                      <circle cx="89" cy="108" r="0.8" fill="#fff" opacity="0.85" />
-                      <circle cx="113" cy="108" r="0.8" fill="#fff" opacity="0.85" />
+                      <ellipse cx="88" cy="109" rx="4.6" ry="4.3" fill="#FFF8F0" />
+                      <ellipse cx="112" cy="109" rx="4.6" ry="4.3" fill="#FFF8F0" />
+                      <circle cx="88" cy="109" r="3" fill="#4A2A18" />
+                      <circle cx="112" cy="109" r="3" fill="#4A2A18" />
+                      <circle cx="88" cy="109" r="1.3" fill="#140C08" />
+                      <circle cx="112" cy="109" r="1.3" fill="#140C08" />
+                      <circle cx="89.5" cy="108" r="1" fill="#fff" opacity="0.9" />
+                      <circle cx="113.5" cy="108" r="1" fill="#fff" opacity="0.9" />
                     </g>
-                    <circle cx="88" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
-                    <circle cx="112" cy="109" r="7.5" fill="none" stroke="#38BDF8" strokeWidth="2" />
-                    <path d="M95.5 109 L104.5 109" stroke="#38BDF8" strokeWidth="2" />
-                    <path d="M80.5 107 L73 102" stroke="#38BDF8" strokeWidth="2" />
-                    <path d="M119.5 107 L127 102" stroke="#38BDF8" strokeWidth="2" />
-                    <path d="M92 106 Q88 104 85 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
-                    <path d="M116 106 Q120 104 123 106" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="1.4" strokeLinecap="round" />
-                    <path d="M98 117 Q100 120 102 117" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M82.5 105.5 Q88 102.5 93.5 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                    <path d="M106.5 105.5 Q112 102.5 117.5 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+
+                    {/* glasses */}
+                    <circle cx="88" cy="109" r="8" fill="none" stroke="#38BDF8" strokeWidth="2" />
+                    <circle cx="112" cy="109" r="8" fill="none" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M96 109 L104 109" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M80 106.5 L73 102" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M120 106.5 L127 102" stroke="#38BDF8" strokeWidth="2" />
+                    <path d="M93 105 Q89.5 103 86.5 104.5" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.4" strokeLinecap="round" />
+                    <path d="M117 105 Q120.5 103 123.5 104.5" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.4" strokeLinecap="round" />
+
+                    {/* nose */}
+                    <path d="M99 114 Q101 118 100 120" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
+                    <path d="M95.5 118.5 Q97.5 121 100.5 120" fill="none" stroke="#C98F63" strokeWidth="1.4" strokeLinecap="round" />
+
+                    {/* mouth (lipsync) */}
                     <g ref={mouthRef}>
-                      <ellipse cx="100" cy="126" rx="5" ry="6" fill="#7C2D3E" />
-                      <path d="M94 125 Q100 121 106 125" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" />
+                      <ellipse cx="100" cy="127" rx="5.5" ry="6.5" fill="#4A1523" />
+                      <path d="M96.5 129 Q100 133.5 103.5 129 Q100 136 96.5 129 Z" fill="#D96C7C" />
+                      <rect x="96" y="121.5" width="8" height="2.2" rx="0.9" fill="#F7FAFC" />
+                      <path d="M93 125 Q96 120 100 122.5 Q104 120 107 125" fill="none" stroke="#B4556B" strokeWidth="2.2" strokeLinecap="round" />
                     </g>
                   </g>
                 </g>
 
-                {/* Hair fringe */}
+                {/* Hair */}
                 <path
-                  d="M75 90 Q78 74 100 71 Q122 74 125 90 Q118 94 112 91 Q106 97 100 94 Q94 97 88 91 Q82 94 75 90 Z"
+                  d="M74 92 Q73 76 90 71 Q100 69 110 71 Q127 76 126 92 Q127 106 117 106 L83 106 Q73 106 74 92 Z"
                   fill="url(#ggcHair)"
                 />
-                <path d="M86 88 Q92 82 100 81 Q108 82 114 88" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M76 90 Q78 75 99 72 Q120 75 124 90 Q118 92 112 89 Q106 95 100 92 Q94 95 88 89 Q82 92 76 90 Z"
+                  fill="url(#ggcHair)"
+                />
+                <path d="M90 80 Q96 76 103 77" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="2" strokeLinecap="round" />
 
                 {/* Cap */}
-                <g ref={capRef}>
+                <g>
                   <rect x="68" y="72" width="64" height="8" rx="3" fill="#0F172A" />
                   <path d="M70 72 Q100 86 130 72 L130 76 Q100 90 70 76 Z" fill="#1B2740" />
                   <g ref={tasselRef}>
