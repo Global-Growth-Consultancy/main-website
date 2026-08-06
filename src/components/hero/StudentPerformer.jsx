@@ -82,6 +82,14 @@ const StudentPerformer = () => {
   const hoverRef = useRef(false);
   const reducedRef = useRef(false);
   const enteredRef = useRef(false);
+  // New refs for enhanced body parts
+  const legLRef = useRef(null);
+  const legLKneeRef = useRef(null);
+  const legRRef = useRef(null);
+  const legRKneeRef = useRef(null);
+  const handLRef = useRef(null);
+  const handRRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   const [qIndex, setQIndex] = useState(0);
   const [typed, setTyped] = useState("");
@@ -103,6 +111,72 @@ const StudentPerformer = () => {
     }, 100);
     return () => clearInterval(id);
   }, []);
+
+  // ---- cursor following + hover reactions ----
+  useEffect(() => {
+    const root = wrapRef.current;
+    if (!root) return undefined;
+
+    const handleMouseMove = (e) => {
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      
+      const deltaX = (e.clientX - centerX) / rect.width;
+      const deltaY = (e.clientY - centerY) / rect.height;
+      
+      // Eyes follow cursor
+      if (eyesRef.current) {
+        gsap.to(eyesRef.current, {
+          x: deltaX * 4,
+          y: deltaY * 2,
+          duration: 0.3,
+          ease: "power2.out"
+        });
+      }
+      
+      // Subtle head turn
+      if (headRef.current) {
+        gsap.to(headRef.current, {
+          rotation: deltaX * 8,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      }
+    };
+
+    root.addEventListener('mousemove', handleMouseMove);
+    return () => root.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // ---- hover-specific animations ----
+  useEffect(() => {
+    if (!svgRef.current) return;
+    
+    if (isHovered) {
+      // Hover reaction: excited wave with both arms
+      const hoverAnim = gsap.timeline();
+      hoverAnim
+        .to(armRRef.current, { rotation: -45, duration: 0.4, ease: "back.out(1.7)" }, 0)
+        .to(armRElbowRef.current, { rotation: 35, duration: 0.4, ease: "back.out(1.7)" }, 0)
+        .to(armLRef.current, { rotation: 35, duration: 0.4, ease: "back.out(1.7)" }, 0)
+        .to(armLElbowRef.current, { rotation: -25, duration: 0.4, ease: "back.out(1.7)" }, 0)
+        .to(mouthRef.current, { scaleY: 0.35, scaleX: 1.3, duration: 0.3, ease: "power2.out" }, 0)
+        .to(browLRef.current, { rotation: -6, duration: 0.3, ease: "power2.out" }, 0)
+        .to(browRRef.current, { rotation: -6, duration: 0.3, ease: "power2.out" }, 0)
+        .to(bodyRef.current, { y: -3, duration: 0.3, ease: "power2.out" }, 0);
+        
+      return () => hoverAnim.kill();
+    } else {
+      // Return to idle
+      gsap.to([armRRef.current, armLRef.current], { rotation: 0, duration: 0.5, ease: "power2.out" });
+      gsap.to([armRElbowRef.current, armLElbowRef.current], { rotation: 6, duration: 0.5, ease: "power2.out" });
+      gsap.to(mouthRef.current, { scaleY: 0.22, scaleX: 1, duration: 0.4, ease: "power2.out" });
+      gsap.to([browLRef.current, browRRef.current], { rotation: 0, duration: 0.4, ease: "power2.out" });
+      gsap.to(bodyRef.current, { y: 0, duration: 0.4, ease: "power2.out" });
+    }
+  }, [isHovered]);
 
   // ---- idle life: blink + breathe + head sway + secondary motion ----
   useEffect(() => {
@@ -136,6 +210,11 @@ const StudentPerformer = () => {
       setOrigin(mouthRef.current, 100, 126);
       setOrigin(eyesRef.current, 100, 109);
       setOrigin(breatheRef.current, 100, 205);
+      // New leg origins
+      setOrigin(legLRef.current, 88, 195);
+      setOrigin(legLKneeRef.current, 88, 215);
+      setOrigin(legRRef.current, 112, 195);
+      setOrigin(legRKneeRef.current, 112, 215);
 
       // neutral resting pose
       if (mouthRef.current) gsap.set(mouthRef.current, { scaleY: 0.22, scaleX: 1 });
@@ -182,6 +261,11 @@ const StudentPerformer = () => {
       const blush = gsap.timeline({ repeat: -1, yoyo: true });
       blush.to(blushRef.current, { opacity: 0.65, duration: 2.6, ease: "sine.inOut" })
         .to(blushRef.current, { opacity: 0.4, duration: 2.8, ease: "sine.inOut" });
+
+      // subtle leg movement (weight shift)
+      const legShift = gsap.timeline({ repeat: -1, yoyo: true });
+      legShift.to(legLRef.current, { rotation: 1.5, duration: 3.2, ease: "sine.inOut" }, 0)
+        .to(legRRef.current, { rotation: -1.5, duration: 3.2, ease: "sine.inOut" }, 0);
 
       // gentle scroll parallax lean (subtle — the character performs on its own)
       const tilt = gsap.quickTo(svgRef.current, "rotation", { duration: 0.5, ease: "power1.out" });
@@ -406,8 +490,8 @@ const StudentPerformer = () => {
   return (
     <div
       ref={wrapRef}
-      onMouseEnter={() => { hoverRef.current = true; }}
-      onMouseLeave={() => { hoverRef.current = false; }}
+      onMouseEnter={() => { hoverRef.current = true; setIsHovered(true); }}
+      onMouseLeave={() => { hoverRef.current = false; setIsHovered(false); }}
       className="group relative rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/50 overflow-hidden"
     >
       {/* Top hairline */}
@@ -485,12 +569,20 @@ const StudentPerformer = () => {
               </linearGradient>
               <radialGradient id="ggcSkin" cx="0.4" cy="0.3" r="1">
                 <stop offset="0" stopColor="#F4CEAA" />
-                <stop offset="0.75" stopColor="#E3AC7E" />
+                <stop offset="0.6" stopColor="#E3AC7E" />
                 <stop offset="1" stopColor="#CF9766" />
               </radialGradient>
               <linearGradient id="ggcHair" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0" stopColor="#2E3B55" />
                 <stop offset="1" stopColor="#0B1120" />
+              </linearGradient>
+              <radialGradient id="ggcCheek" cx="0.5" cy="0.5" r="0.8">
+                <stop offset="0" stopColor="rgba(251,191,36,0.4)" />
+                <stop offset="1" stopColor="rgba(251,191,36,0)" />
+              </radialGradient>
+              <linearGradient id="ggcLip" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#D96C7C" />
+                <stop offset="1" stopColor="#B4556B" />
               </linearGradient>
             </defs>
 
@@ -502,36 +594,103 @@ const StudentPerformer = () => {
 
             <g ref={figureRef}>
               <g ref={breatheRef}>
-                {/* Trousers */}
-                <path d="M87 192 L99 192 L100 226 L90 226 Q84 216 84 204 Z" fill="#0E1729" />
-                <path d="M101 192 L113 192 L114 226 L110 226 Q116 216 116 204 Z" fill="#0E1729" />
+                {/* Realistic Legs with knee joints */}
+                {/* Left Leg */}
+                <g ref={legLRef}>
+                  {/* Upper leg (thigh) */}
+                  <path 
+                    d="M85 188 Q88 188 90 192 L88 210 Q86 210 84 206 Q82 200 83 194 Z" 
+                    fill="#0E1729" 
+                    stroke="rgba(56,189,248,0.2)" 
+                    strokeWidth="1"
+                  />
+                  <g ref={legLKneeRef}>
+                    {/* Lower leg (shin) */}
+                    <path 
+                      d="M86 212 Q88 215 87 222 Q85 228 82 230 Q80 228 81 222 Q82 215 85 212 Z" 
+                      fill="#0E1729" 
+                      stroke="rgba(56,189,248,0.2)" 
+                      strokeWidth="1"
+                    />
+                    {/* Realistic shoe */}
+                    <path 
+                      d="M78 230 Q75 232 76 236 Q80 238 88 236 Q90 234 88 230 Q84 228 78 230 Z" 
+                      fill="#0A0F1C" 
+                      stroke="rgba(56,189,248,0.3)" 
+                      strokeWidth="1"
+                    />
+                    <path d="M76 234 Q82 236 88 234" fill="none" stroke="rgba(56,189,248,0.4)" strokeWidth="1.5" />
+                    <ellipse cx="82" cy="235" rx="3" ry="1.5" fill="rgba(56,189,248,0.2)" />
+                  </g>
+                </g>
 
-                {/* Shoes */}
-                <ellipse cx="90" cy="230" rx="11" ry="5" fill="#0A0F1C" />
-                <ellipse cx="110" cy="230" rx="11" ry="5" fill="#0A0F1C" />
-                <path d="M82 229 Q90 225 98 229" fill="none" stroke="rgba(56,189,248,0.3)" strokeWidth="1" />
+                {/* Right Leg */}
+                <g ref={legRRef}>
+                  {/* Upper leg (thigh) */}
+                  <path 
+                    d="M115 188 Q112 188 110 192 L112 210 Q114 210 116 206 Q118 200 117 194 Z" 
+                    fill="#0E1729" 
+                    stroke="rgba(56,189,248,0.2)" 
+                    strokeWidth="1"
+                  />
+                  <g ref={legRKneeRef}>
+                    {/* Lower leg (shin) */}
+                    <path 
+                      d="M114 212 Q112 215 113 222 Q115 228 118 230 Q120 228 119 222 Q118 215 115 212 Z" 
+                      fill="#0E1729" 
+                      stroke="rgba(56,189,248,0.2)" 
+                      strokeWidth="1"
+                    />
+                    {/* Realistic shoe */}
+                    <path 
+                      d="M122 230 Q125 232 124 236 Q120 238 112 236 Q110 234 112 230 Q116 228 122 230 Z" 
+                      fill="#0A0F1C" 
+                      stroke="rgba(56,189,248,0.3)" 
+                      strokeWidth="1"
+                    />
+                    <path d="M124 234 Q118 236 112 234" fill="none" stroke="rgba(56,189,248,0.4)" strokeWidth="1.5" />
+                    <ellipse cx="118" cy="235" rx="3" ry="1.5" fill="rgba(56,189,248,0.2)" />
+                  </g>
+                </g>
 
-                {/* Blazer torso — broad shoulders, tapered waist */}
+                {/* Blazer torso — broad shoulders, tapered waist with better proportions */}
                 <g ref={bodyRef}>
                   <path
-                    d="M57 157 Q63 150 88 149 Q93 148 100 148 Q107 148 112 149 Q137 150 143 157 Q145 163 143 169 Q142 177 137 181 L136 187 Q136 193 130 193 L70 193 Q64 193 64 187 L63 181 Q58 177 57 169 Q55 163 57 157 Z"
+                    d="M55 155 Q62 145 88 144 Q94 143 100 143 Q106 143 112 144 Q138 145 145 155 Q148 162 145 170 Q143 180 138 185 L137 192 Q137 200 130 200 L70 200 Q63 200 63 192 L62 185 Q57 180 55 170 Q52 162 55 155 Z"
                     fill="url(#ggcBlazer)"
                     stroke="rgba(56,189,248,0.35)"
                     strokeWidth="1.5"
                   />
-                  {/* shirt */}
-                  <path d="M90 148 Q100 158 110 148 L110 155 Q100 170 90 155 Z" fill="#E9EFF7" />
+                  {/* Enhanced blazer with cloth folds */}
+                  <path d="M60 160 Q65 165 70 160" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" opacity="0.5" />
+                  <path d="M130 160 Q135 165 140 160" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" opacity="0.5" />
+                  <path d="M62 175 Q65 185 68 175" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1" opacity="0.4" />
+                  <path d="M132 175 Q135 185 138 175" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1" opacity="0.4" />
+                  
+                  {/* shirt with better shape */}
+                  <path d="M88 144 Q100 158 112 144 L112 152 Q100 172 88 152 Z" fill="#E9EFF7" />
+                  <path d="M92 150 Q100 165 108 150" fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
+                  
                   {/* tie (sways with the breath) */}
                   <g ref={tieRef}>
-                    <rect x="97" y="146" width="6" height="6" rx="1.5" fill="#FBBF24" />
-                    <path d="M98 152 L102 152 L104 172 L100 178 L96 172 Z" fill="#FBBF24" />
+                    <rect x="96" y="142" width="8" height="7" rx="2" fill="#FBBF24" />
+                    <path d="M97 149 L103 149 L105 175 L100 182 L95 175 Z" fill="#FBBF24" />
+                    <path d="M97 149 L103 149" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
                   </g>
-                  {/* lapel notch */}
-                  <path d="M88 149 L100 163 L112 149" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="2.6" strokeLinecap="round" />
-                  {/* buttons + pocket */}
-                  <circle cx="100" cy="173" r="2" fill="#FBBF24" />
-                  <circle cx="100" cy="180" r="2" fill="#FBBF24" />
-                  <path d="M116 172 L128 172" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
+                  
+                  {/* Enhanced lapel notch */}
+                  <path d="M86 145 L100 162 L114 145" fill="none" stroke="rgba(56,189,248,0.5)" strokeWidth="2.6" strokeLinecap="round" />
+                  <path d="M88 148 L100 160 L112 148" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeLinecap="round" />
+                  
+                  {/* buttons + pocket with better details */}
+                  <circle cx="100" cy="175" r="2.5" fill="#FBBF24" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+                  <circle cx="100" cy="183" r="2.5" fill="#FBBF24" stroke="rgba(0,0,0,0.2)" strokeWidth="0.5" />
+                  <path d="M115 174 L130 174" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M115 177 L128 177" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeLinecap="round" />
+                  
+                  {/* Shoulder pads for structure */}
+                  <ellipse cx="62" cy="155" rx="8" ry="4" fill="rgba(0,0,0,0.1)" />
+                  <ellipse cx="138" cy="155" rx="8" ry="4" fill="rgba(0,0,0,0.1)" />
                 </g>
 
                 {/* Left arm — two joints, hangs with a natural elbow bend */}
@@ -550,7 +709,22 @@ const StudentPerformer = () => {
                       strokeWidth="1.5"
                     />
                     <rect x="59" y="201" width="13" height="5" rx="2" fill="#E9EFF7" transform="rotate(-6 66 204)" />
-                    <circle cx="70" cy="211" r="6" fill="url(#ggcSkin)" />
+                    {/* Realistic hand with fingers */}
+                    <g ref={handLRef}>
+                      <path 
+                        d="M68 208 Q75 210 78 216 Q80 222 76 228 Q72 232 66 230 Q62 226 64 220 Q65 214 68 208 Z" 
+                        fill="url(#ggcSkin)" 
+                        stroke="rgba(0,0,0,0.1)" 
+                        strokeWidth="1"
+                      />
+                      {/* Fingers */}
+                      <path d="M66 210 Q67 205 68 201" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M70 211 Q72 206 73 202" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M74 212 Q76 207 77 203" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M78 214 Q80 210 81 207" stroke="url(#ggcSkin)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+                      {/* Thumb */}
+                      <path d="M64 215 Q60 213 58 216" stroke="url(#ggcSkin)" strokeWidth="3" strokeLinecap="round" fill="none" />
+                    </g>
                   </g>
                 </g>
 
@@ -570,7 +744,22 @@ const StudentPerformer = () => {
                       strokeWidth="1.5"
                     />
                     <rect x="128" y="201" width="13" height="5" rx="2" fill="#E9EFF7" transform="rotate(6 134 204)" />
-                    <circle cx="130" cy="211" r="6" fill="url(#ggcSkin)" />
+                    {/* Realistic hand with fingers */}
+                    <g ref={handRRef}>
+                      <path 
+                        d="M132 208 Q125 210 122 216 Q120 222 124 228 Q128 232 134 230 Q138 226 136 220 Q135 214 132 208 Z" 
+                        fill="url(#ggcSkin)" 
+                        stroke="rgba(0,0,0,0.1)" 
+                        strokeWidth="1"
+                      />
+                      {/* Fingers */}
+                      <path d="M134 210 Q133 205 132 201" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M130 211 Q128 206 127 202" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M126 212 Q124 207 123 203" stroke="url(#ggcSkin)" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                      <path d="M122 214 Q120 210 119 207" stroke="url(#ggcSkin)" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+                      {/* Thumb */}
+                      <path d="M136 215 Q140 213 142 216" stroke="url(#ggcSkin)" strokeWidth="3" strokeLinecap="round" fill="none" />
+                    </g>
                   </g>
                 </g>
 
@@ -581,41 +770,45 @@ const StudentPerformer = () => {
                 {/* Head unit — face + hair + cap + tassel as ONE rigid group */}
                 <g ref={headRef}>
                   <g ref={headIdleRef}>
-                    {/* face */}
+                    {/* Enhanced face with better proportions */}
                     <path
-                      d="M76 88 Q74 104 81 121 Q88 137 100 139 Q112 137 119 121 Q126 104 124 88 Q121 76 100 74 Q79 76 76 88 Z"
+                      d="M74 86 Q72 102 79 119 Q86 135 100 137 Q114 135 121 119 Q128 102 126 86 Q123 72 100 70 Q77 72 74 86 Z"
                       fill="url(#ggcSkin)"
                     />
-                    <circle cx="76" cy="110" r="4.5" fill="url(#ggcSkin)" />
-                    <circle cx="124" cy="110" r="4.5" fill="url(#ggcSkin)" />
+                    {/* Ear contours */}
+                    <ellipse cx="73" cy="108" rx="3" ry="5" fill="url(#ggcSkin)" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
+                    <ellipse cx="127" cy="108" rx="3" ry="5" fill="url(#ggcSkin)" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
 
-                    {/* blush (pulses faintly) */}
+                    {/* Enhanced blush with gradient */}
                     <g ref={blushRef}>
-                      <circle cx="84" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
-                      <circle cx="116" cy="127" r="4.5" fill="rgba(251,191,36,0.3)" />
+                      <ellipse cx="82" cy="125" rx="6" ry="4" fill="url(#ggcCheek)" />
+                      <ellipse cx="118" cy="125" rx="6" ry="4" fill="url(#ggcCheek)" />
                     </g>
 
-                    {/* brows (micro-expression) */}
+                    {/* Enhanced brows (micro-expression) */}
                     <g ref={browLRef}>
-                      <path d="M80 100 Q88 94 96 99" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                      <path d="M78 98 Q86 92 94 97" fill="none" stroke="#1E293B" strokeWidth="2.8" strokeLinecap="round" />
                     </g>
                     <g ref={browRRef}>
-                      <path d="M104 99 Q112 94 120 100" fill="none" stroke="#1E293B" strokeWidth="2.6" strokeLinecap="round" />
+                      <path d="M106 97 Q114 92 122 98" fill="none" stroke="#1E293B" strokeWidth="2.8" strokeLinecap="round" />
                     </g>
 
-                    {/* eyes (blink + look) */}
+                    {/* Enhanced eyes (blink + look) with better details */}
                     <g ref={eyesRef}>
-                      <ellipse cx="88" cy="109" rx="4.6" ry="4.3" fill="#FFF8F0" />
-                      <ellipse cx="112" cy="109" rx="4.6" ry="4.3" fill="#FFF8F0" />
-                      <circle cx="88" cy="109" r="3" fill="#4A2A18" />
-                      <circle cx="112" cy="109" r="3" fill="#4A2A18" />
-                      <circle cx="88" cy="109" r="1.3" fill="#140C08" />
-                      <circle cx="112" cy="109" r="1.3" fill="#140C08" />
-                      <circle cx="89.5" cy="108" r="1" fill="#fff" opacity="0.9" />
-                      <circle cx="113.5" cy="108" r="1" fill="#fff" opacity="0.9" />
+                      <ellipse cx="88" cy="108" rx="5" ry="4.5" fill="#FFF8F0" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
+                      <ellipse cx="112" cy="108" rx="5" ry="4.5" fill="#FFF8F0" stroke="rgba(0,0,0,0.1)" strokeWidth="0.5" />
+                      <circle cx="88" cy="108" r="3.2" fill="#4A2A18" />
+                      <circle cx="112" cy="108" r="3.2" fill="#4A2A18" />
+                      <circle cx="88" cy="108" r="1.5" fill="#140C08" />
+                      <circle cx="112" cy="108" r="1.5" fill="#140C08" />
+                      <circle cx="89.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
+                      <circle cx="113.5" cy="107" r="1.2" fill="#fff" opacity="0.9" />
+                      {/* Eyelid crease */}
+                      <path d="M83 104 Q88 102 93 104" stroke="rgba(0,0,0,0.15)" strokeWidth="1" fill="none" />
+                      <path d="M107 104 Q112 102 117 104" stroke="rgba(0,0,0,0.15)" strokeWidth="1" fill="none" />
                     </g>
-                    <path d="M83 105.5 Q88 102.5 93 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
-                    <path d="M107 105.5 Q112 102.5 117 105.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                    <path d="M83 104.5 Q88 101.5 93 104.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
+                    <path d="M107 104.5 Q112 101.5 117 104.5" stroke="#C98F63" strokeWidth="1.4" fill="none" strokeLinecap="round" />
 
                     {/* eyelids (squint on emotion) */}
                     <rect ref={lidLRef} x="82.5" y="101.5" width="11" height="4.5" rx="2.2" fill="#E3AC7E" />
@@ -634,31 +827,40 @@ const StudentPerformer = () => {
                     <path d="M99 114 Q101 118 100 120" fill="none" stroke="#C98F63" strokeWidth="2" strokeLinecap="round" />
                     <path d="M95.5 118.5 Q97.5 121 100.5 120" fill="none" stroke="#C98F63" strokeWidth="1.4" strokeLinecap="round" />
 
-                    {/* mouth (lipsync + smile) */}
+                    {/* Enhanced mouth (lipsync + smile) with better shape */}
                     <g ref={mouthRef}>
-                      <ellipse cx="100" cy="127" rx="5.5" ry="6.5" fill="#4A1523" />
-                      <path d="M96.5 129 Q100 133.5 103.5 129 Q100 136 96.5 129 Z" fill="#D96C7C" />
-                      <rect x="96" y="121.5" width="8" height="2.2" rx="0.9" fill="#F7FAFC" />
-                      <path d="M93 125 Q96 120 100 122.5 Q104 120 107 125" fill="none" stroke="#B4556B" strokeWidth="2.2" strokeLinecap="round" />
+                      <ellipse cx="100" cy="126" rx="6" ry="7" fill="#4A1523" />
+                      <path d="M95 128 Q100 133 105 128 Q100 137 95 128 Z" fill="url(#ggcLip)" />
+                      <rect x="95" y="120" width="10" height="2.5" rx="1" fill="#F7FAFC" />
+                      <path d="M92 124 Q96 119 100 121.5 Q104 119 108 124" fill="none" stroke="#B4556B" strokeWidth="2.5" strokeLinecap="round" />
+                      {/* Lip highlight */}
+                      <path d="M96 125 Q100 123 104 125" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
                     </g>
                   </g>
 
-                  {/* hair — short, tucked under the cap band */}
+                  {/* Enhanced hair — short, tucked under the cap band with texture */}
                   <path
-                    d="M76 92 Q73 73 100 71 Q127 73 124 92 Q118 95 100 94 Q82 95 76 92 Z"
+                    d="M74 90 Q71 71 100 69 Q129 71 126 90 Q120 93 100 92 Q80 93 74 90 Z"
                     fill="url(#ggcHair)"
                   />
-                  <path d="M92 87 Q97 84 103 85" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="2" strokeLinecap="round" />
+                  {/* Hair texture strands */}
+                  <path d="M78 82 Q85 78 92 82" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M92 78 Q97 75 103 78" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M108 82 Q115 78 122 82" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeLinecap="round" />
+                  <path d="M95 85 Q100 82 105 85" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" strokeLinecap="round" />
 
-                  {/* cap — mortarboard, glued to the head unit */}
+                  {/* Enhanced cap — mortarboard, glued to the head unit */}
                   <g>
-                    <ellipse cx="100" cy="68" rx="34" ry="6.5" fill="#0F172A" />
-                    <ellipse cx="100" cy="66.5" rx="34" ry="6" fill="#1B2740" />
-                    <path d="M74 84 Q100 77 126 84 L126 80 Q100 73 74 80 Z" fill="#0F172A" />
-                    <path d="M74 82 Q100 75.5 126 82" fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="1.5" />
+                    <ellipse cx="100" cy="66" rx="36" ry="7" fill="#0F172A" />
+                    <ellipse cx="100" cy="64.5" rx="36" ry="6.5" fill="#1B2740" />
+                    <path d="M72 82 Q100 75 128 82 L128 78 Q100 71 72 78 Z" fill="#0F172A" />
+                    <path d="M72 80 Q100 73.5 128 80" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
+                    {/* Cap texture */}
+                    <path d="M75 79 Q100 73 125 79" fill="none" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
                     <g ref={tasselRef}>
-                      <path d="M124 66 Q132 57 137 59" fill="none" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
-                      <circle cx="139" cy="60" r="3.5" fill="#FBBF24" />
+                      <path d="M126 64 Q134 55 139 57" fill="none" stroke="#FBBF24" strokeWidth="2.5" strokeLinecap="round" />
+                      <circle cx="141" cy="58" r="4" fill="#FBBF24" />
+                      <circle cx="141" cy="58" r="2" fill="rgba(0,0,0,0.2)" />
                     </g>
                   </g>
                 </g>
