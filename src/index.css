@@ -262,6 +262,27 @@
     animation: quoteProgress var(--quote-duration, 4.8s) linear forwards;
   }
 
+  /* StudentPerformer story engine — hologram badge pop */
+  @keyframes storyPop {
+    0% { transform: scale(0.35); opacity: 0; }
+    60% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .story-pop {
+    animation: storyPop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Education ecosystem network — flowing connection lines */
+  @keyframes dashFlow {
+    to { stroke-dashoffset: -140; }
+  }
+
+  .net-line {
+    stroke-dasharray: 4 7;
+    animation: dashFlow 22s linear infinite;
+  }
+
   /* ------------------------------------------------------------------
      FAQ slider — themed premium cards + carousel track
      ------------------------------------------------------------------ */
