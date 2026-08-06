@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "framer-motion";
 import {
   FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaFileAlt,
@@ -7,7 +6,7 @@ import {
 import PageHero from "../components/layout/PageHero";
 import LuxCard from "../components/shared/LuxCard";
 import BSCCVisualizer from "../components/bscc/BSCCVisualizer";
-import FAQSection from "../components/faq/FAQSection";
+import FAQCardSlider from "../components/faq/FAQCardSlider";
 
 const eligibility = [
   { title: "Permanent Resident of Bihar", description: "Aadhaar with a Bihar address or a valid Bihar domicile certificate." },
@@ -62,49 +61,58 @@ const rules = [
 
 const faqs = [
   {
+    category: "BSCC",
     question: "What is the Bihar Student Credit Card (BSCC) scheme?",
     answer: "BSCC is a flagship education loan scheme launched by the Bihar government on 2 October 2016 under the 'Saat Nischay' (Seven Resolutions) initiative. It provides interest-free education loans of up to ₹4 lakh to 12th-pass students of Bihar for higher education — without any collateral or security.",
   },
   {
+    category: "Loans",
     question: "What is the interest rate on a BSCC loan?",
     answer: "Since the Bihar Cabinet decision of September 2025, BSCC loans are completely interest-free (0%) for all students — male, female, transgender and Divyang. Earlier rates (4% for general and 1% for women/disabled/transgender) have been discontinued. Students repay only the principal amount.",
   },
   {
+    category: "Eligibility",
     question: "Who is eligible for BSCC?",
     answer: "You must be a permanent resident of Bihar, have passed Class 12 from a recognized board, and have secured admission in a BSCC-approved institution. Age is generally up to 25 years for graduation and up to 30 years for postgraduation/professional courses. There is no minimum percentage requirement.",
   },
   {
+    category: "Eligibility",
     question: "Is there a family income limit for BSCC?",
     answer: "The latest guidelines set no strict income ceiling — the scheme is effectively income-agnostic. It is designed to support students from economically weaker families, so lower-income households naturally benefit the most.",
   },
   {
+    category: "Loans",
     question: "Do I need collateral or a guarantor?",
     answer: "No. BSCC requires no collateral, no security and no third-party guarantee. The Government of Bihar itself acts as the guarantor for the loan. A parent/guardian must join as a co-applicant for documentation purposes.",
   },
   {
+    category: "Fees",
     question: "How much loan can I get and what does it cover?",
     answer: "Up to ₹4,00,000 — covering tuition fees, hostel and accommodation, books and stationery (up to ₹10,000), laptop (up to ₹35,000), exam fees, and living expenses (up to ₹5,000/month for non-hostel students).",
   },
   {
+    category: "Repayment",
     question: "When do I start repaying the loan?",
     answer: "Repayment begins one year after course completion, or six months after you get a job — whichever comes first. For loans up to ₹2 lakh you get 7 years (84 EMIs); for loans above ₹2 lakh you get 10 years (120 EMIs). There is no prepayment penalty.",
   },
   {
+    category: "Process",
     question: "How long does approval take?",
     answer: "The complete process — online application, DRCC verification, bank sanction and disbursal — typically takes 30 to 90 days, depending on your district and bank. GGC tracks your application at every stage so nothing gets stuck.",
   },
   {
+    category: "Admissions",
     question: "Can I study outside Bihar with BSCC?",
     answer: "Yes. If your institution is on the BSCC-approved list, you can study anywhere in India and still avail the loan. Many of our students use BSCC for IITs, NITs, and private universities outside Bihar.",
   },
   {
+    category: "Support",
     question: "What if my BSCC application is rejected?",
     answer: "We first find out the exact reason for rejection and help you fix it — most rejections are document-related and fixable. If BSCC is truly not possible, we move you to private bank education loans, NBFC financing or scholarships, so your education never stalls.",
   },
 ];
 
 const BSCCPage = () => {
-  const [openIndex, setOpenIndex] = React.useState(0);
 
   return (
     <>
@@ -499,49 +507,12 @@ const BSCCPage = () => {
       </section>
 
       {/* FAQ */}
-      <section className="py-16 sm:py-20 bg-premium-charcoal">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <span className="eyebrow mb-4 block">BSCC FAQ</span>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold text-white tracking-tight">
-              Your Questions, Answered
-            </h2>
-          </div>
-          <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <LuxCard
-                key={index}
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.04 }}
-                className="mb-4 overflow-hidden !p-0 group"
-              >
-                <button
-                  onClick={() => setOpenIndex(openIndex === index ? -1 : index)}
-                  className="w-full p-6 flex items-center justify-between text-left hover:bg-white/[0.02] transition-all duration-300"
-                >
-                  <span className="text-base sm:text-lg font-semibold text-white pr-4">{faq.question}</span>
-                  <span
-                    className={`flex-shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-300 ${
-                      openIndex === index
-                        ? "border-brand-400/40 bg-brand-500/10 text-brand-300 rotate-45"
-                        : "border-white/10 text-neutral-400"
-                    }`}
-                  >
-                    <FaRegClock className="text-sm" />
-                  </span>
-                </button>
-                {openIndex === index && (
-                  <div className="px-6 pb-6">
-                    <p className="text-neutral-400 leading-relaxed">{faq.answer}</p>
-                  </div>
-                )}
-              </LuxCard>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FAQCardSlider
+        faqs={faqs}
+        eyebrow="BSCC FAQ"
+        title="Your Questions, Answered"
+        subtitle="Everything about the Bihar Student Credit Card — swipe through the cards, tap any question to expand it."
+      />
 
       {/* CTA */}
       <section className="py-16 sm:py-20 bg-premium-navy">
@@ -576,7 +547,12 @@ const BSCCPage = () => {
         </div>
       </section>
 
-      <FAQSection />
+      <FAQCardSlider
+        faqs={faqs}
+        eyebrow="Quick Recap"
+        title="Still Curious?"
+        subtitle="Swipe through the BSCC FAQ cards once more — or jump straight to a free eligibility check."
+      />
     </>
   );
 };
