@@ -272,6 +272,7 @@ const StudentRig = ({ isHovered, scene, gesture, speech, reducedMotion }) => {
   const hoverAnim = useRef(0);
   const talkT = useRef(0);
   const isTalking = useRef(false);
+  const lightRef = useRef(null);
 
   useEffect(() => {
     talkT.current = 0;
@@ -293,6 +294,10 @@ const StudentRig = ({ isHovered, scene, gesture, speech, reducedMotion }) => {
       4,
       dt,
     );
+
+    if (lightRef.current) {
+      lightRef.current.intensity = hoverAnim.current * 1.5;
+    }
 
     // Core levitation & breathing
     const idleY = Math.sin(t * 1.5) * 0.02;
@@ -406,9 +411,7 @@ const StudentRig = ({ isHovered, scene, gesture, speech, reducedMotion }) => {
       <pointLight
         position={[0, 0.5, 0.5]}
         intensity={0}
-        ref={(l) => {
-          if (l) useFrame(() => (l.intensity = hoverAnim.current * 1.5));
-        }}
+        ref={lightRef}
         color="#38BDF8"
         distance={4}
       />
