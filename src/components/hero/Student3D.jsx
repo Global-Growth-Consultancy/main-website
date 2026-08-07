@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
   ContactShadows,
@@ -1281,6 +1281,8 @@ const StudentRig = (props) => {
               <group ref={cornerRRef} />
               <group ref={irisLRef} />
               <group ref={irisRRef} />
+              <group ref={browLRef} />
+              <group ref={browRRef} />
 
               {/* ---- layered modern hair (side-part + textured fringe) ---- */}
               <mesh position={[0, 0.16, -0.04]} scale={[1.0, 0.98, 0.95]}>
