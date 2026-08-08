@@ -9,8 +9,9 @@ import {
 import * as THREE from "three";
 
 // ------------------------------------------------------------------
-// Student3D — "Aarav" Ultra-Premium International Student 3D Scene
-// Clean geometry, zero clipping, cinematic PBR lighting & dynamic animation.
+// Student3D — "Aarav" v2 — Realistic-Proportion International Student
+// Fixes from v1: chibi head-to-body ratio, missing ears, sharp joints,
+// flat skin shading, over-cute face, no torso taper, weak lighting.
 // ------------------------------------------------------------------
 
 const shadowTex = (() => {
@@ -41,68 +42,74 @@ const glowTex = (() => {
   return new THREE.CanvasTexture(c);
 })();
 
-// ---- PBR Materials ----
-const skinMat = new THREE.MeshStandardMaterial({
-  color: "#F3C5A5",
-  roughness: 0.45,
-  metalness: 0.05,
+// ---- PBR Materials (upgraded: physical material for skin = soft/SSS-ish look) ----
+const skinMat = new THREE.MeshPhysicalMaterial({
+  color: "#EDB897",
+  roughness: 0.55,
+  metalness: 0,
+  clearcoat: 0.12,
+  clearcoatRoughness: 0.5,
+  sheen: 0.35,
+  sheenColor: new THREE.Color("#FFD9B8"),
 });
 
-const hairMat = new THREE.MeshStandardMaterial({
-  color: "#1E1715",
-  roughness: 0.6,
+const hairMat = new THREE.MeshPhysicalMaterial({
+  color: "#171112",
+  roughness: 0.35,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.3,
 });
 
 const blazerMat = new THREE.MeshStandardMaterial({
-  color: "#1B2A4A",
-  roughness: 0.5,
-  metalness: 0.1,
+  color: "#182848",
+  roughness: 0.62,
+  metalness: 0.05,
 });
 
 const blazerTrimMat = new THREE.MeshStandardMaterial({
-  color: "#0F192E",
-  roughness: 0.4,
+  color: "#0D1730",
+  roughness: 0.5,
 });
 
 const shirtMat = new THREE.MeshStandardMaterial({
-  color: "#FFFFFF",
-  roughness: 0.3,
-});
-
-const tieMat = new THREE.MeshStandardMaterial({
-  color: "#E11D48",
+  color: "#F8FAFC",
   roughness: 0.4,
 });
 
+const tieMat = new THREE.MeshStandardMaterial({
+  color: "#DC2626",
+  roughness: 0.35,
+});
+
 const pantsMat = new THREE.MeshStandardMaterial({
-  color: "#111827",
-  roughness: 0.7,
+  color: "#14181F",
+  roughness: 0.75,
 });
 
 const sneakerMat = new THREE.MeshStandardMaterial({
-  color: "#F9FAFB",
-  roughness: 0.3,
+  color: "#F5F6F8",
+  roughness: 0.35,
 });
 
 const sneakerSoleMat = new THREE.MeshStandardMaterial({
-  color: "#38BDF8",
-  roughness: 0.2,
+  color: "#2FA8E0",
+  roughness: 0.25,
 });
 
 const goldMat = new THREE.MeshStandardMaterial({
-  color: "#FBBF24",
-  roughness: 0.25,
+  color: "#E8B84B",
+  roughness: 0.3,
   metalness: 0.85,
 });
 
 const backpackMat = new THREE.MeshStandardMaterial({
-  color: "#374151",
-  roughness: 0.6,
+  color: "#2E3542",
+  roughness: 0.65,
 });
 
 const passportMat = new THREE.MeshStandardMaterial({
-  color: "#991B1B",
-  roughness: 0.4,
+  color: "#8C1C1C",
+  roughness: 0.45,
 });
 
 const globeOceanMat = new THREE.MeshStandardMaterial({
@@ -135,54 +142,64 @@ const laptopScreenMat = new THREE.MeshStandardMaterial({
   roughness: 0.2,
 });
 
+const browMat = new THREE.MeshStandardMaterial({
+  color: "#221812",
+  roughness: 0.8,
+});
+
+const lipMat = new THREE.MeshStandardMaterial({
+  color: "#C97B6E",
+  roughness: 0.5,
+});
+
 // Poses for story chapters
 const POSE = {
   rest: {
-    rs: [-0.08, 0, 0.12],
+    rs: [-0.08, 0, 0.1],
     re: [-0.15, 0, 0],
-    ls: [-0.08, 0, -0.12],
+    ls: [-0.08, 0, -0.1],
     le: [-0.15, 0, 0],
   },
   wave: {
-    rs: [-0.35, 0, 1.15],
+    rs: [-0.35, 0, 1.05],
     re: [-0.55, 0, 0],
-    ls: [-0.08, 0, -0.12],
+    ls: [-0.08, 0, -0.1],
     le: [-0.15, 0, 0],
   },
   talk: {
-    rs: [-0.3, 0.2, 0.4],
+    rs: [-0.3, 0.2, 0.35],
     re: [-0.4, 0, 0],
-    ls: [-0.4, -0.2, -0.3],
+    ls: [-0.4, -0.2, -0.25],
     le: [-0.5, 0, 0],
   },
   point: {
-    rs: [-1.1, 0.15, 0.25],
+    rs: [-1.05, 0.15, 0.2],
     re: [-0.1, 0, 0],
-    ls: [-0.08, 0, -0.12],
+    ls: [-0.08, 0, -0.1],
     le: [-0.15, 0, 0],
   },
   open: {
-    rs: [-0.3, 0, 0.7],
+    rs: [-0.3, 0, 0.6],
     re: [-0.2, 0, 0],
-    ls: [-0.3, 0, -0.7],
+    ls: [-0.3, 0, -0.6],
     le: [-0.2, 0, 0],
   },
   present: {
-    rs: [-0.95, 0.3, 0.35],
+    rs: [-0.9, 0.3, 0.3],
     re: [-0.2, 0, 0],
-    ls: [-0.08, 0, -0.12],
+    ls: [-0.08, 0, -0.1],
     le: [-0.15, 0, 0],
   },
   celebrate: {
-    rs: [-0.25, 0, 1.25],
+    rs: [-0.25, 0, 1.15],
     re: [-0.3, 0, 0],
-    ls: [-0.25, 0, -1.25],
+    ls: [-0.25, 0, -1.15],
     le: [-0.3, 0, 0],
   },
   hover: {
-    rs: [-0.35, 0, 0.65],
+    rs: [-0.35, 0, 0.55],
     re: [-0.25, 0, 0],
-    ls: [-0.35, 0, -0.65],
+    ls: [-0.35, 0, -0.55],
     le: [-0.25, 0, 0],
   },
 };
@@ -237,7 +254,7 @@ const FloatProp = ({
 };
 
 const MiniGlobe = () => (
-  <FloatProp position={[1.05, 1.45, 0.15]} scale={0.22} speed={0.7} phase={0}>
+  <FloatProp position={[1.05, 1.55, 0.15]} scale={0.22} speed={0.7} phase={0}>
     <mesh>
       <sphereGeometry args={[1, 24, 18]} />
       <primitive object={globeOceanMat} />
@@ -251,7 +268,7 @@ const MiniGlobe = () => (
 );
 
 const MiniCap = () => (
-  <FloatProp position={[1.2, 0.9, -0.25]} scale={0.28} speed={0.9} phase={1.2}>
+  <FloatProp position={[1.2, 1.0, -0.25]} scale={0.28} speed={0.9} phase={1.2}>
     <mesh position={[0, 0.1, 0]}>
       <sphereGeometry
         args={[1, 18, 14, 0, Math.PI * 2, 0, Math.PI / 2 + 0.35]}
@@ -276,7 +293,7 @@ const PaperPlane = () => {
     if (!ref.current) return;
     ref.current.position.set(
       Math.sin(t * 0.28) * 1.25,
-      1.62 + Math.sin(t * 0.45) * 0.22,
+      1.75 + Math.sin(t * 0.45) * 0.22,
       0.05 + Math.sin(t * 0.3) * 0.3,
     );
     ref.current.rotation.set(0.15, Math.sin(t * 0.4) * 0.7, -0.2);
@@ -292,7 +309,7 @@ const PaperPlane = () => {
 };
 
 const VisaStamp = () => (
-  <FloatProp position={[-1.15, 1.15, 0.4]} scale={0.3} speed={0.8} phase={0.6}>
+  <FloatProp position={[-1.15, 1.25, 0.4]} scale={0.3} speed={0.8} phase={0.6}>
     <mesh>
       <boxGeometry args={[1.6, 1.2, 0.2]} />
       <primitive object={blazerTrimMat} />
@@ -310,7 +327,7 @@ const VisaStamp = () => (
 );
 
 const GoldCoin = () => (
-  <FloatProp position={[0.75, 0.7, 0.55]} scale={0.45} speed={1.1} phase={1.8}>
+  <FloatProp position={[0.75, 0.8, 0.55]} scale={0.45} speed={1.1} phase={1.8}>
     <mesh rotation={[0, 0, Math.PI / 2]}>
       <cylinderGeometry args={[0.7, 0.7, 0.14, 28]} />
       <primitive object={goldMat} />
@@ -324,13 +341,13 @@ const FloatingLaptop = () => {
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (!ref.current) return;
-    ref.current.position.y = 0.55 + Math.sin(t * 0.9) * 0.045;
+    ref.current.position.y = 0.65 + Math.sin(t * 0.9) * 0.045;
     ref.current.rotation.z = Math.sin(t * 0.6) * 0.05;
   });
   return (
     <group
       ref={ref}
-      position={[0.55, 0.55, 0.42]}
+      position={[0.55, 0.65, 0.42]}
       rotation={[0.08, -0.35, 0.04]}
     >
       <mesh position={[0, 0, 0.04]}>
@@ -375,12 +392,12 @@ const CameraRig = () => {
     const t = state.clock.elapsedTime;
     const cam = state.camera;
     const tx = Math.sin(t * 0.22) * 0.06 + state.pointer.x * 0.22;
-    const ty = 1.35 + Math.cos(t * 0.18) * 0.05 - state.pointer.y * 0.1;
-    const tz = 5.6 + Math.sin(t * 0.15) * 0.08;
+    const ty = 1.55 + Math.cos(t * 0.18) * 0.05 - state.pointer.y * 0.1;
+    const tz = 5.9 + Math.sin(t * 0.15) * 0.08;
     cam.position.x = THREE.MathUtils.damp(cam.position.x, tx, 2.2, dt);
     cam.position.y = THREE.MathUtils.damp(cam.position.y, ty, 2.2, dt);
     cam.position.z = THREE.MathUtils.damp(cam.position.z, tz, 2, dt);
-    cam.lookAt(0, 1.0, 0);
+    cam.lookAt(0, 1.15, 0);
   });
   return null;
 };
@@ -402,13 +419,6 @@ const StudentRig = (props) => {
   const headBobRef = useRef(null);
   const lidLRef = useRef(null);
   const lidRRef = useRef(null);
-  const irisLRef = useRef(null);
-  const irisRRef = useRef(null);
-  const browLRef = useRef(null);
-  const browRRef = useRef(null);
-  const jawRef = useRef(null);
-  const cornerLRef = useRef(null);
-  const cornerRRef = useRef(null);
 
   const entrance = useRef(0);
   const blinkNext = useRef(1.6);
@@ -539,7 +549,7 @@ const StudentRig = (props) => {
 
     // breathing
     if (torsoRef.current) {
-      const br = 1 + Math.sin(t * 1.15) * 0.012;
+      const br = 1 + Math.sin(t * 1.15) * 0.01;
       torsoRef.current.scale.set(1, br, 1);
     }
 
@@ -560,13 +570,13 @@ const StudentRig = (props) => {
     if (headTrackRef.current) {
       headTrackRef.current.rotation.y = THREE.MathUtils.damp(
         headTrackRef.current.rotation.y,
-        Math.sin(t * 0.5) * 0.015 + state.pointer.x * 0.18,
+        Math.sin(t * 0.5) * 0.015 + state.pointer.x * 0.16,
         6,
         dt,
       );
       headTrackRef.current.rotation.x = THREE.MathUtils.damp(
         headTrackRef.current.rotation.x,
-        Math.sin(t * 0.4 + 1) * 0.018 - state.pointer.y * 0.1,
+        Math.sin(t * 0.4 + 1) * 0.015 - state.pointer.y * 0.09,
         6,
         dt,
       );
@@ -576,7 +586,7 @@ const StudentRig = (props) => {
     if (talkT.current < talkMs.current) {
       talkT.current += dt;
       if (headBobRef.current)
-        headBobRef.current.position.y = Math.sin(t * 8) * 0.005;
+        headBobRef.current.position.y = Math.sin(t * 8) * 0.004;
     } else if (headBobRef.current) {
       headBobRef.current.position.y = THREE.MathUtils.damp(
         headBobRef.current.position.y,
@@ -613,15 +623,15 @@ const StudentRig = (props) => {
     }
 
     if (blazerRef.current)
-      blazerRef.current.rotation.z = Math.sin(t * 0.9) * 0.012;
+      blazerRef.current.rotation.z = Math.sin(t * 0.9) * 0.01;
     if (backpackRef.current)
-      backpackRef.current.rotation.z = Math.sin(t * 0.8) * 0.02;
+      backpackRef.current.rotation.z = Math.sin(t * 0.8) * 0.018;
     if (passportRef.current)
       passportRef.current.rotation.z = Math.sin(t * 1.1) * 0.04;
 
     if (legLRef.current && legRRef.current) {
-      legLRef.current.rotation.z = Math.sin(t * 0.9) * 0.02;
-      legRRef.current.rotation.z = -Math.sin(t * 0.9) * 0.02;
+      legLRef.current.rotation.z = Math.sin(t * 0.9) * 0.015;
+      legRRef.current.rotation.z = -Math.sin(t * 0.9) * 0.015;
     }
   });
 
@@ -642,201 +652,279 @@ const StudentRig = (props) => {
         />
       </mesh>
 
-      <group position={[0, 0.95, 0]}>
-        {/* ---- Legs & Sneakers ---- */}
-        <group ref={legLRef} position={[-0.13, 0, 0]}>
-          <mesh position={[0, -0.22, 0]}>
-            <capsuleGeometry args={[0.055, 0.35, 8, 16]} />
+      {/*
+        Realistic adult proportion baseline: ~7.3 head-heights tall.
+        Head radius 0.115 -> head height ~0.23 -> total figure ~1.68 units.
+        Everything below is rebuilt around that ratio instead of the
+        old 1:1 head-to-torso "chibi" ratio.
+      */}
+      <group position={[0, 1.05, 0]}>
+        {/* ---- Legs & Sneakers (longer, slightly tapered at ankle) ---- */}
+        <group ref={legLRef} position={[-0.115, 0, 0]}>
+          <mesh position={[0, -0.28, 0]}>
+            <capsuleGeometry args={[0.058, 0.46, 8, 16]} />
             <primitive object={pantsMat} />
           </mesh>
-          <group position={[0, -0.48, 0.04]}>
+          <mesh position={[0, -0.56, 0]}>
+            <capsuleGeometry args={[0.042, 0.1, 8, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <group position={[0, -0.63, 0.04]}>
             <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.09, 0.07, 0.22]} />
+              <boxGeometry args={[0.085, 0.065, 0.21]} />
               <primitive object={sneakerMat} />
             </mesh>
-            <mesh position={[0, -0.04, 0]}>
-              <boxGeometry args={[0.095, 0.025, 0.23]} />
+            <mesh position={[0, -0.037, 0]}>
+              <boxGeometry args={[0.09, 0.022, 0.22]} />
               <primitive object={sneakerSoleMat} />
             </mesh>
           </group>
         </group>
 
-        <group ref={legRRef} position={[0.13, 0, 0]}>
-          <mesh position={[0, -0.22, 0]}>
-            <capsuleGeometry args={[0.055, 0.35, 8, 16]} />
+        <group ref={legRRef} position={[0.115, 0, 0]}>
+          <mesh position={[0, -0.28, 0]}>
+            <capsuleGeometry args={[0.058, 0.46, 8, 16]} />
             <primitive object={pantsMat} />
           </mesh>
-          <group position={[0, -0.48, 0.04]}>
+          <mesh position={[0, -0.56, 0]}>
+            <capsuleGeometry args={[0.042, 0.1, 8, 12]} />
+            <primitive object={pantsMat} />
+          </mesh>
+          <group position={[0, -0.63, 0.04]}>
             <mesh position={[0, 0, 0]}>
-              <boxGeometry args={[0.09, 0.07, 0.22]} />
+              <boxGeometry args={[0.085, 0.065, 0.21]} />
               <primitive object={sneakerMat} />
             </mesh>
-            <mesh position={[0, -0.04, 0]}>
-              <boxGeometry args={[0.095, 0.025, 0.23]} />
+            <mesh position={[0, -0.037, 0]}>
+              <boxGeometry args={[0.09, 0.022, 0.22]} />
               <primitive object={sneakerSoleMat} />
             </mesh>
           </group>
         </group>
 
-        {/* ---- Tailored Torso (Zero Clipping) ---- */}
-        <group ref={torsoRef} position={[0, 0.28, 0]}>
+        {/* ---- Tapered Torso: chest wider than waist, real silhouette ---- */}
+        <group ref={torsoRef} position={[0, 0.34, 0]}>
           {/* Inner Shirt Base */}
           <mesh position={[0, 0.02, 0]}>
-            <cylinderGeometry args={[0.13, 0.12, 0.36, 20]} />
+            <cylinderGeometry args={[0.115, 0.1, 0.34, 20]} />
             <primitive object={shirtMat} />
           </mesh>
           {/* Red Tie */}
-          <mesh position={[0, 0.08, 0.135]} rotation={[0.05, 0, 0]}>
-            <boxGeometry args={[0.035, 0.2, 0.01]} />
+          <mesh position={[0, 0.09, 0.115]} rotation={[0.05, 0, 0]}>
+            <boxGeometry args={[0.03, 0.18, 0.01]} />
             <primitive object={tieMat} />
           </mesh>
 
-          {/* Blazer Jacket (Completely Enclosing, Sleek & Fitted) */}
+          {/* Blazer Jacket — two stacked capsules create chest->waist taper */}
           <group ref={blazerRef}>
-            {/* Main Body */}
-            <mesh position={[0, 0, 0]}>
-              <capsuleGeometry args={[0.148, 0.3, 12, 20]} />
+            {/* Chest / shoulder mass (wider) */}
+            <mesh position={[0, 0.08, 0]} scale={[1, 0.72, 0.95]}>
+              <capsuleGeometry args={[0.145, 0.06, 12, 20]} />
+              <primitive object={blazerMat} />
+            </mesh>
+            {/* Waist taper (narrower) */}
+            <mesh position={[0, -0.13, 0]} scale={[0.87, 0.6, 0.9]}>
+              <capsuleGeometry args={[0.125, 0.05, 12, 20]} />
+              <primitive object={blazerMat} />
+            </mesh>
+            {/* Mid blend shell so the taper reads as one smooth jacket */}
+            <mesh position={[0, -0.02, 0]} scale={[0.94, 0.85, 0.92]}>
+              <capsuleGeometry args={[0.135, 0.16, 12, 20]} />
               <primitive object={blazerMat} />
             </mesh>
             {/* Collar & Lapels */}
-            <mesh position={[-0.05, 0.12, 0.11]} rotation={[0, 0, 0.3]}>
-              <boxGeometry args={[0.035, 0.16, 0.02]} />
+            <mesh position={[-0.048, 0.16, 0.095]} rotation={[0, 0, 0.32]}>
+              <boxGeometry args={[0.032, 0.15, 0.018]} />
               <primitive object={blazerTrimMat} />
             </mesh>
-            <mesh position={[0.05, 0.12, 0.11]} rotation={[0, 0, -0.3]}>
-              <boxGeometry args={[0.035, 0.16, 0.02]} />
+            <mesh position={[0.048, 0.16, 0.095]} rotation={[0, 0, -0.32]}>
+              <boxGeometry args={[0.032, 0.15, 0.018]} />
               <primitive object={blazerTrimMat} />
             </mesh>
             {/* Gold Buttons */}
-            <mesh position={[0, -0.04, 0.15]}>
-              <sphereGeometry args={[0.01, 10, 8]} />
+            <mesh position={[0, -0.02, 0.135]}>
+              <sphereGeometry args={[0.009, 10, 8]} />
+              <primitive object={goldMat} />
+            </mesh>
+            <mesh position={[0, -0.1, 0.13]}>
+              <sphereGeometry args={[0.009, 10, 8]} />
               <primitive object={goldMat} />
             </mesh>
           </group>
+
+          {/* Shoulder deltoid mass — removes the sharp arm/torso seam */}
+          <mesh position={[-0.155, 0.14, 0]}>
+            <sphereGeometry args={[0.058, 16, 14]} />
+            <primitive object={blazerMat} />
+          </mesh>
+          <mesh position={[0.155, 0.14, 0]}>
+            <sphereGeometry args={[0.058, 16, 14]} />
+            <primitive object={blazerMat} />
+          </mesh>
         </group>
 
         {/* Backpack */}
-        <group ref={backpackRef} position={[0, 0.28, -0.14]}>
+        <group ref={backpackRef} position={[0, 0.32, -0.135]}>
           <mesh>
-            <boxGeometry args={[0.24, 0.32, 0.1]} />
+            <boxGeometry args={[0.22, 0.3, 0.095]} />
+            <primitive object={backpackMat} />
+          </mesh>
+          <mesh position={[0, 0.09, 0.05]}>
+            <boxGeometry args={[0.16, 0.1, 0.03]} />
             <primitive object={backpackMat} />
           </mesh>
         </group>
 
-        {/* ---- Head & Face (Clean Pixar Style, Zero Potato Blobs) ---- */}
-        <group position={[0, 0.62, 0]}>
-          {/* Neck */}
-          <mesh position={[0, -0.06, 0]}>
-            <cylinderGeometry args={[0.055, 0.06, 0.1, 16]} />
+        {/* ---- Head & Face — smaller, elongated, with ears + brows ---- */}
+        <group position={[0, 0.72, 0]}>
+          {/* Neck — longer & slightly tapered, reads as real anatomy */}
+          <mesh position={[0, -0.075, 0]}>
+            <cylinderGeometry args={[0.042, 0.05, 0.11, 16]} />
+            <primitive object={skinMat} />
+          </mesh>
+          {/* Trapezius blend at neck base */}
+          <mesh position={[0, -0.13, 0]} scale={[1.3, 0.5, 1.1]}>
+            <sphereGeometry args={[0.06, 14, 10]} />
             <primitive object={skinMat} />
           </mesh>
 
           <group ref={headTrackRef}>
             <group ref={headBobRef}>
-              {/* Smooth Head Skull */}
-              <mesh position={[0, 0.08, 0]}>
-                <sphereGeometry args={[0.165, 32, 24]} />
+              {/* Elongated skull (oval, not a perfect ball) */}
+              <mesh position={[0, 0.07, 0]} scale={[0.92, 1.08, 0.98]}>
+                <sphereGeometry args={[0.115, 32, 24]} />
+                <primitive object={skinMat} />
+              </mesh>
+              {/* Jawline taper */}
+              <mesh position={[0, -0.04, 0.01]} scale={[0.8, 0.62, 0.85]}>
+                <sphereGeometry args={[0.105, 24, 18]} />
                 <primitive object={skinMat} />
               </mesh>
 
-              {/* Stylish Hair Cap */}
-              <mesh position={[0, 0.14, -0.01]} scale={[1.02, 0.95, 1.02]}>
+              {/* Ears */}
+              <mesh position={[-0.108, 0.005, 0.005]} rotation={[0, -0.2, 0]} scale={[0.5, 0.8, 0.35]}>
+                <sphereGeometry args={[0.045, 12, 10]} />
+                <primitive object={skinMat} />
+              </mesh>
+              <mesh position={[0.108, 0.005, 0.005]} rotation={[0, 0.2, 0]} scale={[0.5, 0.8, 0.35]}>
+                <sphereGeometry args={[0.045, 12, 10]} />
+                <primitive object={skinMat} />
+              </mesh>
+
+              {/* Hairstyle — layered top + sides + fringe for real texture read */}
+              <mesh position={[0, 0.13, -0.006]} scale={[0.98, 0.92, 1.0]}>
                 <sphereGeometry
-                  args={[0.17, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55]}
+                  args={[0.122, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.52]}
                 />
                 <primitive object={hairMat} />
               </mesh>
-              {/* Hair Fringe */}
+              <mesh position={[-0.09, 0.06, 0]} scale={[0.4, 0.6, 0.7]} rotation={[0, 0, 0.15]}>
+                <sphereGeometry args={[0.09, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
+              <mesh position={[0.09, 0.06, 0]} scale={[0.4, 0.6, 0.7]} rotation={[0, 0, -0.15]}>
+                <sphereGeometry args={[0.09, 16, 12]} />
+                <primitive object={hairMat} />
+              </mesh>
               <mesh
-                position={[0, 0.2, 0.08]}
-                rotation={[0.2, 0, 0]}
-                scale={[1.1, 0.35, 0.6]}
+                position={[0, 0.155, 0.06]}
+                rotation={[0.25, 0, 0]}
+                scale={[1.05, 0.3, 0.55]}
               >
-                <sphereGeometry args={[0.08, 16, 12]} />
+                <sphereGeometry args={[0.065, 16, 12]} />
                 <primitive object={hairMat} />
               </mesh>
 
-              {/* Minimalist Pill Eyes */}
-              <group position={[0, 0.08, 0.15]}>
-                <mesh ref={lidLRef} position={[-0.06, 0, 0]}>
-                  <capsuleGeometry args={[0.014, 0.03, 4, 12]} />
-                  <meshPhysicalMaterial
-                    color="#0A0A0A"
-                    roughness={0.1}
-                    clearcoat={1.0}
-                  />
+              {/* Eyebrows */}
+              <mesh position={[-0.045, 0.075, 0.098]} rotation={[0, 0, 0.08]}>
+                <boxGeometry args={[0.04, 0.008, 0.008]} />
+                <primitive object={browMat} />
+              </mesh>
+              <mesh position={[0.045, 0.075, 0.098]} rotation={[0, 0, -0.08]}>
+                <boxGeometry args={[0.04, 0.008, 0.008]} />
+                <primitive object={browMat} />
+              </mesh>
+
+              {/* Eyes — smaller, almond-shaped, less "cute doll" */}
+              <group position={[0, 0.045, 0.1]}>
+                <mesh position={[-0.043, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <sphereGeometry args={[0.014, 12, 10]} />
+                  <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
                 </mesh>
-                <mesh ref={lidRRef} position={[0.06, 0, 0]}>
-                  <capsuleGeometry args={[0.014, 0.03, 4, 12]} />
-                  <meshPhysicalMaterial
-                    color="#0A0A0A"
-                    roughness={0.1}
-                    clearcoat={1.0}
-                  />
+                <mesh position={[-0.043, 0, 0.011]}>
+                  <sphereGeometry args={[0.0075, 10, 8]} />
+                  <meshPhysicalMaterial color="#241812" roughness={0.15} clearcoat={1} />
+                </mesh>
+                <mesh ref={lidLRef} position={[-0.043, 0.008, 0.008]}>
+                  <boxGeometry args={[0.032, 0.014, 0.01]} />
+                  <primitive object={skinMat} />
+                </mesh>
+
+                <mesh position={[0.043, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+                  <sphereGeometry args={[0.014, 12, 10]} />
+                  <meshStandardMaterial color="#FFFFFF" roughness={0.3} />
+                </mesh>
+                <mesh position={[0.043, 0, 0.011]}>
+                  <sphereGeometry args={[0.0075, 10, 8]} />
+                  <meshPhysicalMaterial color="#241812" roughness={0.15} clearcoat={1} />
+                </mesh>
+                <mesh ref={lidRRef} position={[0.043, 0.008, 0.008]}>
+                  <boxGeometry args={[0.032, 0.014, 0.01]} />
+                  <primitive object={skinMat} />
                 </mesh>
               </group>
 
-              {/* Minimalist Cute Nose */}
-              <mesh position={[0, 0.045, 0.165]}>
-                <sphereGeometry args={[0.016, 14, 10]} />
+              {/* Nose — small wedge instead of a ball */}
+              <mesh position={[0, 0.015, 0.108]} rotation={[0.35, 0, 0]}>
+                <coneGeometry args={[0.012, 0.032, 12]} />
                 <primitive object={skinMat} />
               </mesh>
 
-              {/* Friendly Smile */}
-              <mesh position={[0, 0.015, 0.16]} rotation={[0, 0, Math.PI]}>
-                <torusGeometry args={[0.028, 0.005, 8, 16, Math.PI * 0.6]} />
-                <meshStandardMaterial color="#4A2A22" roughness={0.8} />
+              {/* Mouth — subtle confident line + lip volume, not a huge grin */}
+              <mesh position={[0, -0.028, 0.105]} rotation={[0, 0, 0]}>
+                <boxGeometry args={[0.032, 0.006, 0.006]} />
+                <primitive object={lipMat} />
               </mesh>
-
-              {/* Subtle Blush */}
-              <mesh position={[-0.085, 0.04, 0.155]}>
-                <circleGeometry args={[0.022, 16]} />
-                <meshBasicMaterial color="#FF9A9A" transparent opacity={0.35} />
+              <mesh position={[0, -0.033, 0.102]} scale={[1, 0.5, 1]}>
+                <sphereGeometry args={[0.02, 12, 8]} />
+                <primitive object={lipMat} />
               </mesh>
-              <mesh position={[0.085, 0.04, 0.155]}>
-                <circleGeometry args={[0.022, 16]} />
-                <meshBasicMaterial color="#FF9A9A" transparent opacity={0.35} />
-              </mesh>
-
-              {/* Dummy refs for backward compatibility */}
-              <group ref={jawRef} />
-              <group ref={cornerLRef} />
-              <group ref={cornerRRef} />
-              <group ref={irisLRef} />
-              <group ref={irisRRef} />
-              <group ref={browLRef} />
-              <group ref={browRRef} />
             </group>
           </group>
         </group>
 
-        {/* ---- Left Arm (Holds Passport) ---- */}
-        <group ref={armLS} position={[-0.2, 0.45, 0]}>
-          <mesh position={[0, -0.14, 0]}>
-            <capsuleGeometry args={[0.05, 0.22, 8, 12]} />
+        {/* ---- Left Arm (Holds Passport) — shoulder joint blended, elbow joint added ---- */}
+        <group ref={armLS} position={[-0.175, 0.5, 0]}>
+          <mesh position={[0, -0.16, 0]}>
+            <capsuleGeometry args={[0.044, 0.24, 8, 12]} />
             <primitive object={blazerMat} />
           </mesh>
-          <group ref={armLE} position={[0, -0.26, 0]}>
-            <mesh position={[0, -0.12, 0]}>
-              <capsuleGeometry args={[0.045, 0.2, 8, 12]} />
+          <group ref={armLE} position={[0, -0.29, 0]}>
+            {/* elbow joint */}
+            <mesh position={[0, 0.01, 0]}>
+              <sphereGeometry args={[0.038, 12, 10]} />
               <primitive object={blazerMat} />
             </mesh>
-            <mesh position={[0, -0.22, 0]}>
-              <sphereGeometry args={[0.04, 14, 10]} />
+            <mesh position={[0, -0.12, 0]}>
+              <capsuleGeometry args={[0.036, 0.19, 8, 12]} />
+              <primitive object={skinMat} />
+            </mesh>
+            <mesh position={[0, -0.225, 0]}>
+              <sphereGeometry args={[0.032, 14, 10]} />
               <primitive object={skinMat} />
             </mesh>
             {/* Passport Folder */}
             <group
               ref={passportRef}
-              position={[0, -0.24, 0.06]}
+              position={[0, -0.245, 0.055]}
               rotation={[0.2, 0.2, 0]}
             >
               <mesh>
-                <boxGeometry args={[0.07, 0.09, 0.012]} />
+                <boxGeometry args={[0.065, 0.085, 0.011]} />
                 <primitive object={passportMat} />
               </mesh>
-              <mesh position={[0, 0, 0.007]}>
-                <torusGeometry args={[0.015, 0.003, 8, 16]} />
+              <mesh position={[0, 0, 0.006]}>
+                <torusGeometry args={[0.014, 0.0028, 8, 16]} />
                 <primitive object={goldMat} />
               </mesh>
             </group>
@@ -844,18 +932,22 @@ const StudentRig = (props) => {
         </group>
 
         {/* ---- Right Arm (Gestures) ---- */}
-        <group ref={armRS} position={[0.2, 0.45, 0]}>
-          <mesh position={[0, -0.14, 0]}>
-            <capsuleGeometry args={[0.05, 0.22, 8, 12]} />
+        <group ref={armRS} position={[0.175, 0.5, 0]}>
+          <mesh position={[0, -0.16, 0]}>
+            <capsuleGeometry args={[0.044, 0.24, 8, 12]} />
             <primitive object={blazerMat} />
           </mesh>
-          <group ref={armRE} position={[0, -0.26, 0]}>
-            <mesh position={[0, -0.12, 0]}>
-              <capsuleGeometry args={[0.045, 0.2, 8, 12]} />
+          <group ref={armRE} position={[0, -0.29, 0]}>
+            <mesh position={[0, 0.01, 0]}>
+              <sphereGeometry args={[0.038, 12, 10]} />
               <primitive object={blazerMat} />
             </mesh>
-            <mesh position={[0, -0.22, 0]}>
-              <sphereGeometry args={[0.04, 14, 10]} />
+            <mesh position={[0, -0.12, 0]}>
+              <capsuleGeometry args={[0.036, 0.19, 8, 12]} />
+              <primitive object={skinMat} />
+            </mesh>
+            <mesh position={[0, -0.225, 0]}>
+              <sphereGeometry args={[0.032, 14, 10]} />
               <primitive object={skinMat} />
             </mesh>
           </group>
@@ -874,47 +966,55 @@ const SceneContainer = (props) => {
       <Canvas
         frameloop={visible ? "always" : "never"}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
-        camera={{ position: [0, 1.35, 5.6], fov: 32 }}
+        camera={{ position: [0, 1.55, 5.9], fov: 30 }}
         gl={{
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.1,
+          toneMappingExposure: 1.15,
         }}
         shadows
       >
         <CameraRig />
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={0.38} />
+        {/* Key light */}
         <directionalLight
-          position={[3.5, 5, 4]}
-          intensity={1.5}
-          color="#FFF5E6"
+          position={[3.2, 5, 4]}
+          intensity={1.7}
+          color="#FFF3E2"
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
-          shadow-radius={6}
+          shadow-radius={7}
           shadow-bias={-0.0005}
         />
+        {/* Fill light — cooler, softer, opposite side */}
         <directionalLight
-          position={[-4, 3, -4]}
-          intensity={1.1}
-          color="#7DD3FC"
+          position={[-4, 2.5, -2]}
+          intensity={0.55}
+          color="#8FD3FF"
         />
-        <pointLight position={[0, 1, 2.5]} intensity={0.5} color="#FFE1B8" />
+        {/* Rim / hair light from behind to separate subject from bg */}
+        <directionalLight
+          position={[0, 3, -4.5]}
+          intensity={1.1}
+          color="#BFE9FF"
+        />
+        <pointLight position={[0, 1.2, 2.5]} intensity={0.45} color="#FFE1B8" />
 
         <Environment resolution={256}>
           <group rotation={[-Math.PI / 4, 0, 0]}>
             <Lightformer
               form="rect"
-              intensity={2.5}
+              intensity={2.2}
               color="#FFF2E0"
               position={[0, 3, 3]}
               scale={[5, 2.5, 1]}
             />
             <Lightformer
               form="rect"
-              intensity={1.4}
+              intensity={1.3}
               color="#7DD3FC"
               position={[-4, 2, 1]}
               rotation-y={Math.PI / 2}
@@ -922,7 +1022,7 @@ const SceneContainer = (props) => {
             />
             <Lightformer
               form="rect"
-              intensity={1.2}
+              intensity={1.1}
               color={accent}
               position={[0, 0.5, -4]}
               scale={[4, 2, 1]}
@@ -932,16 +1032,16 @@ const SceneContainer = (props) => {
 
         {/* Additive halo glow behind character */}
         <Glow
-          position={[0, 0.85, -0.6]}
+          position={[0, 1.0, -0.6]}
           scale={6.5}
           color={accent}
-          opacity={0.45}
+          opacity={0.4}
         />
         <Glow
-          position={[0, 0.85, -0.6]}
+          position={[0, 1.0, -0.6]}
           scale={4}
           color="#7DD3FC"
-          opacity={0.45}
+          opacity={0.4}
         />
 
         <EnvironmentProps />
@@ -949,9 +1049,9 @@ const SceneContainer = (props) => {
 
         <ContactShadows
           position={[0, 0.02, 0]}
-          opacity={0.45}
+          opacity={0.5}
           scale={12}
-          blur={2.4}
+          blur={2.2}
           far={3.5}
           resolution={512}
           frames={1}
