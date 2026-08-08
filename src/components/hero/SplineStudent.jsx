@@ -58,9 +58,19 @@ class SplineErrorBoundary extends React.Component {
   }
 }
 
+// Branded preloader — fills the stage while the Spline scene streams in,
+// so the hero never looks like a blank void during the 5-10s warmup.
 const LoadingShimmer = () => (
-  <div className="absolute inset-0 flex items-end justify-center pointer-events-none z-[5]">
-    <div className="w-4/5 h-4/5 max-w-[340px] rounded-t-full rounded-b-2xl bg-gradient-to-b from-brand-400/15 via-brand-400/5 to-transparent animate-pulse blur-sm" />
+  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-[5]">
+    <div className="relative w-4/5 h-3/5 max-w-[300px] flex items-end justify-center">
+      <div className="w-full h-[92%] max-w-[240px] rounded-t-full rounded-b-2xl bg-gradient-to-b from-brand-400/20 via-brand-400/5 to-transparent animate-pulse" />
+      <div className="absolute bottom-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
+        <div className="h-8 w-8 rounded-full border-2 border-brand-400/20 border-t-brand-400 animate-spin" />
+      </div>
+    </div>
+    <p className="mt-3 text-[9px] sm:text-[10px] font-mono tracking-[0.4em] text-brand-300/60 uppercase animate-pulse">
+      Preparing 3D experience
+    </p>
   </div>
 );
 
@@ -152,9 +162,11 @@ const SplineStudent = (props) => {
       if (r.width === 0) return;
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      el.style.transform = `translate3d(${x * PARALLAX}px, ${
-        y * PARALLAX * 0.7
-      }px, 0)`;
+      // round to whole pixels — fractional translate3d causes subpixel
+      // blur on the 3D canvas
+      const dx = Math.round(x * PARALLAX);
+      const dy = Math.round(y * PARALLAX * 0.7);
+      el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
     };
     const reset = () => {
       el.style.transform = "translate3d(0px, 0px, 0px)";
@@ -191,15 +203,17 @@ const SplineStudent = (props) => {
       /* noop */
     }
     try {
-      // sharper render — supersample on high-DPI displays
-      const dpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
+      // sharper render — supersample at 2x (renderer is built with
+      // antialias:false, so raising the pixel ratio gives crisp edges)
+      const dpr = Math.min(2, Math.max(2, window.devicePixelRatio || 1));
       splineApp._renderer?.setPixelRatio?.(dpr);
     } catch (err) {
       /* noop */
     }
     try {
-      // transparent canvas → premium DOM backdrop shows through
-      splineApp.setBackgroundColor("rgba(0,0,0,0)");
+      // "transparent" → runtime's color parser sets RGBA(0,0,0,0) directly,
+      // no THREE alpha warning, and the premium DOM backdrop shows through
+      splineApp.setBackgroundColor("transparent");
       splineApp.setZoom(1.02);
     } catch (err) {
       /* noop */
