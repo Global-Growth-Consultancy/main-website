@@ -670,16 +670,6 @@ const StudentPerformer = () => {
           }}
         />
 
-        {/* chapter-reactive back glow */}
-        <div
-          ref={backGlowRef}
-          className="absolute inset-x-0 mx-auto bottom-0 w-[90%] h-[80%] pointer-events-none z-0 transition-[background] duration-700"
-          style={{
-            background: `radial-gradient(ellipse at center bottom, ${accent}40, rgba(167,139,250,0.08) 45%, transparent 72%)`,
-            filter: "blur(12px)",
-          }}
-        />
-
         {/* cinematic vignette — draws eye to portrait character, softer center */}
         <div
           className="absolute inset-0 pointer-events-none z-[6]"
@@ -687,45 +677,6 @@ const StudentPerformer = () => {
             background: "radial-gradient(ellipse 90% 85% at 50% 46%, transparent 55%, rgba(6,10,20,0.45) 100%)",
           }}
         />
-
-        {/* light sweep (hover) */}
-        <div
-          ref={sweepRef}
-          className="absolute -left-[70%] inset-y-0 w-[55%] z-[5] pointer-events-none opacity-60"
-          style={{
-            background: "linear-gradient(105deg, transparent 0%, rgba(56,189,248,0.04) 40%, rgba(167,139,250,0.08) 52%, rgba(251,191,36,0.04) 60%, transparent 100%)",
-            transform: "skewX(-14deg)",
-          }}
-        />
-
-        {/* horizontal scan-line — subtle cyberpunk effect */}
-        <div className="absolute inset-x-0 pointer-events-none z-[5] overflow-hidden" style={{ height: "100%" }}>
-          <div
-            className="absolute inset-x-0 h-px opacity-[0.06]"
-            style={{
-              background: "linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.6) 30%, rgba(167,139,250,0.4) 50%, rgba(56,189,248,0.6) 70%, transparent 95%)",
-              animation: "scanline 4s linear infinite",
-            }}
-          />
-        </div>
-
-        {/* floor reflection glow — anchors character to stage */}
-        <div
-          className="absolute left-1/2 bottom-[12%] -translate-x-1/2 w-[60%] h-[18%] pointer-events-none z-[3]"
-          style={{
-            background: `radial-gradient(ellipse at center, ${accent}25, ${accent}10 40%, transparent 70%)`,
-            filter: "blur(10px)",
-          }}
-        />
-
-        {/* vertical data stream particles — left side */}
-        <div className="absolute left-3 inset-y-0 w-px pointer-events-none z-[2] overflow-hidden opacity-[0.08]">
-          <div className="data-stream-track h-full w-full" />
-        </div>
-        {/* vertical data stream particles — right side */}
-        <div className="absolute right-3 inset-y-0 w-px pointer-events-none z-[2] overflow-hidden opacity-[0.08]">
-          <div className="data-stream-track h-full w-full" style={{ animationDelay: "1.5s" }} />
-        </div>
 
         {/* floating service chips — premium glass */}
         {ORBITS.map((o, i) => (
@@ -859,13 +810,6 @@ const StudentPerformer = () => {
           ref={flashRef}
           className="absolute inset-0 pointer-events-none z-[4] opacity-0"
           style={{ background: "radial-gradient(circle at 50% 52%, rgba(255,255,255,0.18), transparent 50%)" }}
-        />
-
-        {/* character aura — synced to chapter accent */}
-        <div
-          ref={auraRef}
-          className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 w-[80%] h-[70%] pointer-events-none z-[4] transition-[background] duration-700"
-          style={{ background: `radial-gradient(ellipse at center, ${accent}30, transparent 65%)` }}
         />
 
         {/* character — premium 3D portrait graduate */}
