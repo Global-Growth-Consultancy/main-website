@@ -41,7 +41,7 @@ const HIDE_TEXT_NAMES = [/^text/i];
 const PARALLAX = 14;
 
 // Breathing room around the robot once it is framed into the stage.
-const STAGE_FRAME_MARGIN = 1.15;
+const STAGE_FRAME_MARGIN = 1.50;
 
 // Frames the character tightly and CENTERED inside the stage. The published
 // scene was authored for a full-window hero, so once the stray text tags are
@@ -324,13 +324,13 @@ const SplineStudent = (props) => {
   useEffect(() => {
     const el = innerRef.current;
     if (!el || status !== "ready") return undefined;
+    const parent = el.parentElement?.parentElement;
+    if (!parent) return undefined;
     const handler = (e) => {
-      const r = el.getBoundingClientRect();
+      const r = parent.getBoundingClientRect();
       if (r.width === 0) return;
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      // round to whole pixels — fractional translate3d causes subpixel
-      // blur on the 3D canvas
       const dx = Math.round(x * PARALLAX);
       const dy = Math.round(y * PARALLAX * 0.7);
       el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
@@ -338,11 +338,11 @@ const SplineStudent = (props) => {
     const reset = () => {
       el.style.transform = "translate3d(0px, 0px, 0px)";
     };
-    window.addEventListener("mousemove", handler);
-    window.addEventListener("mouseleave", reset);
+    parent.addEventListener("mousemove", handler);
+    parent.addEventListener("mouseleave", reset);
     return () => {
-      window.removeEventListener("mousemove", handler);
-      window.removeEventListener("mouseleave", reset);
+      parent.removeEventListener("mousemove", handler);
+      parent.removeEventListener("mouseleave", reset);
     };
   }, [status]);
 
@@ -485,7 +485,7 @@ const SplineStudent = (props) => {
   }
 
   return (
-    <div className="absolute inset-0 flex items-end justify-center">
+    <div className="absolute inset-0 flex items-center justify-center">
       <BackdropLayers />
       <BrandLockup />
       <Suspense fallback={<LoadingShimmer />}>
