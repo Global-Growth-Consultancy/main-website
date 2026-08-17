@@ -41,7 +41,7 @@ const HIDE_TEXT_NAMES = [/^text/i];
 const PARALLAX = 14;
 
 // Breathing room around the robot once it is framed into the stage.
-const STAGE_FRAME_MARGIN = 1.35;
+const STAGE_FRAME_MARGIN = 1.12;
 
 // Frames the character tightly and CENTERED inside the stage. The published
 // scene was authored for a full-window hero, so once the stray text tags are
@@ -401,8 +401,8 @@ const SplineStudent = (props) => {
       /* noop */
     }
     try {
-      // sharper render — supersample at 2x
-      const dpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
+      // maximum sharpness — render at device's native pixel ratio (capped at 2.5)
+      const dpr = Math.min(2.5, window.devicePixelRatio || 1);
       splineApp._renderer?.setPixelRatio?.(dpr);
     } catch (err) {
       /* noop */
@@ -449,10 +449,12 @@ const SplineStudent = (props) => {
               scene={SPLINE_SCENE_URL}
               onLoad={handleLoad}
               renderOnDemand={false}
-              className="w-full h-full"
+              className="w-full h-full !block"
               style={{
                 opacity: status === "ready" ? 1 : 0,
                 transition: "opacity 600ms cubic-bezier(0.4,0,0.2,1)",
+                width: "100% !important",
+                height: "100% !important",
               }}
             />
           </SplineErrorBoundary>
