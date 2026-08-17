@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaCreditCard, FaCheckCircle, FaRupeeSign, FaShieldAlt, FaClock, FaHeadset, FaWhatsapp, FaArrowRight } from "react-icons/fa";
@@ -42,6 +42,8 @@ const ProcessStep = ({ step, title, description, delay }) => (
 );
 
 const BSCCLoans = () => {
+  const [activeTab, setActiveTab] = useState("benefits");
+
   const features = [
     {
       icon: FaRupeeSign,
@@ -138,14 +140,32 @@ const BSCCLoans = () => {
           <BSCCVisualizer />
         </motion.div>
 
+        {/* Mobile Tab Navigation - hidden on lg+ */}
+        <div className="lg:hidden flex gap-2 mb-6 overflow-x-auto pb-2 -mx-4 px-4">
+          {["benefits", "eligible", "process"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                activeTab === tab
+                  ? "bg-brand-500/20 text-brand-400 border border-brand-500/30"
+                  : "bg-white/5 text-neutral-400 border border-white/10"
+              }`}
+            >
+              {tab === "benefits" ? "Benefits" : tab === "eligible" ? "Am I Eligible?" : "How to Apply"}
+            </button>
+          ))}
+        </div>
+
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mb-16">
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mb-16 ${activeTab === "process" ? "hidden lg:grid" : ""}`}>
           {/* Left Column - Features */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className={`${activeTab === "benefits" ? "block" : "hidden"} lg:block`}
           >
             <h3 className="text-2xl font-bold text-white mb-6">Key Benefits</h3>
            <div className="space-y-4">
@@ -178,6 +198,7 @@ const BSCCLoans = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className={`${activeTab === "eligible" ? "block" : "hidden"} lg:block`}
           >
             <LuxCard className="h-full">
               <h3 className="text-2xl font-display font-bold text-white mb-6">Eligibility Criteria</h3>
@@ -220,7 +241,7 @@ const BSCCLoans = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-10 sm:mb-16"
+          className={`mb-10 sm:mb-16 ${activeTab === "process" ? "block" : "hidden"} lg:block`}
         >
           <span className="eyebrow mb-4 block">
             Our BSCC Application Process

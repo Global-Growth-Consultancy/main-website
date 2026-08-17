@@ -94,7 +94,7 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-6 sm:mb-12 lg:mb-16"
         >
           <span className="eyebrow mb-4 block">Get In Touch</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-display font-bold text-white mb-4 sm:mb-6 tracking-tight">
@@ -112,9 +112,10 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className="order-2 lg:order-none"
           >
             <h3 className="text-xl sm:text-2xl font-bold text-white mb-6 sm:mb-8">Contact Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-4 mb-6 sm:mb-8">
               {contactInfo.map((info, index) => (
                 <ContactInfoCard key={index} {...info} delay={index * 0.1} />
               ))}
@@ -126,7 +127,7 @@ const ContactSection = () => {
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="!p-2 h-48 sm:h-64 overflow-hidden relative"
+              className="hidden sm:block !p-2 h-48 sm:h-64 overflow-hidden relative"
             >
               <iframe
                 title="GGC Location - Patna, Bihar"
@@ -149,6 +150,7 @@ const ContactSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
+            className="order-1 lg:order-none"
           >
             <LuxCard className="!p-6 sm:!p-8">
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Send us a Message</h3>
@@ -296,7 +298,7 @@ const ContactSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mt-16 text-center"
+          className="hidden sm:block mt-16 text-center"
         >
           <p className="text-neutral-400 mb-6">Prefer to talk directly?</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

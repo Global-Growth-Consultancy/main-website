@@ -181,7 +181,7 @@ const PremiumHero = () => {
             </motion.div>
 
             {/* Headline */}
-            <h1 className="mt-6 text-[2.6rem] leading-[1.04] sm:text-6xl md:text-7xl font-display font-bold tracking-tight" style={{ perspective: "800px" }}>
+            <h1 className="mt-4 text-[1.85rem] leading-[1.08] sm:text-6xl md:text-7xl font-display font-bold tracking-tight" style={{ perspective: "800px" }}>
               {headlineLines.map((line, i) => (
                 <span key={i} className="block overflow-hidden pb-1.5">
                   <motion.span
@@ -201,7 +201,7 @@ const PremiumHero = () => {
             {/* Subheading */}
             <motion.p
               variants={fadeUp} custom={1} initial="hidden" animate="show"
-              className="mt-6 text-base sm:text-lg text-neutral-400 leading-relaxed max-w-xl"
+              className="mt-4 sm:mt-6 text-sm sm:text-lg text-neutral-400 leading-relaxed max-w-xl"
             >
               From college admissions to{" "}
               <span className="text-neutral-200 font-semibold relative">
@@ -214,7 +214,7 @@ const PremiumHero = () => {
             {/* CTAs */}
             <motion.div
               variants={fadeUp} custom={2} initial="hidden" animate="show"
-              className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4"
+              className="mt-5 sm:mt-8 flex flex-col sm:flex-row gap-2.5 sm:gap-4"
             >
               <Link
                 to="/contact"
@@ -320,12 +320,12 @@ const PremiumHero = () => {
         {/* ── Stat strip ── */}
         <motion.div
           variants={fadeUp} custom={3} initial="hidden" animate="show"
-          className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
+          className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4"
         >
           {statChips.map((chip, i) => (
             <motion.div
               key={i}
-              className="relative flex items-center gap-3 rounded-2xl border border-white/[0.08] px-4 py-3.5 overflow-hidden"
+              className="relative flex items-center gap-3 rounded-2xl border border-white/[0.08] px-3 py-2.5 sm:px-4 sm:py-3.5 overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
                 backdropFilter: "blur(8px)",
@@ -337,7 +337,7 @@ const PremiumHero = () => {
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              <div className={`relative w-7 h-7 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                 chip.tint === "brand" ? "bg-brand-500/18 text-brand-400"
                 : chip.tint === "violet" ? "bg-violet-500/18 text-violet-300"
                 : chip.tint === "success" ? "bg-success-500/18 text-success-400"
@@ -368,7 +368,7 @@ const PremiumHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 border-t border-white/[0.06] py-4 bg-gradient-to-r from-premium-dark/60 via-premium-navy/80 to-premium-dark/60 backdrop-blur-md overflow-hidden group"
+        className="hidden sm:block relative z-10 border-t border-white/[0.06] py-4 bg-gradient-to-r from-premium-dark/60 via-premium-navy/80 to-premium-dark/60 backdrop-blur-md overflow-hidden group"
       >
         <div className="absolute left-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to right, rgba(10,15,28,1), transparent)" }}

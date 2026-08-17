@@ -19,7 +19,7 @@ const UniversityPartners = () => {
   const duplicatedLogos = [...partnerLogos, ...partnerLogos, ...partnerLogos];
 
   return (
-    <section id="colleges" className="py-16 sm:py-20 lg:py-24 bg-premium-navy">
+    <section id="colleges" className="py-10 sm:py-16 lg:py-24 bg-premium-navy">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -42,7 +42,7 @@ const UniversityPartners = () => {
         <div className="relative overflow-hidden mb-10 sm:mb-16 group">
           <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
             {duplicatedLogos.map((logo, index) => (
-              <div key={index} className="flex-shrink-0 w-44 pr-8">
+              <div key={index} className="flex-shrink-0 w-32 sm:w-44 pr-8">
                 <LuxCard className="card-lux--tight h-24 flex items-center justify-center group">
                   <img
                     src={logo.src}
@@ -62,7 +62,7 @@ const UniversityPartners = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6"
         >
           {[
             {
@@ -96,7 +96,7 @@ const UniversityPartners = () => {
                 {category.count}
               </h3>
               <h4 className="text-xl font-semibold text-white mb-3">{category.title}</h4>
-              <p className="text-neutral-400 text-sm">{category.description}</p>
+              <p className="text-neutral-400 text-sm hidden sm:block">{category.description}</p>
               <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-500" />
             </LuxCard>
           ))}

@@ -37,16 +37,16 @@ const StatCard = ({ icon: Icon, value, label, description, delay }) => {
       transition={{ duration: 0.7, delay }}
       className="h-full group"
     >
-      <div className="lux-icon mb-4 sm:mb-6">
+      <div className="lux-icon mb-2 sm:mb-6">
         <Icon className="text-2xl" />
       </div>
-      <h3 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-3">
+      <h3 className="text-xl sm:text-4xl lg:text-5xl font-display font-bold bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-1 sm:mb-3">
         {count}
         <span className="text-brand-400">{suffix}</span>
       </h3>
-      <p className="text-sm sm:text-base lg:text-lg font-semibold text-white mb-2">{label}</p>
-      <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
-      <div className="lux-divider mt-4 sm:mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+      <p className="text-sm sm:text-base lg:text-lg font-semibold text-white mb-0 sm:mb-2">{label}</p>
+      <p className="hidden sm:block text-neutral-400 text-sm leading-relaxed">{description}</p>
+      <div className="hidden sm:block lux-divider mt-4 sm:mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
     </LuxCard>
   );
 };
@@ -123,7 +123,7 @@ const TrustStatistics = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div style={{ y: y1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
+        <motion.div style={{ y: y1 }} className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
           {stats.map((stat, index) => (
             <StatCard
               key={index}

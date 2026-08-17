@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight } from "react-icons/fa";
+import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight, FaChevronDown } from "react-icons/fa";
 import LuxCard from "../shared/LuxCard";
 
-const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
+const ServiceCard = ({ icon: Icon, title, description, features, delay, isExpanded, onToggle }) => (
   <LuxCard
     initial={{ opacity: 0 }}
     whileInView={{ opacity: 1 }}
@@ -16,27 +16,32 @@ const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
       <Icon className="text-2xl" />
     </div>
 
-    <h3 className="text-lg sm:text-xl font-display font-bold text-white mb-3">
-      {title}
-    </h3>
+    <div className="flex items-center cursor-pointer md:cursor-default" onClick={onToggle}>
+      <h3 className="text-lg sm:text-xl font-display font-bold text-white mb-3">
+        {title}
+      </h3>
+      <FaChevronDown className="md:hidden ml-auto text-neutral-500 text-xs transition-transform duration-300" style={{transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)'}} />
+    </div>
 
-    <p className="text-neutral-400 mb-3 sm:mb-6 leading-relaxed text-sm">{description}</p>
+    <div className={`${isExpanded ? 'block' : 'hidden'} md:block`}>
+      <p className="text-neutral-400 mb-3 sm:mb-6 leading-relaxed text-sm">{description}</p>
 
-    <ul className="space-y-2 sm:space-y-3">
-      {features.map((feature, featureIndex) => (
-        <motion.li
-          key={featureIndex}
-          className="flex items-center gap-3 text-sm text-neutral-300 group-hover:translate-x-1 transition-transform duration-300"
-          initial={{ opacity: 0, x: 10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: delay + featureIndex * 0.05 }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-brand-400 to-accent-400 shadow-[0_0_8px_rgba(56,189,248,0.8)] flex-shrink-0" />
-          {feature}
-        </motion.li>
-      ))}
-    </ul>
+      <ul className="space-y-2 sm:space-y-3">
+        {features.map((feature, featureIndex) => (
+          <motion.li
+            key={featureIndex}
+            className="flex items-center gap-3 text-sm text-neutral-300 group-hover:translate-x-1 transition-transform duration-300"
+            initial={{ opacity: 0, x: 10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: delay + featureIndex * 0.05 }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-brand-400 to-accent-400 shadow-[0_0_8px_rgba(56,189,248,0.8)] flex-shrink-0" />
+            {feature}
+          </motion.li>
+        ))}
+      </ul>
+    </div>
   </LuxCard>
 );
 
@@ -117,6 +122,7 @@ const Services = () => {
   ];
 
   const [showAll, setShowAll] = useState(false);
+  const [expandedService, setExpandedService] = useState(-1);
 
   return (
     <section id="services" className="py-12 sm:py-16 lg:py-24 bg-premium-navy">
@@ -142,7 +148,7 @@ const Services = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-8">
           {services.map((service, index) => (
             <div key={index} className={index >= 3 && !showAll ? "hidden sm:block" : ""}>
-              <ServiceCard {...service} index={index} />
+              <ServiceCard {...service} index={index} isExpanded={expandedService === index} onToggle={() => setExpandedService(expandedService === index ? -1 : index)} />
             </div>
           ))}
         </div>

@@ -441,7 +441,7 @@ const StudentPerformer = () => {
         aria-label="Hero story stage"
         onFocus={() => { pauseUntilRef.current = Date.now() + 10000; }}
         onKeyDown={onStageKeyDown}
-        className="relative h-[320px] sm:h-[400px] md:h-[480px] focus-visible:outline-none rounded-b-2xl overflow-hidden"
+        className="relative h-[250px] sm:h-[400px] md:h-[480px] focus-visible:outline-none rounded-b-2xl overflow-hidden"
       >
         {/* clean dark background */}
         <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(8,12,24,0.4) 0%, rgba(4,6,14,0.7) 100%)" }} />

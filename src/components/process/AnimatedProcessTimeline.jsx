@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
-import { FaSearch, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaGraduationCap } from 'react-icons/fa';
+import { FaSearch, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaCheckCircle, FaGraduationCap, FaChevronDown } from 'react-icons/fa';
 import LuxCard from '../shared/LuxCard';
 
-const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isActive, onMouseEnter }) => {
+const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isActive, onMouseEnter, isExpanded, onToggleAccordion }) => {
   const ref = useRef();
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 
@@ -51,14 +51,14 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
               initial={{ scaleY: 0 }}
               animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 + 0.3 }}
-              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 h-16 sm:h-24 origin-top bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
+              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 h-8 lg:h-24 origin-top bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
             />
           )}
         </div>
 
         {/* Content */}
         <div className="flex-1 pt-2 pb-8 sm:pb-12">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-3 mb-3 cursor-pointer lg:cursor-default" onClick={() => onToggleAccordion(index)}>
             <motion.span
               animate={{
                 scale: isActive ? [1, 1.2, 1] : 1,
@@ -71,15 +71,20 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
             <h4 className={`text-xl font-display font-bold transition-colors duration-300 ${isActive ? 'text-white' : 'text-neutral-300'}`}>
               {title}
             </h4>
+            <span className="lg:hidden ml-auto text-neutral-500 transition-transform duration-300" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+              <FaChevronDown className="text-sm" />
+            </span>
           </div>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={isActive ? { opacity: 1 } : { opacity: 0.7 }}
-            transition={{ duration: 0.3 }}
-            className="text-neutral-400 leading-relaxed"
-          >
-            {description}
-          </motion.p>
+          <div className={`${isExpanded ? 'block' : 'hidden'} lg:block`}>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={isActive ? { opacity: 1 } : { opacity: 0.7 }}
+              transition={{ duration: 0.3 }}
+              className="text-neutral-400 leading-relaxed"
+            >
+              {description}
+            </motion.p>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -88,6 +93,7 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
 
 const AnimatedProcessTimeline = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [expandedStep, setExpandedStep] = useState(0);
   const sectionRef = useRef(null);
   const [inView, setInView] = useState(false);
 
@@ -106,6 +112,10 @@ const AnimatedProcessTimeline = () => {
     }, 3500);
     return () => clearInterval(interval);
   }, [inView]);
+
+  const toggleAccordion = (index) => {
+    setExpandedStep((prev) => (prev === index ? -1 : index));
+  };
 
   const steps = [
     {
@@ -175,6 +185,8 @@ const AnimatedProcessTimeline = () => {
               index={index}
               isActive={activeStep === index}
               onMouseEnter={setActiveStep}
+              isExpanded={expandedStep === index}
+              onToggleAccordion={toggleAccordion}
             />
           ))}
         </div>

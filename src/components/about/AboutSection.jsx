@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaAward, FaUsers, FaHandshake, FaLightbulb, FaBullseye, FaHeart, FaCheckCircle, FaArrowRight } from "react-icons/fa";
@@ -10,7 +10,7 @@ const ValueCard = ({ icon: Icon, title, description, delay }) => (
     whileInView={{ opacity: 1 }}
     viewport={{ once: true }}
     transition={{ duration: 0.7, delay }}
-    className="group"
+    className="group min-w-[260px] snap-center flex-shrink-0 lg:min-w-0 lg:snap-start"
   >
     <div className="lux-icon mb-4">
       <Icon className="text-2xl" />
@@ -61,6 +61,30 @@ const AboutSection = () => {
     { value: "24/7", label: "Support Available" }
   ];
 
+  const [showAllWhyChoose, setShowAllWhyChoose] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(mq.matches);
+    const handler = (e) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const whyChooseItems = [
+    "Expert counselors with 10+ years of experience",
+    "Specialization in Bihar Student Credit Card (BSCC) scheme",
+    "Direct partnerships with 200+ prestigious institutions",
+    "95% success rate in admissions and loan approvals",
+    "Personalized guidance based on student profile",
+    "End-to-end support from consultation to admission",
+    "Transparent process with no hidden charges",
+    "24/7 support for all student queries"
+  ];
+
+  const displayedWhyChoose = showAllWhyChoose || isDesktop ? whyChooseItems : whyChooseItems.slice(0, 4);
+
   return (
     <section id="about" className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,7 +108,7 @@ const AboutSection = () => {
         </motion.div>
 
         {/* Mission & Vision */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-10 sm:mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8 mb-10 sm:mb-16">
           <LuxCard
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -127,7 +151,7 @@ const AboutSection = () => {
           className="mb-10 sm:mb-16"
         >
           <h3 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">Our Core Values</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory lg:grid lg:grid-cols-3 lg:overflow-visible lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0">
             {values.map((value, index) => (
               <ValueCard key={index} {...value} index={index} delay={index * 0.1} />
             ))}
@@ -151,7 +175,7 @@ const AboutSection = () => {
               transition={{ duration: 0.7, delay: index * 0.1 }}
               className="card-lux--tight text-center group"
             >
-              <h3 className="text-2xl sm:text-4xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
+              <h3 className="text-xl sm:text-4xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </h3>
               <p className="text-sm text-neutral-400">{stat.label}</p>
@@ -172,16 +196,7 @@ const AboutSection = () => {
               Why Choose GGC?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                "Expert counselors with 10+ years of experience",
-                "Specialization in Bihar Student Credit Card (BSCC) scheme",
-                "Direct partnerships with 200+ prestigious institutions",
-                "95% success rate in admissions and loan approvals",
-                "Personalized guidance based on student profile",
-                "End-to-end support from consultation to admission",
-                "Transparent process with no hidden charges",
-                "24/7 support for all student queries"
-              ].map((item, index) => (
+              {displayedWhyChoose.map((item, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
@@ -197,6 +212,15 @@ const AboutSection = () => {
                 </motion.div>
               ))}
             </div>
+            {!showAllWhyChoose && !isDesktop && (
+              <button
+                onClick={() => setShowAllWhyChoose(true)}
+                className="mt-6 mx-auto flex items-center gap-2 text-brand-300 hover:text-brand-200 text-sm font-medium transition-colors"
+              >
+                Show all {whyChooseItems.length} reasons
+                <FaArrowRight className="text-xs" />
+              </button>
+            )}
           </LuxCard>
         </motion.div>
 
