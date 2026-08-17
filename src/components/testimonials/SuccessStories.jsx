@@ -13,8 +13,8 @@ const TestimonialCard = ({ testimonial, isActive }) => {
       transition={{ duration: 0.5 }}
       className={`${isActive ? 'block' : 'hidden'}`}
     >
-      <LuxCard className="p-8 md:p-12 max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-8 items-start relative">
+      <LuxCard className="p-5 sm:p-8 md:p-12 max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-start relative">
           {/* Student Image/Avatar */}
           <div className="flex-shrink-0">
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl p-[1px] bg-gradient-to-br from-brand-400 via-accent-400 to-brand-600 shadow-[0_16px_40px_-16px_rgba(56,189,248,0.5)]">
@@ -34,14 +34,14 @@ const TestimonialCard = ({ testimonial, isActive }) => {
 
             <div className="flex items-start gap-3 mb-4">
               <FaQuoteLeft className="text-3xl text-brand-400 flex-shrink-0 mt-1 opacity-70" />
-              <p className="text-lg md:text-xl text-neutral-200 leading-relaxed italic">
+              <p className="text-base md:text-lg xl:text-xl text-neutral-200 leading-relaxed italic">
                 "{testimonial.story}"
               </p>
             </div>
 
             <div className="lux-divider mb-6" />
             <div>
-              <h4 className="text-xl font-bold text-white mb-2">{testimonial.name}</h4>
+              <h4 className="text-lg md:text-xl font-bold text-white mb-2">{testimonial.name}</h4>
               <div className="flex flex-wrap gap-4 text-sm text-neutral-400">
                 <span className="flex items-center gap-2">
                   <FaGraduationCap className="text-brand-400" />
@@ -136,15 +136,15 @@ const SuccessStories = () => {
   };
 
   return (
-    <section id="success" className="py-24 bg-premium-charcoal">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section id="success" className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="eyebrow mb-4 block">Success Stories</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
@@ -170,7 +170,7 @@ const SuccessStories = () => {
           </AnimatePresence>
 
           {/* Auto-advance progress */}
-          <div className="flex justify-center gap-1.5 mt-6">
+          <div className="flex justify-center gap-1.5 mt-4 sm:mt-6">
             {testimonials.map((_, index) => (
               <div key={index} className="w-10 h-0.5 rounded-full bg-white/10 overflow-hidden">
                 <motion.div
@@ -184,7 +184,7 @@ const SuccessStories = () => {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="flex items-center justify-center gap-4 mt-8">
+          <div className="flex items-center justify-center gap-4 mt-6 sm:mt-8">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -236,7 +236,7 @@ const SuccessStories = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-6"
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6"
         >
           {[
             { value: "5000+", label: "Success Stories" },
@@ -252,7 +252,7 @@ const SuccessStories = () => {
               transition={{ duration: 0.7, delay: index * 0.1 }}
               className="card-lux--tight text-center group"
             >
-              <h3 className="text-3xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
+              <h3 className="text-2xl sm:text-3xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </h3>
               <p className="text-sm text-neutral-400">{stat.label}</p>

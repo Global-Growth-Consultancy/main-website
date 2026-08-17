@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FaGraduationCap, FaFileAlt, FaUniversity, FaHandHoldingUsd, FaChalkboardTeacher, FaClipboardCheck, FaArrowRight } from "react-icons/fa";
@@ -12,17 +12,17 @@ const ServiceCard = ({ icon: Icon, title, description, features, delay }) => (
     transition={{ duration: 0.7, delay }}
     className="h-full group"
   >
-    <div className="lux-icon mb-6">
+    <div className="lux-icon mb-3 sm:mb-6">
       <Icon className="text-2xl" />
     </div>
 
-    <h3 className="text-xl font-display font-bold text-white mb-3">
+    <h3 className="text-lg sm:text-xl font-display font-bold text-white mb-3">
       {title}
     </h3>
 
-    <p className="text-neutral-400 mb-6 leading-relaxed text-sm">{description}</p>
+    <p className="text-neutral-400 mb-3 sm:mb-6 leading-relaxed text-sm">{description}</p>
 
-    <ul className="space-y-3">
+    <ul className="space-y-2 sm:space-y-3">
       {features.map((feature, featureIndex) => (
         <motion.li
           key={featureIndex}
@@ -116,8 +116,10 @@ const Services = () => {
     }
   ];
 
+  const [showAll, setShowAll] = useState(false);
+
   return (
-    <section id="services" className="py-16 sm:py-20 lg:py-24 bg-premium-navy">
+    <section id="services" className="py-12 sm:py-16 lg:py-24 bg-premium-navy">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -125,7 +127,7 @@ const Services = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
           <span className="eyebrow mb-4 block">What We Offer</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-display font-bold text-white mb-4 sm:mb-6 tracking-tight">
@@ -137,10 +139,23 @@ const Services = () => {
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-8">
           {services.map((service, index) => (
-            <ServiceCard key={index} {...service} index={index} />
+            <div key={index} className={index >= 3 && !showAll ? "hidden sm:block" : ""}>
+              <ServiceCard {...service} index={index} />
+            </div>
           ))}
+        </div>
+
+        {/* Mobile Show All Button */}
+        <div className="text-center mt-8 sm:hidden">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="btn-premium inline-flex items-center justify-center gap-2 px-6 py-3 text-sm"
+          >
+            {showAll ? "Show Less" : "Show All Services"}
+            <FaArrowRight className="text-xs" />
+          </button>
         </div>
 
         {/* CTA */}

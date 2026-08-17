@@ -17,7 +17,7 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
       className="relative"
       onMouseEnter={() => onMouseEnter(index)}
     >
-      <div className={`flex items-start gap-6 transition-all duration-300 ${isActive ? 'scale-105' : 'scale-100'}`}>
+      <div className={`flex items-start gap-4 sm:gap-6 transition-all duration-300 ${isActive ? 'scale-105' : 'scale-100'}`}>
         {/* Animated Icon */}
         <div className="relative flex-shrink-0">
           <motion.div
@@ -26,7 +26,7 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
               rotate: isActive ? [0, 5, -5, 0] : 0,
             }}
             transition={{ duration: 0.5 }}
-            className={`w-16 h-16 rounded-2xl flex items-center justify-center border border-transparent transition-all duration-300 ${
+            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border border-transparent transition-all duration-300 ${
               isActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 shadow-[0_0_36px_-8px_rgba(56,189,248,0.7)]'
                 : 'bg-gradient-to-br from-brand-500/15 to-accent-500/10 border-brand-500/20 shadow-lg shadow-black/20'
@@ -51,13 +51,13 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
               initial={{ scaleY: 0 }}
               animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 + 0.3 }}
-              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 h-24 origin-top bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
+              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 h-16 sm:h-24 origin-top bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
             />
           )}
         </div>
 
         {/* Content */}
-        <div className="flex-1 pt-2 pb-12">
+        <div className="flex-1 pt-2 pb-8 sm:pb-12">
           <div className="flex items-center gap-3 mb-3">
             <motion.span
               animate={{
@@ -147,21 +147,21 @@ const AnimatedProcessTimeline = () => {
   ];
 
   return (
-    <section ref={sectionRef} className="py-24 bg-premium-navy">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section ref={sectionRef} className="py-16 sm:py-20 lg:py-24 bg-premium-navy">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="eyebrow mb-4 block">How It Works</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             Your Journey to Success
           </h2>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             A simple, transparent process designed to make your education journey smooth and stress-free
           </p>
         </motion.div>

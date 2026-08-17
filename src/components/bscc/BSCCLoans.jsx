@@ -97,15 +97,15 @@ const BSCCLoans = () => {
   ];
 
   return (
-    <section id="bscc" className="py-24 bg-premium-charcoal">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section id="bscc" className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -120,7 +120,7 @@ const BSCCLoans = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             Education Made Accessible
           </h2>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             Bihar Student Credit Card (BSCC) — part of the government's <span className="text-neutral-200 font-medium">Saat Nischay</span> initiative —
             enables students to pursue higher education with up to ₹4 lakh at <span className="text-neutral-200 font-medium">0% interest</span>,
             no collateral. We specialize in BSCC applications with a 70-80% approval rate.
@@ -133,13 +133,13 @@ const BSCCLoans = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.8 }}
-          className="mb-16"
+          className="mb-10 sm:mb-16"
         >
           <BSCCVisualizer />
         </motion.div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 mb-16">
           {/* Left Column - Features */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -220,13 +220,13 @@ const BSCCLoans = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-16"
+          className="mb-10 sm:mb-16"
         >
           <span className="eyebrow mb-4 block">
             Our BSCC Application Process
           </span>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
             {process.map((step, index) => (
               <ProcessStep key={index} {...step} delay={index * 0.1} />
             ))}

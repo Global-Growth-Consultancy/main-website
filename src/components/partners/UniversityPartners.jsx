@@ -19,27 +19,27 @@ const UniversityPartners = () => {
   const duplicatedLogos = [...partnerLogos, ...partnerLogos, ...partnerLogos];
 
   return (
-    <section id="colleges" className="py-24 bg-premium-navy">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section id="colleges" className="py-16 sm:py-20 lg:py-24 bg-premium-navy">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="eyebrow mb-4 block">Our Network</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             200+ Partner Institutions
           </h2>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
+          <p className="text-neutral-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto">
             Direct partnerships with prestigious universities and colleges across India for priority admissions
           </p>
         </motion.div>
 
         {/* Marquee */}
-        <div className="relative overflow-hidden mb-16 group">
+        <div className="relative overflow-hidden mb-10 sm:mb-16 group">
           <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused]">
             {duplicatedLogos.map((logo, index) => (
               <div key={index} className="flex-shrink-0 w-44 pr-8">
@@ -62,7 +62,7 @@ const UniversityPartners = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6"
         >
           {[
             {
@@ -92,7 +92,7 @@ const UniversityPartners = () => {
               transition={{ duration: 0.7, delay: index * 0.1 }}
               className="text-center group"
             >
-              <h3 className={`text-4xl font-display font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent mb-2`}>
+              <h3 className={`text-3xl sm:text-4xl font-display font-bold bg-gradient-to-r ${category.gradient} bg-clip-text text-transparent mb-2`}>
                 {category.count}
               </h3>
               <h4 className="text-xl font-semibold text-white mb-3">{category.title}</h4>

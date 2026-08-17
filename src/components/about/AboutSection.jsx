@@ -62,21 +62,21 @@ const AboutSection = () => {
   ];
 
   return (
-    <section id="about" className="py-24 bg-premium-charcoal">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section id="about" className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          className="text-center mb-10 sm:mb-16"
         >
           <span className="eyebrow mb-4 block">About Us</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6 tracking-tight">
             Who We Are
           </h2>
-          <p className="text-neutral-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-neutral-400 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto leading-relaxed">
             Global Growth Consultancy (GGC) is Bihar's premier education consultancy, dedicated to helping students 
             achieve their academic dreams. With over a decade of experience, we have guided thousands of students to 
             prestigious institutions across India.
@@ -84,7 +84,7 @@ const AboutSection = () => {
         </motion.div>
 
         {/* Mission & Vision */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8 mb-10 sm:mb-16">
           <LuxCard
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -124,10 +124,10 @@ const AboutSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="mb-16"
+          className="mb-10 sm:mb-16"
         >
-          <h3 className="text-3xl font-bold text-white text-center mb-8">Our Core Values</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h3 className="text-2xl sm:text-3xl font-bold text-white text-center mb-8">Our Core Values</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {values.map((value, index) => (
               <ValueCard key={index} {...value} index={index} delay={index * 0.1} />
             ))}
@@ -151,7 +151,7 @@ const AboutSection = () => {
               transition={{ duration: 0.7, delay: index * 0.1 }}
               className="card-lux--tight text-center group"
             >
-              <h3 className="text-4xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
+              <h3 className="text-2xl sm:text-4xl font-display font-bold bg-gradient-to-r from-brand-300 to-accent-400 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </h3>
               <p className="text-sm text-neutral-400">{stat.label}</p>
@@ -167,8 +167,8 @@ const AboutSection = () => {
           transition={{ duration: 0.8 }}
           className="mt-16"
         >
-          <LuxCard className="p-8 md:p-12">
-            <h3 className="text-3xl font-display font-bold text-white text-center mb-8">
+          <LuxCard className="p-5 sm:p-8 md:p-12">
+            <h3 className="text-2xl sm:text-3xl font-display font-bold text-white text-center mb-8">
               Why Choose GGC?
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

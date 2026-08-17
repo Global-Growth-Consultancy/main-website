@@ -37,16 +37,16 @@ const StatCard = ({ icon: Icon, value, label, description, delay }) => {
       transition={{ duration: 0.7, delay }}
       className="h-full group"
     >
-      <div className="lux-icon mb-6">
+      <div className="lux-icon mb-4 sm:mb-6">
         <Icon className="text-2xl" />
       </div>
-      <h3 className="text-5xl font-display font-bold bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-3">
+      <h3 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold bg-gradient-to-r from-white via-brand-300 to-brand-500 bg-clip-text text-transparent mb-3">
         {count}
         <span className="text-brand-400">{suffix}</span>
       </h3>
-      <p className="text-lg font-semibold text-white mb-2">{label}</p>
+      <p className="text-sm sm:text-base lg:text-lg font-semibold text-white mb-2">{label}</p>
       <p className="text-neutral-400 text-sm leading-relaxed">{description}</p>
-      <div className="lux-divider mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
+      <div className="lux-divider mt-4 sm:mt-6 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" />
     </LuxCard>
   );
 };
@@ -56,10 +56,10 @@ const TrustBadge = ({ icon: Icon, text }) => (
     initial={{ opacity: 0, scale: 0.8 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
-    className="flex items-center gap-3 px-6 py-3 rounded-full border border-white/10 bg-white/[0.03] shadow-lg shadow-black/20 backdrop-blur-sm"
+    className="flex items-center gap-3 px-4 py-2 sm:px-6 sm:py-3 rounded-full border border-white/10 bg-white/[0.03] shadow-lg shadow-black/20 backdrop-blur-sm"
   >
     <Icon className="text-brand-400" />
-    <span className="text-sm font-medium text-neutral-300">{text}</span>
+    <span className="text-xs sm:text-sm font-medium text-neutral-300">{text}</span>
   </motion.div>
 );
 
@@ -103,7 +103,7 @@ const TrustStatistics = () => {
   ];
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-premium-charcoal">
+    <section className="py-12 sm:py-20 lg:py-24 bg-premium-charcoal">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <motion.div
@@ -111,7 +111,7 @@ const TrustStatistics = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-12 sm:mb-16"
+          className="text-center mb-8 sm:mb-12 lg:mb-16"
         >
           <span className="eyebrow mb-4 block">Our Impact</span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-display font-bold text-white mb-4 sm:mb-6 tracking-tight">
@@ -123,7 +123,7 @@ const TrustStatistics = () => {
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div style={{ y: y1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12 sm:mb-16">
+        <motion.div style={{ y: y1 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8 sm:mb-12 lg:mb-16">
           {stats.map((stat, index) => (
             <StatCard
               key={index}
@@ -135,7 +135,7 @@ const TrustStatistics = () => {
         </motion.div>
 
         {/* Trust Badges */}
-        <motion.div style={{ y: y2 }} className="flex flex-wrap justify-center gap-2 sm:gap-4">
+        <motion.div style={{ y: y2 }} className="hidden sm:flex flex-wrap justify-center gap-2 sm:gap-4">
           {badges.map((badge, index) => (
             <TrustBadge key={index} {...badge} />
           ))}
