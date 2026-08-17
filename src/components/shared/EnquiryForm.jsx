@@ -47,7 +47,7 @@ const EnquiryForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
             placeholder="Your Name"
             required
-            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base"
           />
           <input
             type="email"
@@ -56,7 +56,7 @@ const EnquiryForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
             placeholder="Your Email"
             required
-            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base"
           />
           <input
             type="tel"
@@ -65,7 +65,7 @@ const EnquiryForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
             placeholder="Your Phone"
             required
-            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base"
           />
           <textarea
             name="message"
@@ -73,7 +73,7 @@ const EnquiryForm = ({ isOpen, onClose }) => {
             onChange={handleChange}
             placeholder="Your Message"
             required
-            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+            className="w-full p-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 text-base"
           ></textarea>
           <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded w-full">
             Submit

@@ -53,7 +53,7 @@ const PageLayout = ({ children }) => {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
-      <div className="w-full min-h-screen bg-premium-navy relative">
+      <div className="w-full min-h-screen bg-premium-navy relative overflow-x-hidden">
         <ScrollProgress />
         <CustomCursor />
         <PremiumNavbar />
