@@ -63,11 +63,13 @@ const hairMat = new THREE.MeshPhysicalMaterial({
 });
 
 const blazerMat = new THREE.MeshPhysicalMaterial({
-  color: "#182848",
-  roughness: 0.48,
-  metalness: 0.12,
-  clearcoat: 0.25,
-  clearcoatRoughness: 0.3,
+  color: "#243B6A",
+  roughness: 0.42,
+  metalness: 0.14,
+  clearcoat: 0.30,
+  clearcoatRoughness: 0.25,
+  emissive: "#0A1530",
+  emissiveIntensity: 0.08,
 });
 
 const blazerTrimMat = new THREE.MeshStandardMaterial({
@@ -985,24 +987,24 @@ const SceneContainer = (props) => {
     <div className="absolute inset-0">
       <Canvas
         frameloop={visible ? "always" : "never"}
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        dpr={[1, 2]}
         camera={{ position: [0, 1.40, 6.6], fov: 34 }}
         gl={{
           antialias: true,
           alpha: true,
           powerPreference: "high-performance",
           toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.15,
+          toneMappingExposure: 1.45,
         }}
         shadows
       >
         <CameraRig />
-        <ambientLight intensity={0.45} />
+        <ambientLight intensity={0.7} />
         {/* Key light */}
         <directionalLight
           position={[3.2, 5, 4]}
-          intensity={2.0}
-          color="#FFF3E2"
+          intensity={2.8}
+          color="#FFF8EE"
           castShadow
           shadow-mapSize-width={1024}
           shadow-mapSize-height={1024}
@@ -1012,32 +1014,32 @@ const SceneContainer = (props) => {
         {/* Fill light — cooler, softer, opposite side */}
         <directionalLight
           position={[-4, 2.5, -2]}
-          intensity={0.7}
+          intensity={1.0}
           color="#8FD3FF"
         />
         {/* Rim / hair light from behind to separate subject from bg */}
         <directionalLight
           position={[0, 3, -4.5]}
-          intensity={1.4}
+          intensity={1.8}
           color="#BFE9FF"
         />
-        <pointLight position={[0, 1.2, 2.5]} intensity={0.6} color="#FFE1B8" />
+        <pointLight position={[0, 1.2, 2.5]} intensity={0.9} color="#FFE1B8" />
         {/* Side accent lights for more dramatic effect */}
-        <pointLight position={[2, 1.5, 2]} intensity={0.3} color="#38BDF8" />
-        <pointLight position={[-2, 1.5, 2]} intensity={0.3} color="#A78BFA" />
+        <pointLight position={[2, 1.5, 2]} intensity={0.5} color="#38BDF8" />
+        <pointLight position={[-2, 1.5, 2]} intensity={0.5} color="#A78BFA" />
 
-        <Environment resolution={256}>
+        <Environment resolution={512}>
           <group rotation={[-Math.PI / 4, 0, 0]}>
             <Lightformer
               form="rect"
-              intensity={2.2}
+              intensity={3.0}
               color="#FFF2E0"
               position={[0, 3, 3]}
               scale={[5, 2.5, 1]}
             />
             <Lightformer
               form="rect"
-              intensity={1.3}
+              intensity={1.8}
               color="#7DD3FC"
               position={[-4, 2, 1]}
               rotation-y={Math.PI / 2}
@@ -1045,7 +1047,7 @@ const SceneContainer = (props) => {
             />
             <Lightformer
               form="rect"
-              intensity={1.1}
+              intensity={1.5}
               color={accent}
               position={[0, 0.5, -4]}
               scale={[4, 2, 1]}
@@ -1058,19 +1060,19 @@ const SceneContainer = (props) => {
           position={[0, 1.05, -0.6]}
           scale={7}
           color={accent}
-          opacity={0.45}
+          opacity={0.65}
         />
         <Glow
           position={[0, 1.05, -0.6]}
           scale={4.2}
           color="#7DD3FC"
-          opacity={0.45}
+          opacity={0.6}
         />
         <Glow
           position={[0, 0.80, -0.6]}
           scale={2.8}
           color="#A78BFA"
-          opacity={0.30}
+          opacity={0.45}
         />
 
         <EnvironmentProps />
@@ -1078,9 +1080,9 @@ const SceneContainer = (props) => {
 
         <ContactShadows
           position={[0, 0.02, 0]}
-          opacity={0.55}
-          scale={14}
-          blur={2.4}
+          opacity={0.65}
+          scale={12}
+          blur={2.0}
           far={4}
           resolution={512}
           frames={1}

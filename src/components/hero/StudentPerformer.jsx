@@ -625,7 +625,7 @@ const StudentPerformer = () => {
         }}
       >
         {/* particle field — subtle background depth */}
-        <div className="absolute inset-0 opacity-[0.12] pointer-events-none">
+        <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
           <NexusField />
         </div>
 
@@ -684,7 +684,7 @@ const StudentPerformer = () => {
         <div
           className="absolute inset-0 pointer-events-none z-[6]"
           style={{
-            background: "radial-gradient(ellipse 85% 80% at 50% 46%, transparent 50%, rgba(6,10,20,0.50) 100%)",
+            background: "radial-gradient(ellipse 90% 85% at 50% 46%, transparent 55%, rgba(6,10,20,0.45) 100%)",
           }}
         />
 
