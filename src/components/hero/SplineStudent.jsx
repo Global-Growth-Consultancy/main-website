@@ -41,7 +41,7 @@ const HIDE_TEXT_NAMES = [/^text/i];
 const PARALLAX = 14;
 
 // Breathing room around the robot once it is framed into the stage.
-const STAGE_FRAME_MARGIN = 1.50;
+const STAGE_FRAME_MARGIN = 1.35;
 
 // Frames the character tightly and CENTERED inside the stage. The published
 // scene was authored for a full-window hero, so once the stray text tags are
@@ -491,7 +491,7 @@ const SplineStudent = (props) => {
       <Suspense fallback={<LoadingShimmer />}>
         <div
           ref={innerRef}
-          className="absolute inset-0 will-change-transform flex items-center justify-center"
+          className="absolute inset-0 will-change-transform"
           style={{ transform: "translate3d(0px, 0px, 0px)" }}
         >
           {status === "loading" && <LoadingShimmer />}
@@ -499,24 +499,16 @@ const SplineStudent = (props) => {
             fallback={<Student3D {...props} />}
             onFail={handleFail}
           >
-            <div
-              className="w-full h-full flex items-center justify-center"
+            <Spline
+              scene={SPLINE_SCENE_URL}
+              onLoad={handleLoad}
+              renderOnDemand={false}
+              className="w-full h-full"
               style={{
-                transform: "scale(0.78)",
-                transformOrigin: "center 48%",
+                opacity: status === "ready" ? 1 : 0,
+                transition: "opacity 900ms ease",
               }}
-            >
-              <Spline
-                scene={SPLINE_SCENE_URL}
-                onLoad={handleLoad}
-                renderOnDemand={false}
-                className="w-full h-full"
-                style={{
-                  opacity: status === "ready" ? 1 : 0,
-                  transition: "opacity 900ms ease",
-                }}
-              />
-            </div>
+            />
           </SplineErrorBoundary>
         </div>
       </Suspense>

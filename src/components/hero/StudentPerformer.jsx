@@ -10,7 +10,7 @@ import NexusField from "./NexusField";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Student3D = lazy(() => import("./Student3D"));
+const Student3D = lazy(() => import("./SplineStudent"));
 
 // ------------------------------------------------------------------
 // StudentPerformer — a living marketing engine (stage + HUD).
