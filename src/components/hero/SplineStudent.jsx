@@ -401,9 +401,14 @@ const SplineStudent = (props) => {
       /* noop */
     }
     try {
-      // maximum sharpness — render at device's native pixel ratio (capped at 2.5)
-      const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+      // maximum sharpness — render at device's native pixel ratio
+      const dpr = window.devicePixelRatio || 1;
       splineApp._renderer?.setPixelRatio?.(dpr);
+    } catch (err) {
+      /* noop */
+    }
+    try {
+      if (splineApp._renderer) splineApp._renderer.toneMapping = 1;
     } catch (err) {
       /* noop */
     }

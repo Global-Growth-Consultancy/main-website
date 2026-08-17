@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   motion, useScroll, useTransform, useMotionValue, useSpring,
-  useInView,
+  useInView, useSpring as _useSpring,
 } from "framer-motion";
 import {
   FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd,
@@ -10,9 +10,6 @@ import {
 } from "react-icons/fa";
 import StudentPerformer from "./StudentPerformer";
 
-// ------------------------------------------------------------------
-// CountUp — animates a number from 0 → target over 2s on scroll.
-// ------------------------------------------------------------------
 const CountUp = ({ value, prefix = "", suffix = "" }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
@@ -24,7 +21,7 @@ const CountUp = ({ value, prefix = "", suffix = "" }) => {
     const start = performance.now();
     const step = (now) => {
       const t = Math.min((now - start) / dur, 1);
-      const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      const ease = 1 - Math.pow(1 - t, 3);
       setDisplay(Math.round(value * ease));
       if (t < 1) requestAnimationFrame(step);
     };
@@ -34,32 +31,18 @@ const CountUp = ({ value, prefix = "", suffix = "" }) => {
   return <span ref={ref}>{prefix}{display.toLocaleString("en-IN")}{suffix}</span>;
 };
 
-// ------------------------------------------------------------------
-// Animation variants
-// ------------------------------------------------------------------
 const lineReveal = {
   hidden: { y: "115%", rotateX: 15, rotateZ: 2, opacity: 0, filter: "blur(6px)" },
   show: (i) => ({
-    y: "0%",
-    rotateX: 0,
-    rotateZ: 0,
-    opacity: 1,
-    filter: "blur(0px)",
-    transition: {
-      type: "spring",
-      damping: 20,
-      stiffness: 80,
-      delay: 0.3 + i * 0.12,
-    },
+    y: "0%", rotateX: 0, rotateZ: 0, opacity: 1, filter: "blur(0px)",
+    transition: { type: "spring", damping: 20, stiffness: 80, delay: 0.3 + i * 0.12 },
   }),
 };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 35, filter: "blur(4px)" },
   show: (i) => ({
-    opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
+    opacity: 1, y: 0, filter: "blur(0px)",
     transition: { duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.7 + i * 0.14 },
   }),
 };
@@ -78,65 +61,39 @@ const statChips = [
 ];
 
 const marqueeWords = [
-  "College Admissions",
-  "BSCC Loans",
-  "Career Counseling",
-  "Document Processing",
-  "IIT · NIT · Medical",
-  "0% Interest Funding",
-  "200+ Partner Colleges",
-  "95% Success Rate",
+  "College Admissions", "BSCC Loans", "Career Counseling",
+  "Document Processing", "IIT · NIT · Medical", "0% Interest Funding",
+  "200+ Partner Colleges", "95% Success Rate",
 ];
 
-// Aurora blob configs — each drifts independently
 const auroraBlobs = [
-  {
-    className: "absolute -top-32 -right-24 w-[600px] h-[600px] rounded-full",
-    bg: "radial-gradient(circle at center, rgba(56,189,248,0.22), rgba(167,139,250,0.08) 45%, transparent 65%)",
-    animate: { x: [0, 50, -30, 0], y: [0, -40, 25, 0], scale: [1, 1.12, 0.92, 1] },
-    dur: 10,
-  },
-  {
-    className: "absolute top-1/4 -left-32 w-[520px] h-[520px] rounded-full",
-    bg: "radial-gradient(circle at center, rgba(167,139,250,0.18), rgba(56,189,248,0.06) 45%, transparent 65%)",
-    animate: { x: [0, -45, 35, 0], y: [0, 30, -20, 0], scale: [1, 0.90, 1.08, 1] },
-    dur: 12,
-  },
-  {
-    className: "absolute -bottom-40 left-1/3 w-[580px] h-[580px] rounded-full",
-    bg: "radial-gradient(circle at center, rgba(251,191,36,0.14), rgba(236,72,153,0.06) 45%, transparent 65%)",
-    animate: { x: [0, 40, -50, 0], y: [0, -25, 35, 0], scale: [1, 1.08, 0.88, 1] },
-    dur: 14,
-  },
-  {
-    className: "absolute -bottom-20 -right-16 w-[480px] h-[480px] rounded-full",
-    bg: "radial-gradient(circle at center, rgba(236,72,153,0.12), rgba(167,139,250,0.06) 45%, transparent 65%)",
-    animate: { x: [0, -30, 45, 0], y: [0, 35, -30, 0], scale: [1, 1.14, 0.90, 1] },
-    dur: 9,
-  },
-  {
-    className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full",
-    bg: "radial-gradient(circle at center, rgba(56,189,248,0.10), rgba(125,211,252,0.04) 45%, transparent 65%)",
-    animate: { x: [0, 20, -15, 0], y: [0, -18, 22, 0], scale: [1, 1.05, 0.95, 1] },
-    dur: 16,
-  },
+  { className: "absolute -top-32 -right-24 w-[600px] h-[600px] rounded-full", bg: "radial-gradient(circle at center, rgba(56,189,248,0.22), rgba(167,139,250,0.08) 45%, transparent 65%)", animate: { x: [0, 50, -30, 0], y: [0, -40, 25, 0], scale: [1, 1.12, 0.92, 1] }, dur: 10 },
+  { className: "absolute top-1/4 -left-32 w-[520px] h-[520px] rounded-full", bg: "radial-gradient(circle at center, rgba(167,139,250,0.18), rgba(56,189,248,0.06) 45%, transparent 65%)", animate: { x: [0, -45, 35, 0], y: [0, 30, -20, 0], scale: [1, 0.90, 1.08, 1] }, dur: 12 },
+  { className: "absolute -bottom-40 left-1/3 w-[580px] h-[580px] rounded-full", bg: "radial-gradient(circle at center, rgba(251,191,36,0.14), rgba(236,72,153,0.06) 45%, transparent 65%)", animate: { x: [0, 40, -50, 0], y: [0, -25, 35, 0], scale: [1, 1.08, 0.88, 1] }, dur: 14 },
+  { className: "absolute -bottom-20 -right-16 w-[480px] h-[480px] rounded-full", bg: "radial-gradient(circle at center, rgba(236,72,153,0.12), rgba(167,139,250,0.06) 45%, transparent 65%)", animate: { x: [0, -30, 45, 0], y: [0, 35, -30, 0], scale: [1, 1.14, 0.90, 1] }, dur: 9 },
+  { className: "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full", bg: "radial-gradient(circle at center, rgba(56,189,248,0.10), rgba(125,211,252,0.04) 45%, transparent 65%)", animate: { x: [0, 20, -15, 0], y: [0, -18, 22, 0], scale: [1, 1.05, 0.95, 1] }, dur: 16 },
 ];
 
 const PremiumHero = () => {
   const sectionRef = useRef(null);
-  const { scrollY } = useScroll();
-  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
-  const yMove = useTransform(scrollY, [0, 500], [0, 80]);
-  const scale = useTransform(scrollY, [0, 500], [1, 0.94]);
-  const blur = useTransform(scrollY, [0, 500], ["blur(0px)", "blur(3px)"]);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
 
-  // Parallax pointer for the floating stat cards
+  // ── Parallax depth: each layer drifts at a different rate (no opacity fade, no blur) ──
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const robotY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const marqueeX = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
+  const subtleScale = useTransform(scrollYProgress, [0, 1], [1, 0.97]);
+
+  // Robot 3D tilt based on scroll
+  const robotRotateX = useTransform(scrollYProgress, [0, 0.5], [0, 3]);
+  const robotRotateY = useTransform(scrollYProgress, [0, 0.5], [0, -2]);
+
+  // Stat cards parallax
   const px = useMotionValue(0);
   const py = useMotionValue(0);
   const cardX = useSpring(px, { stiffness: 60, damping: 16 });
   const cardY = useSpring(py, { stiffness: 60, damping: 16 });
-
-  // 3D tilt derived from pointer
   const rotateY = useTransform(cardX, [-11, 11], [-6, 6]);
   const rotateX = useTransform(cardY, [-9, 9], [5, -5]);
 
@@ -153,6 +110,7 @@ const PremiumHero = () => {
       onMouseMove={onMove}
       onMouseLeave={() => { px.set(0); py.set(0); }}
       className="relative min-h-screen flex flex-col bg-premium-navy overflow-hidden"
+      style={{ perspective: "1200px" }}
     >
       {/* Flash on mount */}
       <motion.div
@@ -162,21 +120,15 @@ const PremiumHero = () => {
         className="absolute inset-0 bg-white pointer-events-none z-50"
       />
 
-      {/* ---------------- Ambient background ---------------- */}
-      {/* Animated aurora blobs */}
-      <motion.div style={{ opacity, y: yMove }} className="absolute inset-0 pointer-events-none">
+      {/* ── Aurora background (slowest parallax layer) ── */}
+      <motion.div style={{ y: bgY }} className="absolute inset-0 pointer-events-none will-change-transform">
         {auroraBlobs.map((blob, i) => (
           <motion.div
             key={i}
             className={blob.className}
             style={{ background: blob.bg }}
             animate={blob.animate}
-            transition={{
-              duration: blob.dur,
-              repeat: Infinity,
-              repeatType: "mirror",
-              ease: "easeInOut",
-            }}
+            transition={{ duration: blob.dur, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
           />
         ))}
       </motion.div>
@@ -184,8 +136,7 @@ const PremiumHero = () => {
       {/* Subtle grid backdrop */}
       <div className="absolute inset-0 opacity-[0.07] pointer-events-none"
         style={{
-          backgroundImage:
-            "linear-gradient(rgba(148,163,184,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.6) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(148,163,184,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.6) 1px, transparent 1px)",
           backgroundSize: "58px 58px",
           maskImage: "radial-gradient(ellipse 90% 70% at 50% 30%, black, transparent)",
           WebkitMaskImage: "radial-gradient(ellipse 90% 70% at 50% 30%, black, transparent)",
@@ -203,12 +154,13 @@ const PremiumHero = () => {
         }}
       />
 
-      {/* ---------------- Content ---------------- */}
-      <motion.div style={{ opacity, scale, filter: blur }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
+      {/* ── Content ── */}
+      <div className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          {/* ---------- Left: Copy ---------- */}
-          <div className="lg:col-span-6">
-            {/* Badge — with scale bounce + glow */}
+
+          {/* ── Left: Copy (medium parallax) ── */}
+          <motion.div style={{ y: textY, scale: subtleScale }} className="lg:col-span-6 will-change-transform">
+            {/* Badge */}
             <motion.div
               variants={fadeUp} custom={0} initial="hidden" animate="show"
               className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full border border-brand-500/30"
@@ -229,7 +181,7 @@ const PremiumHero = () => {
               </span>
             </motion.div>
 
-            {/* Headline with masked word reveal — spring physics + 3D perspective */}
+            {/* Headline */}
             <h1 className="mt-6 text-[2.6rem] leading-[1.04] sm:text-6xl md:text-7xl font-display font-bold tracking-tight" style={{ perspective: "800px" }}>
               {headlineLines.map((line, i) => (
                 <span key={i} className="block overflow-hidden pb-1.5">
@@ -260,7 +212,7 @@ const PremiumHero = () => {
               education loans — GGC turns your academic aspirations into an approved, fully-funded reality.
             </motion.p>
 
-            {/* CTA buttons — enhanced with pulse glow */}
+            {/* CTAs */}
             <motion.div
               variants={fadeUp} custom={2} initial="hidden" animate="show"
               className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4"
@@ -271,7 +223,6 @@ const PremiumHero = () => {
               >
                 <span className="relative z-10">Get Free Consultation</span>
                 <FaArrowRight className="relative z-10 text-xs group-hover:translate-x-1.5 transition-transform duration-300" />
-                {/* Animated shimmer on hover */}
                 <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none"
                   style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)" }}
                 />
@@ -286,10 +237,13 @@ const PremiumHero = () => {
                 <span className="relative z-10">WhatsApp Us</span>
               </a>
             </motion.div>
-          </div>
+          </motion.div>
 
-          {/* ---------- Right: Network visual + floating cards ---------- */}
-          <div className="lg:col-span-6">
+          {/* ── Right: Robot (slowest content parallax + 3D tilt) ── */}
+          <motion.div
+            style={{ y: robotY, rotateX: robotRotateX, rotateY: robotRotateY, transformStyle: "preserve-3d" }}
+            className="lg:col-span-6 will-change-transform"
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 40, rotateY: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
@@ -297,7 +251,7 @@ const PremiumHero = () => {
               className="relative"
               style={{ perspective: 900 }}
             >
-              {/* Multi-layer glow behind the frame */}
+              {/* Glow behind frame */}
               <div className="absolute -inset-12 rounded-[2.5rem] pointer-events-none"
                 style={{ background: "radial-gradient(circle at 50% 40%, rgba(56,189,248,0.18), rgba(167,139,250,0.10) 35%, rgba(251,191,36,0.04) 55%, transparent 75%)" }}
               />
@@ -305,44 +259,23 @@ const PremiumHero = () => {
                 style={{ background: "radial-gradient(ellipse at 60% 35%, rgba(56,189,248,0.12), transparent 60%)" }}
               />
 
-              {/* Code-built "video" player: student mascot acts out a story */}
               <StudentPerformer />
 
-              {/* Floating stat cards — 3D tilt + parallax + premium glass */}
+              {/* Floating stat card 1 */}
               <motion.div
-                style={{
-                  x: cardX,
-                  y: cardY,
-                  rotateX,
-                  rotateY,
-                  transformStyle: "preserve-3d",
-                }}
+                style={{ x: cardX, y: cardY, rotateX, rotateY, transformStyle: "preserve-3d" }}
                 className="absolute left-2 sm:left-6 bottom-4 sm:bottom-8 z-40"
               >
                 <div
                   className="rounded-2xl px-4 py-3 border border-white/15 shadow-2xl transform-gpu"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-                    backdropFilter: "blur(16px)",
-                    WebkitBackdropFilter: "blur(16px)",
+                    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
                     boxShadow: "0 20px 50px -20px rgba(56,189,248,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
                   }}
                 >
-                  {/* Animated border glow */}
-                  <div className="absolute -inset-[1px] rounded-2xl opacity-40 pointer-events-none"
-                    style={{
-                      background: "conic-gradient(from 0deg, rgba(56,189,248,0.4), rgba(167,139,250,0.3), rgba(251,191,36,0.4), rgba(56,189,248,0.4))",
-                      animation: "spin 5s linear infinite",
-                      filter: "blur(2px)",
-                      mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-                      maskComposite: "exclude",
-                      WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-                      WebkitMaskComposite: "xor",
-                      padding: "1px",
-                    }}
-                  />
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-success-500/25 flex items-center justify-center shrink-0 leading-none"
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-success-500/25 flex items-center justify-center shrink-0"
                       style={{ boxShadow: "0 0 16px rgba(52,211,153,0.3)" }}
                     >
                       <FaShieldAlt className="text-success-400 text-sm sm:text-base block" />
@@ -355,39 +288,21 @@ const PremiumHero = () => {
                 </div>
               </motion.div>
 
+              {/* Floating stat card 2 */}
               <motion.div
-                style={{
-                  x: cardX,
-                  y: cardY,
-                  rotateX,
-                  rotateY,
-                  transformStyle: "preserve-3d",
-                }}
+                style={{ x: cardX, y: cardY, rotateX, rotateY, transformStyle: "preserve-3d" }}
                 className="absolute right-2 sm:right-6 top-3 sm:top-5 z-40"
               >
                 <div
                   className="rounded-2xl px-4 py-3 border border-white/15 shadow-2xl transform-gpu"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-                    backdropFilter: "blur(16px)",
-                    WebkitBackdropFilter: "blur(16px)",
+                    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
                     boxShadow: "0 20px 50px -20px rgba(167,139,250,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
                   }}
                 >
-                  <div className="absolute -inset-[1px] rounded-2xl opacity-40 pointer-events-none"
-                    style={{
-                      background: "conic-gradient(from 180deg, rgba(56,189,248,0.4), rgba(251,191,36,0.3), rgba(167,139,250,0.4), rgba(56,189,248,0.4))",
-                      animation: "spin 5s linear infinite",
-                      filter: "blur(2px)",
-                      mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-                      maskComposite: "exclude",
-                      WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-                      WebkitMaskComposite: "xor",
-                      padding: "1px",
-                    }}
-                  />
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500/25 flex items-center justify-center shrink-0 leading-none"
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500/25 flex items-center justify-center shrink-0"
                       style={{ boxShadow: "0 0 16px rgba(56,189,248,0.3)" }}
                     >
                       <FaCheckCircle className="text-brand-400 text-sm sm:text-base block" />
@@ -400,10 +315,10 @@ const PremiumHero = () => {
                 </div>
               </motion.div>
             </motion.div>
-          </div>
+          </motion.div>
         </div>
 
-        {/* ---------- Stat strip with CountUp ---------- */}
+        {/* ── Stat strip ── */}
         <motion.div
           variants={fadeUp} custom={3} initial="hidden" animate="show"
           className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4"
@@ -423,10 +338,6 @@ const PremiumHero = () => {
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              {/* Subtle sheen on hover */}
-              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 50%, transparent 60%)" }}
-              />
               <div className={`relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
                 chip.tint === "brand" ? "bg-brand-500/18 text-brand-400"
                 : chip.tint === "violet" ? "bg-violet-500/18 text-violet-300"
@@ -444,57 +355,40 @@ const PremiumHero = () => {
               </div>
               <div className="relative">
                 <div className="text-base sm:text-lg font-bold text-white leading-none">
-                  <CountUp
-                    value={chip.value}
-                    prefix={chip.prefix || ""}
-                    suffix={chip.suffix || ""}
-                  />
+                  <CountUp value={chip.value} prefix={chip.prefix || ""} suffix={chip.suffix || ""} />
                 </div>
                 <div className="text-[11px] sm:text-xs text-neutral-400 mt-1">{chip.label}</div>
               </div>
             </motion.div>
           ))}
         </motion.div>
-      </motion.div>
+      </div>
 
-      {/* ---------------- Marquee strip with edge fade ---------------- */}
+      {/* ── Marquee strip (moves with scroll via marqueeX) ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 border-t border-white/[0.06] py-4 bg-gradient-to-r from-premium-dark/60 via-premium-navy/80 to-premium-dark/60 backdrop-blur-md overflow-hidden group"
       >
-        {/* Edge fade masks — wider for smoother fade */}
         <div className="absolute left-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to right, rgba(10,15,28,1), transparent)" }}
         />
         <div className="absolute right-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to left, rgba(10,15,28,1), transparent)" }}
         />
-
-        <div className="flex w-max whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+        <motion.div style={{ x: marqueeX }} className="flex w-max whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
           {[0, 1, 2].map((dup) => (
             <div key={dup} className="flex flex-shrink-0 items-center">
               {marqueeWords.map((word, i) => (
                 <span key={i} className="flex items-center">
                   <span className="px-6 text-sm font-medium text-neutral-400/80 tracking-wide">{word}</span>
-                  <motion.span
-                    className="text-brand-400/60 text-[6px]"
-                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.7, 1.4, 0.7] }}
-                    transition={{
-                      duration: 2.4,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: i * 0.28,
-                    }}
-                  >
-                    ◆
-                  </motion.span>
+                  <span className="text-brand-400/40 text-[6px]">&#9670;</span>
                 </span>
               ))}
             </div>
           ))}
-        </div>
+        </motion.div>
       </motion.div>
     </section>
   );
