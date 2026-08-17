@@ -268,28 +268,60 @@ const SplineStudent = (props) => {
     }
   }, [visible, status]);
 
+  // ── Cinematic mouse-follow: spring-damped lerp + multi-axis ──
   useEffect(() => {
     const el = innerRef.current;
     if (!el || status !== "ready") return undefined;
     const parent = el.parentElement?.parentElement;
     if (!parent) return undefined;
-    const handler = (e) => {
+
+    let tx = 0, ty = 0;       // target
+    let cx = 0, cy = 0;       // current (lerped)
+    let rx = 0, ry = 0;       // target rotation
+    let crx = 0, cry = 0;     // current rotation
+    let raf = 0;
+    const LERP = 0.06;        // smooth follow (lower = smoother/lazier)
+    const ROT_LERP = 0.05;    // rotation follow speed
+    const RANGE = 10;          // px translation range
+    const ROT_RANGE = 2.5;    // deg rotation range
+
+    const tick = () => {
+      cx += (tx - cx) * LERP;
+      cy += (ty - cy) * LERP;
+      crx += (rx - crx) * ROT_LERP;
+      cry += (ry - cry) * ROT_LERP;
+      el.style.transform =
+        `translate3d(${cx.toFixed(3)}px, ${cy.toFixed(3)}px, 0) ` +
+        `rotateX(${cry.toFixed(3)}deg) rotateY(${crx.toFixed(3)}deg)`;
+      // stop when close enough to avoid idle GPU work
+      if (Math.abs(tx - cx) > 0.01 || Math.abs(ty - cy) > 0.01 ||
+          Math.abs(rx - crx) > 0.01 || Math.abs(ry - cry) > 0.01) {
+        raf = requestAnimationFrame(tick);
+      }
+    };
+
+    const onMove = (e) => {
       const r = parent.getBoundingClientRect();
       if (r.width === 0) return;
-      const x = (e.clientX - r.left) / r.width - 0.5;
-      const y = (e.clientY - r.top) / r.height - 0.5;
-      const dx = x * PARALLAX;
-      const dy = y * PARALLAX * 0.7;
-      el.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)`;
+      const nx = (e.clientX - r.left) / r.width - 0.5;   // -0.5 → 0.5
+      const ny = (e.clientY - r.top) / r.height - 0.5;
+      tx = nx * RANGE;
+      ty = ny * RANGE * 0.7;
+      rx = nx * ROT_RANGE;
+      ry = -ny * ROT_RANGE;
+      if (!raf) raf = requestAnimationFrame(tick);
     };
-    const reset = () => {
-      el.style.transform = "translate3d(0px, 0px, 0px)";
+    const onLeave = () => {
+      tx = 0; ty = 0; rx = 0; ry = 0;
+      if (!raf) raf = requestAnimationFrame(tick);
     };
-    parent.addEventListener("mousemove", handler, { passive: true });
-    parent.addEventListener("mouseleave", reset, { passive: true });
+
+    parent.addEventListener("mousemove", onMove, { passive: true });
+    parent.addEventListener("mouseleave", onLeave, { passive: true });
     return () => {
-      parent.removeEventListener("mousemove", handler);
-      parent.removeEventListener("mouseleave", reset);
+      parent.removeEventListener("mousemove", onMove);
+      parent.removeEventListener("mouseleave", onLeave);
+      cancelAnimationFrame(raf);
     };
   }, [status]);
 
@@ -443,7 +475,7 @@ const SplineStudent = (props) => {
         <div
           ref={innerRef}
           className="absolute inset-0 will-change-transform"
-          style={{ transform: "translate3d(0px, 0px, 0px)", transition: "transform 0.15s ease-out" }}
+          style={{ transform: "translate3d(0px, 0px, 0px) rotateX(0deg) rotateY(0deg)" }}
         >
           {status === "loading" && <LoadingShimmer />}
           <SplineErrorBoundary
