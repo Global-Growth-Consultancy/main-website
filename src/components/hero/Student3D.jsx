@@ -409,13 +409,13 @@ const CameraRig = () => {
     const dt = Math.min(delta, 0.05);
     const t = state.clock.elapsedTime;
     const cam = state.camera;
-    const tx = Math.sin(t * 0.22) * 0.05 + state.pointer.x * 0.18;
-    const ty = 1.65 + Math.cos(t * 0.18) * 0.04 - state.pointer.y * 0.08;
-    const tz = 5.4 + Math.sin(t * 0.15) * 0.06;
+    const tx = Math.sin(t * 0.22) * 0.04 + state.pointer.x * 0.12;
+    const ty = 1.45 + Math.cos(t * 0.18) * 0.03 - state.pointer.y * 0.06;
+    const tz = 6.2 + Math.sin(t * 0.15) * 0.05;
     cam.position.x = THREE.MathUtils.damp(cam.position.x, tx, 2.2, dt);
     cam.position.y = THREE.MathUtils.damp(cam.position.y, ty, 2.2, dt);
     cam.position.z = THREE.MathUtils.damp(cam.position.z, tz, 2, dt);
-    cam.lookAt(0, 1.28, 0);
+    cam.lookAt(0, 1.15, 0);
   });
   return null;
 };
@@ -986,7 +986,7 @@ const SceneContainer = (props) => {
       <Canvas
         frameloop={visible ? "always" : "never"}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
-        camera={{ position: [0, 1.85, 5.4], fov: 32 }}
+        camera={{ position: [0, 1.65, 6.2], fov: 32 }}
         gl={{
           antialias: true,
           alpha: true,

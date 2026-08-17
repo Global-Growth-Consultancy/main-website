@@ -548,7 +548,6 @@ const StudentPerformer = () => {
           background: "radial-gradient(ellipse at 50% 40%, rgba(56,189,248,0.06), transparent 60%)",
         }}
       />
-    >
       {/* Top hairline */}
       <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent z-30 pointer-events-none" />
 
