@@ -242,62 +242,9 @@ const LoadingShimmer = () => (
 );
 
 // Premium backdrop behind the (now transparent) Spline scene.
-const BackdropLayers = () => (
-  <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-    {/* cinematic aurora core */}
-    <div
-      className="absolute left-1/2 bottom-[-10%] -translate-x-1/2 w-[130%] h-[70%] opacity-60"
-      style={{
-        background:
-          "radial-gradient(ellipse at 50% 75%, rgba(56,189,248,0.28), rgba(167,139,250,0.10) 45%, transparent 70%)",
-        filter: "blur(18px)",
-      }}
-    />
-    {/* gold ember under-foot glow */}
-    <div
-      className="absolute left-1/2 bottom-[-4%] -translate-x-1/2 w-[70%] h-[40%] opacity-50"
-      style={{
-        background:
-          "radial-gradient(ellipse at 50% 90%, rgba(251,191,36,0.20), transparent 65%)",
-        filter: "blur(14px)",
-      }}
-    />
-    {/* fine tech grid floor */}
-    <div
-      className="absolute inset-x-[-20%] bottom-[-6%] h-[42%] opacity-[0.14]"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(125,211,252,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,0.4) 1px, transparent 1px)",
-        backgroundSize: "34px 34px",
-        maskImage: "linear-gradient(to top, black, transparent 85%)",
-        WebkitMaskImage: "linear-gradient(to top, black, transparent 85%)",
-        transform: "perspective(420px) rotateX(58deg)",
-      }}
-    />
-    {/* vignette for depth */}
-    <div
-      className="absolute inset-0"
-      style={{
-        background:
-          "radial-gradient(ellipse 120% 100% at 50% 40%, transparent 55%, rgba(2,6,23,0.55) 100%)",
-      }}
-    />
-  </div>
-);
+const BackdropLayers = () => null;
 
-// Floating brand lockup — "Global & Growth Consultancy".
-const BrandLockup = () => (
-  <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[20] pointer-events-none select-none">
-    <div className="glass rounded-2xl border border-white/10 px-5 py-2 backdrop-blur-md shadow-soft text-center">
-      <p className="font-display font-bold text-sm sm:text-base leading-none tracking-wide bg-gradient-to-r from-brand-300 via-white to-brand-300 bg-clip-text text-transparent">
-        Global &amp; Growth
-      </p>
-      <p className="mt-1 text-[9px] sm:text-[10px] font-mono tracking-[0.45em] text-neutral-400 uppercase">
-        Consultancy
-      </p>
-    </div>
-  </div>
-);
+const BrandLockup = () => null;
 
 const SplineStudent = (props) => {
   const { visible = true, reducedMotion = false } = props;
@@ -454,9 +401,8 @@ const SplineStudent = (props) => {
       /* noop */
     }
     try {
-      // sharper render — supersample at 2x (renderer is built with
-      // antialias:false, so raising the pixel ratio gives crisp edges)
-      const dpr = Math.min(2, Math.max(2, window.devicePixelRatio || 1));
+      // sharper render — supersample at 2x
+      const dpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
       splineApp._renderer?.setPixelRatio?.(dpr);
     } catch (err) {
       /* noop */
@@ -506,7 +452,7 @@ const SplineStudent = (props) => {
               className="w-full h-full"
               style={{
                 opacity: status === "ready" ? 1 : 0,
-                transition: "opacity 900ms ease",
+                transition: "opacity 600ms cubic-bezier(0.4,0,0.2,1)",
               }}
             />
           </SplineErrorBoundary>
