@@ -1,0 +1,45 @@
+Re-optimizing dependencies because lockfile has changed
+
+  [32m[1mVITE[22m v5.1.6[39m  [2mready in [0m[1m3356[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5199[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+Browserslist: browsers data (caniuse-lite) is 18 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[2m2:01:49 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:01:49 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:06:30 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:06:45 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:15:51 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:16:04 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m2:16:12 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:16:51 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:17:03 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:17:14 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:18:49 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:21:00 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:21:10 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:21:22 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:22:25 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:22:42 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:23:00 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:24:29 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:26:03 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:27:38 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:27:46 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:27:55 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:28:46 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:29:35 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:29:49 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:29:58 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:30:56 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:31:20 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:31:36 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:31:52 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:32:05 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:32:40 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:33:41 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:38:55 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m
+[2m3:39:54 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/hero/SplineStudent.jsx, /src/index.css[22m

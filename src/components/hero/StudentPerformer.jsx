@@ -116,6 +116,7 @@ const StudentPerformer = () => {
   };
 
   useEffect(() => {
+    if (!onScreen) return;
     const id = setInterval(() => {
       if (hoverRef.current || Date.now() < pauseUntilRef.current) return;
       setCountdown((c) => {
@@ -128,7 +129,7 @@ const StudentPerformer = () => {
       });
     }, 100);
     return () => clearInterval(id);
-  }, []);
+  }, [onScreen]);
 
   useEffect(() => {
     const root = wrapRef.current;

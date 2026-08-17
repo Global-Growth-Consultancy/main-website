@@ -252,13 +252,14 @@
     50%, 100% { opacity: 0; }
   }
 
-  /* Quote rotation progress (auto-rotating captions) */
+  /* Quote rotation progress (GPU-only via scaleX) */
   @keyframes quoteProgress {
-    from { width: 0%; }
-    to { width: 100%; }
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
   }
 
   .quote-progress {
+    transform-origin: left;
     animation: quoteProgress var(--quote-duration, 4.8s) linear forwards;
   }
 

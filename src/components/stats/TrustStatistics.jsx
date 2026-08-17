@@ -13,21 +13,16 @@ const StatCard = ({ icon: Icon, value, label, description, delay }) => {
     if (isInView && !isVisible) {
       setIsVisible(true);
       const duration = 2000;
-      const steps = 60;
-      const increment = parseFloat(value) / steps;
-      let current = 0;
+      const targetVal = parseFloat(value);
+      const start = performance.now();
       
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= parseFloat(value)) {
-          setCount(parseFloat(value));
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(current * 10) / 10);
-        }
-      }, duration / steps);
-
-      return () => clearInterval(timer);
+      const step = (now) => {
+        const t = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - t, 3);
+        setCount(Math.round(targetVal * ease * 10) / 10);
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
     }
   }, [isInView, isVisible, value]);
 

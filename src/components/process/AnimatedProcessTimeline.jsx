@@ -48,10 +48,10 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
           {/* Connection Line */}
           {index < 5 && (
             <motion.div
-              initial={{ height: 0 }}
-              animate={isInView ? { height: 96 } : { height: 0 }}
+              initial={{ scaleY: 0 }}
+              animate={isInView ? { scaleY: 1 } : { scaleY: 0 }}
               transition={{ duration: 0.8, delay: index * 0.1 + 0.3 }}
-              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
+              className="absolute top-16 left-1/2 -translate-x-1/2 w-0.5 h-24 origin-top bg-gradient-to-b from-brand-500/70 via-brand-500/30 to-transparent"
             />
           )}
         </div>
@@ -88,13 +88,24 @@ const AnimatedProcessStep = ({ step, icon: Icon, title, description, index, isAc
 
 const AnimatedProcessTimeline = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const sectionRef = useRef(null);
+  const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { rootMargin: "100px" });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return;
     const interval = setInterval(() => {
       setActiveStep((prev) => (prev + 1) % 6);
     }, 3500);
     return () => clearInterval(interval);
-  }, []);
+  }, [inView]);
 
   const steps = [
     {
@@ -136,7 +147,7 @@ const AnimatedProcessTimeline = () => {
   ];
 
   return (
-    <section className="py-24 bg-premium-navy">
+    <section ref={sectionRef} className="py-24 bg-premium-navy">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Section Header */}
         <motion.div

@@ -272,9 +272,10 @@ const ProcessRail = () => {
           transition={{ duration: 2.2, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-premium-gold shadow-[0_0_12px_2px_rgba(255,215,0,0.6)]"
-          initial={{ left: '0%' }}
-          animate={{ left: ['0%', '100%', '0%'] }}
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-premium-gold shadow-[0_0_12px_2px_rgba(255,215,0,0.6)]"
+          style={{ left: "0%" }}
+          initial={{ x: "0vw" }}
+          animate={{ x: ["0vw", "calc(100% - 12px)", "0vw"] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'linear' }}
         />
       </div>

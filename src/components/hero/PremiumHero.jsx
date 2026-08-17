@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   motion, useScroll, useTransform, useMotionValue, useSpring,
-  useInView, useSpring as _useSpring,
+  useInView,
 } from "framer-motion";
 import {
   FaArrowRight, FaGraduationCap, FaUniversity, FaHandHoldingUsd,
@@ -82,7 +82,6 @@ const PremiumHero = () => {
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const robotY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const marqueeX = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
   const subtleScale = useTransform(scrollYProgress, [0, 1], [1, 0.97]);
 
   // Robot 3D tilt based on scroll
@@ -364,7 +363,7 @@ const PremiumHero = () => {
         </motion.div>
       </div>
 
-      {/* ── Marquee strip (moves with scroll via marqueeX) ── */}
+      {/* ── Marquee strip ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -377,7 +376,7 @@ const PremiumHero = () => {
         <div className="absolute right-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
           style={{ background: "linear-gradient(to left, rgba(10,15,28,1), transparent)" }}
         />
-        <motion.div style={{ x: marqueeX }} className="flex w-max whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+        <div className="flex w-max whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
           {[0, 1, 2].map((dup) => (
             <div key={dup} className="flex flex-shrink-0 items-center">
               {marqueeWords.map((word, i) => (
@@ -388,7 +387,7 @@ const PremiumHero = () => {
               ))}
             </div>
           ))}
-        </motion.div>
+        </div>
       </motion.div>
     </section>
   );
