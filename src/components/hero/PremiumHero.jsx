@@ -207,7 +207,7 @@ const PremiumHero = () => {
       <motion.div style={{ opacity, scale, filter: blur }} className="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 lg:pt-28 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           {/* ---------- Left: Copy ---------- */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-6">
             {/* Badge — with scale bounce + glow */}
             <motion.div
               variants={fadeUp} custom={0} initial="hidden" animate="show"
@@ -289,7 +289,7 @@ const PremiumHero = () => {
           </div>
 
           {/* ---------- Right: Network visual + floating cards ---------- */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-6">
             <motion.div
               initial={{ opacity: 0, scale: 0.92, y: 40, rotateY: -8 }}
               animate={{ opacity: 1, scale: 1, y: 0, rotateY: 0 }}
