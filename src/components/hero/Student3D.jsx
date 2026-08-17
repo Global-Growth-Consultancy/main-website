@@ -45,12 +45,14 @@ const glowTex = (() => {
 // ---- PBR Materials (upgraded: physical material for skin = soft/SSS-ish look) ----
 const skinMat = new THREE.MeshPhysicalMaterial({
   color: "#EDB897",
-  roughness: 0.55,
-  metalness: 0,
-  clearcoat: 0.12,
-  clearcoatRoughness: 0.5,
-  sheen: 0.35,
+  roughness: 0.45,
+  metalness: 0.05,
+  clearcoat: 0.18,
+  clearcoatRoughness: 0.4,
+  sheen: 0.42,
   sheenColor: new THREE.Color("#FFD9B8"),
+  transmission: 0.02,
+  thickness: 0.5,
 });
 
 const hairMat = new THREE.MeshPhysicalMaterial({
@@ -60,10 +62,12 @@ const hairMat = new THREE.MeshPhysicalMaterial({
   clearcoatRoughness: 0.3,
 });
 
-const blazerMat = new THREE.MeshStandardMaterial({
+const blazerMat = new THREE.MeshPhysicalMaterial({
   color: "#182848",
-  roughness: 0.62,
-  metalness: 0.05,
+  roughness: 0.48,
+  metalness: 0.12,
+  clearcoat: 0.25,
+  clearcoatRoughness: 0.3,
 });
 
 const blazerTrimMat = new THREE.MeshStandardMaterial({
@@ -102,9 +106,12 @@ const goldMat = new THREE.MeshStandardMaterial({
   metalness: 0.85,
 });
 
-const backpackMat = new THREE.MeshStandardMaterial({
+const backpackMat = new THREE.MeshPhysicalMaterial({
   color: "#2E3542",
-  roughness: 0.65,
+  roughness: 0.55,
+  metalness: 0.15,
+  clearcoat: 0.2,
+  clearcoatRoughness: 0.4,
 });
 
 const passportMat = new THREE.MeshStandardMaterial({
@@ -112,16 +119,22 @@ const passportMat = new THREE.MeshStandardMaterial({
   roughness: 0.45,
 });
 
-const globeOceanMat = new THREE.MeshStandardMaterial({
+const globeOceanMat = new THREE.MeshPhysicalMaterial({
   color: "#0284C7",
-  roughness: 0.2,
-  metalness: 0.1,
+  roughness: 0.15,
+  metalness: 0.25,
+  clearcoat: 0.4,
+  clearcoatRoughness: 0.3,
 });
 
-const globeRingMat = new THREE.MeshStandardMaterial({
+const globeRingMat = new THREE.MeshPhysicalMaterial({
   color: "#38BDF8",
-  roughness: 0.3,
-  metalness: 0.6,
+  roughness: 0.2,
+  metalness: 0.8,
+  clearcoat: 0.6,
+  clearcoatRoughness: 0.2,
+  emissive: "#38BDF8",
+  emissiveIntensity: 0.15,
 });
 
 const paperMat = new THREE.MeshStandardMaterial({
@@ -129,17 +142,21 @@ const paperMat = new THREE.MeshStandardMaterial({
   roughness: 0.8,
 });
 
-const laptopSilverMat = new THREE.MeshStandardMaterial({
+const laptopSilverMat = new THREE.MeshPhysicalMaterial({
   color: "#9CA3AF",
-  roughness: 0.25,
-  metalness: 0.8,
+  roughness: 0.18,
+  metalness: 0.9,
+  clearcoat: 0.8,
+  clearcoatRoughness: 0.2,
 });
 
-const laptopScreenMat = new THREE.MeshStandardMaterial({
+const laptopScreenMat = new THREE.MeshPhysicalMaterial({
   color: "#0F172A",
   emissive: "#0284C7",
-  emissiveIntensity: 1.2,
-  roughness: 0.2,
+  emissiveIntensity: 1.5,
+  roughness: 0.15,
+  metalness: 0.3,
+  clearcoat: 0.4,
 });
 
 const browMat = new THREE.MeshStandardMaterial({
@@ -197,10 +214,10 @@ const POSE = {
     le: [-0.3, 0, 0],
   },
   hover: {
-    rs: [-0.35, 0, 0.55],
-    re: [-0.25, 0, 0],
-    ls: [-0.35, 0, -0.55],
-    le: [-0.25, 0, 0],
+    rs: [-0.45, 0.1, 0.65],
+    re: [-0.3, 0, 0],
+    ls: [-0.45, -0.1, -0.65],
+    le: [-0.3, 0, 0],
   },
 };
 
@@ -243,8 +260,9 @@ const FloatProp = ({
     if (!ref.current) return;
     ref.current.position.y =
       position[1] + Math.sin(t * speed + phase) * amplitude;
-    ref.current.rotation.y = Math.sin(t * rotSpeed * 0.5 + phase) * 0.35;
-    ref.current.rotation.z = Math.sin(t * rotSpeed * 0.4 + phase) * 0.08;
+    ref.current.rotation.y = Math.sin(t * rotSpeed * 0.5 + phase) * 0.45;
+    ref.current.rotation.z = Math.sin(t * rotSpeed * 0.4 + phase) * 0.12;
+    ref.current.rotation.x = Math.sin(t * rotSpeed * 0.3 + phase) * 0.08;
   });
   return (
     <group ref={ref} position={position} scale={scale}>
@@ -254,7 +272,7 @@ const FloatProp = ({
 };
 
 const MiniGlobe = () => (
-  <FloatProp position={[1.05, 1.55, 0.15]} scale={0.22} speed={0.7} phase={0}>
+  <FloatProp position={[1.05, 1.65, 0.15]} scale={0.22} speed={0.7} phase={0}>
     <mesh>
       <sphereGeometry args={[1, 24, 18]} />
       <primitive object={globeOceanMat} />
@@ -268,7 +286,7 @@ const MiniGlobe = () => (
 );
 
 const MiniCap = () => (
-  <FloatProp position={[1.2, 1.0, -0.25]} scale={0.28} speed={0.9} phase={1.2}>
+  <FloatProp position={[1.2, 1.10, -0.25]} scale={0.28} speed={0.9} phase={1.2}>
     <mesh position={[0, 0.1, 0]}>
       <sphereGeometry
         args={[1, 18, 14, 0, Math.PI * 2, 0, Math.PI / 2 + 0.35]}
@@ -293,7 +311,7 @@ const PaperPlane = () => {
     if (!ref.current) return;
     ref.current.position.set(
       Math.sin(t * 0.28) * 1.25,
-      1.75 + Math.sin(t * 0.45) * 0.22,
+      1.85 + Math.sin(t * 0.45) * 0.22,
       0.05 + Math.sin(t * 0.3) * 0.3,
     );
     ref.current.rotation.set(0.15, Math.sin(t * 0.4) * 0.7, -0.2);
@@ -309,7 +327,7 @@ const PaperPlane = () => {
 };
 
 const VisaStamp = () => (
-  <FloatProp position={[-1.15, 1.25, 0.4]} scale={0.3} speed={0.8} phase={0.6}>
+  <FloatProp position={[-1.15, 1.35, 0.4]} scale={0.3} speed={0.8} phase={0.6}>
     <mesh>
       <boxGeometry args={[1.6, 1.2, 0.2]} />
       <primitive object={blazerTrimMat} />
@@ -327,7 +345,7 @@ const VisaStamp = () => (
 );
 
 const GoldCoin = () => (
-  <FloatProp position={[0.75, 0.8, 0.55]} scale={0.45} speed={1.1} phase={1.8}>
+  <FloatProp position={[0.75, 0.90, 0.55]} scale={0.45} speed={1.1} phase={1.8}>
     <mesh rotation={[0, 0, Math.PI / 2]}>
       <cylinderGeometry args={[0.7, 0.7, 0.14, 28]} />
       <primitive object={goldMat} />
@@ -341,13 +359,13 @@ const FloatingLaptop = () => {
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (!ref.current) return;
-    ref.current.position.y = 0.65 + Math.sin(t * 0.9) * 0.045;
+    ref.current.position.y = 0.75 + Math.sin(t * 0.9) * 0.045;
     ref.current.rotation.z = Math.sin(t * 0.6) * 0.05;
   });
   return (
     <group
       ref={ref}
-      position={[0.55, 0.65, 0.42]}
+      position={[0.55, 0.75, 0.42]}
       rotation={[0.08, -0.35, 0.04]}
     >
       <mesh position={[0, 0, 0.04]}>
@@ -376,11 +394,11 @@ const EnvironmentProps = () => (
     <GoldCoin />
     <FloatingLaptop />
     <Sparkles
-      count={40}
-      scale={[7, 4.4, 4]}
-      size={1.6}
+      count={50}
+      scale={[8, 5, 4]}
+      size={1.8}
       speed={0.4}
-      opacity={0.35}
+      opacity={0.4}
       color="#7DD3FC"
     />
   </group>
@@ -391,13 +409,13 @@ const CameraRig = () => {
     const dt = Math.min(delta, 0.05);
     const t = state.clock.elapsedTime;
     const cam = state.camera;
-    const tx = Math.sin(t * 0.22) * 0.06 + state.pointer.x * 0.22;
-    const ty = 1.55 + Math.cos(t * 0.18) * 0.05 - state.pointer.y * 0.1;
-    const tz = 5.9 + Math.sin(t * 0.15) * 0.08;
+    const tx = Math.sin(t * 0.22) * 0.05 + state.pointer.x * 0.18;
+    const ty = 1.65 + Math.cos(t * 0.18) * 0.04 - state.pointer.y * 0.08;
+    const tz = 5.4 + Math.sin(t * 0.15) * 0.06;
     cam.position.x = THREE.MathUtils.damp(cam.position.x, tx, 2.2, dt);
     cam.position.y = THREE.MathUtils.damp(cam.position.y, ty, 2.2, dt);
     cam.position.z = THREE.MathUtils.damp(cam.position.z, tz, 2, dt);
-    cam.lookAt(0, 1.15, 0);
+    cam.lookAt(0, 1.28, 0);
   });
   return null;
 };
@@ -533,11 +551,13 @@ const StudentRig = (props) => {
     const reduced = reducedRef.current;
 
     entrance.current = Math.min(entrance.current + dt * 1.3, 1);
-    const baseY = (1 - easeOutCubic(entrance.current)) * -1.15;
+    const baseY = (1 - easeOutCubic(entrance.current)) * -0.85;
 
     if (hop.current > 0) hop.current = Math.max(hop.current - dt * 1.7, 0);
     const hopY = Math.sin(hop.current * Math.PI) * 0.26;
-    if (figureRef.current) figureRef.current.position.y = baseY + hopY;
+    // Add gentle floating motion for more dynamic feel
+    const floatY = Math.sin(t * 0.8) * 0.02;
+    if (figureRef.current) figureRef.current.position.y = baseY + hopY + floatY;
 
     if (groundRef.current) {
       const s = 1 + Math.max(hopY, 0) * 0.6;
@@ -570,14 +590,14 @@ const StudentRig = (props) => {
     if (headTrackRef.current) {
       headTrackRef.current.rotation.y = THREE.MathUtils.damp(
         headTrackRef.current.rotation.y,
-        Math.sin(t * 0.5) * 0.015 + state.pointer.x * 0.16,
-        6,
+        Math.sin(t * 0.5) * 0.015 + state.pointer.x * 0.22,
+        8,
         dt,
       );
       headTrackRef.current.rotation.x = THREE.MathUtils.damp(
         headTrackRef.current.rotation.x,
-        Math.sin(t * 0.4 + 1) * 0.015 - state.pointer.y * 0.09,
-        6,
+        Math.sin(t * 0.4 + 1) * 0.015 - state.pointer.y * 0.12,
+        8,
         dt,
       );
     }
@@ -658,7 +678,7 @@ const StudentRig = (props) => {
         Everything below is rebuilt around that ratio instead of the
         old 1:1 head-to-torso "chibi" ratio.
       */}
-      <group position={[0, 1.05, 0]}>
+      <group position={[0, 1.15, 0]}>
         {/* ---- Legs & Sneakers (longer, slightly tapered at ankle) ---- */}
         <group ref={legLRef} position={[-0.115, 0, 0]}>
           <mesh position={[0, -0.28, 0]}>
@@ -966,7 +986,7 @@ const SceneContainer = (props) => {
       <Canvas
         frameloop={visible ? "always" : "never"}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
-        camera={{ position: [0, 1.55, 5.9], fov: 30 }}
+        camera={{ position: [0, 1.85, 5.4], fov: 32 }}
         gl={{
           antialias: true,
           alpha: true,
@@ -977,11 +997,11 @@ const SceneContainer = (props) => {
         shadows
       >
         <CameraRig />
-        <ambientLight intensity={0.38} />
+        <ambientLight intensity={0.45} />
         {/* Key light */}
         <directionalLight
           position={[3.2, 5, 4]}
-          intensity={1.7}
+          intensity={2.0}
           color="#FFF3E2"
           castShadow
           shadow-mapSize-width={1024}
@@ -992,16 +1012,19 @@ const SceneContainer = (props) => {
         {/* Fill light — cooler, softer, opposite side */}
         <directionalLight
           position={[-4, 2.5, -2]}
-          intensity={0.55}
+          intensity={0.7}
           color="#8FD3FF"
         />
         {/* Rim / hair light from behind to separate subject from bg */}
         <directionalLight
           position={[0, 3, -4.5]}
-          intensity={1.1}
+          intensity={1.4}
           color="#BFE9FF"
         />
-        <pointLight position={[0, 1.2, 2.5]} intensity={0.45} color="#FFE1B8" />
+        <pointLight position={[0, 1.2, 2.5]} intensity={0.6} color="#FFE1B8" />
+        {/* Side accent lights for more dramatic effect */}
+        <pointLight position={[2, 1.5, 2]} intensity={0.3} color="#38BDF8" />
+        <pointLight position={[-2, 1.5, 2]} intensity={0.3} color="#A78BFA" />
 
         <Environment resolution={256}>
           <group rotation={[-Math.PI / 4, 0, 0]}>
@@ -1032,16 +1055,22 @@ const SceneContainer = (props) => {
 
         {/* Additive halo glow behind character */}
         <Glow
-          position={[0, 1.0, -0.6]}
-          scale={6.5}
+          position={[0, 1.20, -0.6]}
+          scale={7.5}
           color={accent}
-          opacity={0.4}
+          opacity={0.5}
         />
         <Glow
-          position={[0, 1.0, -0.6]}
-          scale={4}
+          position={[0, 1.20, -0.6]}
+          scale={4.5}
           color="#7DD3FC"
-          opacity={0.4}
+          opacity={0.5}
+        />
+        <Glow
+          position={[0, 0.90, -0.6]}
+          scale={3}
+          color="#A78BFA"
+          opacity={0.35}
         />
 
         <EnvironmentProps />
@@ -1049,10 +1078,10 @@ const SceneContainer = (props) => {
 
         <ContactShadows
           position={[0, 0.02, 0]}
-          opacity={0.5}
-          scale={12}
-          blur={2.2}
-          far={3.5}
+          opacity={0.55}
+          scale={14}
+          blur={2.4}
+          far={4}
           resolution={512}
           frames={1}
         />

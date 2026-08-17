@@ -16,23 +16,23 @@ import React, { useEffect, useRef } from "react";
 // ------------------------------------------------------------------
 
 const AURORA_BANDS = [
-  { color: "56,189,248",  freq: 0.0018, amp: 38, yOff: 0.20, speed: 0.00032, alpha: 0.055 },
-  { color: "167,139,250", freq: 0.0024, amp: 50, yOff: 0.40, speed:-0.00026, alpha: 0.045 },
-  { color: "251,191,36",  freq: 0.0015, amp: 34, yOff: 0.62, speed: 0.00040, alpha: 0.035 },
-  { color: "30,64,175",   freq: 0.0030, amp: 44, yOff: 0.80, speed:-0.00035, alpha: 0.050 },
-  { color: "236,72,153",  freq: 0.0020, amp: 30, yOff: 0.50, speed: 0.00022, alpha: 0.028 },
+  { color: "56,189,248",  freq: 0.0018, amp: 38, yOff: 0.20, speed: 0.00032, alpha: 0.085 },
+  { color: "167,139,250", freq: 0.0024, amp: 50, yOff: 0.40, speed:-0.00026, alpha: 0.070 },
+  { color: "251,191,36",  freq: 0.0015, amp: 34, yOff: 0.62, speed: 0.00040, alpha: 0.055 },
+  { color: "30,64,175",   freq: 0.0030, amp: 44, yOff: 0.80, speed:-0.00035, alpha: 0.075 },
+  { color: "236,72,153",  freq: 0.0020, amp: 30, yOff: 0.50, speed: 0.00022, alpha: 0.045 },
 ];
 
 const PARTICLE_COLORS = ["56,189,248", "125,211,252", "167,139,250", "251,191,36"];
 
 const LAYER_CFG = {
-  far:  { count: 55, rMin: 0.5, rMax: 1.1, speedBase: 0.10, aMin: 0.10, aMax: 0.20, trail: 3 },
-  mid:  { count: 35, rMin: 1.3, rMax: 2.1, speedBase: 0.20, aMin: 0.28, aMax: 0.48, trail: 4 },
-  near: { count: 18, rMin: 2.4, rMax: 3.6, speedBase: 0.32, aMin: 0.55, aMax: 0.85, trail: 5 },
+  far:  { count: 70, rMin: 0.5, rMax: 1.2, speedBase: 0.12, aMin: 0.12, aMax: 0.24, trail: 4 },
+  mid:  { count: 45, rMin: 1.4, rMax: 2.3, speedBase: 0.22, aMin: 0.32, aMax: 0.55, trail: 5 },
+  near: { count: 22, rMin: 2.6, rMax: 4.0, speedBase: 0.35, aMin: 0.60, aMax: 0.92, trail: 6 },
 };
 
-const LINK_RANGE_MID  = 110;
-const LINK_RANGE_NEAR = 150;
+const LINK_RANGE_MID  = 130;
+const LINK_RANGE_NEAR = 175;
 
 const NexusField = () => {
   const canvasRef = useRef(null);
@@ -200,19 +200,30 @@ const NexusField = () => {
       for (const n of nodes) {
         const tw = 0.6 + 0.4 * Math.sin(t * 0.001 * n.ts + n.tw);
         const alpha = n.baseA * tw;
+        
+        // Core particle
         ctx.fillStyle = `rgba(${n.c},${alpha})`;
         ctx.beginPath();
         ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         ctx.fill();
 
-        // near-layer glow halo
+        // Glow halo — near-layer gets larger, brighter halos
         if (n.layer === "near") {
-          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 6);
-          g.addColorStop(0, `rgba(${n.c},${alpha * 0.22})`);
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 8);
+          g.addColorStop(0, `rgba(${n.c},${alpha * 0.28})`);
+          g.addColorStop(0.4, `rgba(${n.c},${alpha * 0.10})`);
           g.addColorStop(1, `rgba(${n.c},0)`);
           ctx.fillStyle = g;
           ctx.beginPath();
-          ctx.arc(n.x, n.y, n.r * 6, 0, Math.PI * 2);
+          ctx.arc(n.x, n.y, n.r * 8, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (n.layer === "mid") {
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r * 5);
+          g.addColorStop(0, `rgba(${n.c},${alpha * 0.18})`);
+          g.addColorStop(1, `rgba(${n.c},0)`);
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r * 5, 0, Math.PI * 2);
           ctx.fill();
         }
       }
@@ -221,7 +232,7 @@ const NexusField = () => {
     // --- bezier connections ---
     const drawConnections = (t) => {
       const pulse = 0.78 + 0.22 * Math.sin(t * 0.0014);
-      const ptrBoost = ptr.active ? 1.4 : 1;
+      const ptrBoost = ptr.active ? 1.6 : 1;
       for (let i = 0; i < nodes.length; i++) {
         const a = nodes[i];
         if (a.layer === "far") continue;
@@ -233,23 +244,28 @@ const NexusField = () => {
           const d2 = dx * dx + dy * dy;
           if (d2 > range * range) continue;
           const d = Math.sqrt(d2);
-          let alpha = (1 - d / range) * 0.3 * pulse;
+          let alpha = (1 - d / range) * 0.4 * pulse;
 
           // brighter near pointer
           if (ptr.active) {
             const mx = (a.x + b.x) * 0.5, my = (a.y + b.y) * 0.5;
             const pd = Math.hypot(ptr.x - mx, ptr.y - my);
-            if (pd < 120) alpha *= ptrBoost;
+            if (pd < 140) alpha *= ptrBoost;
           }
 
           // control point for bezier curve (perpendicular offset)
           const mx = (a.x + b.x) * 0.5, my = (a.y + b.y) * 0.5;
           const nx = -(a.y - b.y) / d, ny = (a.x - b.x) / d;
-          const curvature = 12 + Math.sin(t * 0.0008 + i) * 6;
+          const curvature = 14 + Math.sin(t * 0.0008 + i) * 7;
           const cx = mx + nx * curvature, cy = my + ny * curvature;
 
-          ctx.strokeStyle = `rgba(56,189,248,${alpha})`;
-          ctx.lineWidth = 0.8;
+          // Gradient stroke for premium look
+          const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+          grad.addColorStop(0, `rgba(56,189,248,${alpha * 0.8})`);
+          grad.addColorStop(0.5, `rgba(125,211,252,${alpha})`);
+          grad.addColorStop(1, `rgba(167,139,250,${alpha * 0.8})`);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.0;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.quadraticCurveTo(cx, cy, b.x, b.y);
@@ -267,13 +283,14 @@ const NexusField = () => {
       let tries = 0;
       while (b === a && tries < 5) { b = candidates[Math.floor(Math.random() * candidates.length)]; tries++; }
       if (b === a) return;
+      const hueOptions = ["251,191,36", "125,211,252", "56,189,248", "167,139,250"];
       pulses.push({
         ax: a.x, ay: a.y, bx: b.x, by: b.y,
         t: 0, speed: 0.008 + Math.random() * 0.005,
-        hue: Math.random() < 0.55 ? "251,191,36" : "125,211,252",
+        hue: hueOptions[Math.floor(Math.random() * hueOptions.length)],
         history: [],
       });
-      if (pulses.length > 5) pulses.shift();
+      if (pulses.length > 6) pulses.shift();
     };
 
     const drawPulses = () => {
@@ -286,40 +303,47 @@ const NexusField = () => {
         const dx = p.bx - p.ax, dy = p.by - p.ay;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
         const nx = -dy / d, ny = dx / d;
-        const mx = (p.ax + p.bx) * 0.5 + nx * 20;
-        const my = (p.ay + p.by) * 0.5 + ny * 20;
+        const mx = (p.ax + p.bx) * 0.5 + nx * 25;
+        const my = (p.ay + p.by) * 0.5 + ny * 25;
         const u = p.t;
         const x = (1 - u) * (1 - u) * p.ax + 2 * (1 - u) * u * mx + u * u * p.bx;
         const y = (1 - u) * (1 - u) * p.ay + 2 * (1 - u) * u * my + u * u * p.by;
 
         p.history.push({ x, y });
-        if (p.history.length > 7) p.history.shift();
+        if (p.history.length > 10) p.history.shift();
 
         const fade = Math.sin(p.t * Math.PI);
 
-        // comet trail
+        // comet trail with gradient
         for (let i = 0; i < p.history.length; i++) {
           const pt = p.history[i];
           const frac = i / p.history.length;
-          const ta = fade * frac * 0.4;
-          ctx.fillStyle = `rgba(${p.hue},${ta})`;
+          const ta = fade * frac * 0.55;
+          if (ta < 0.01) continue;
+          const trailGrad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, 2 + frac * 3);
+          trailGrad.addColorStop(0, `rgba(${p.hue},${ta})`);
+          trailGrad.addColorStop(1, `rgba(${p.hue},0)`);
+          ctx.fillStyle = trailGrad;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 1.2 + frac * 1.5, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, 2 + frac * 3, 0, Math.PI * 2);
           ctx.fill();
         }
 
-        // head glow
-        const g = ctx.createRadialGradient(x, y, 0, x, y, 16);
-        g.addColorStop(0, `rgba(${p.hue},${0.8 * fade})`);
+        // head glow — bigger, more dramatic
+        const g = ctx.createRadialGradient(x, y, 0, x, y, 22);
+        g.addColorStop(0, `rgba(255,255,255,${0.9 * fade})`);
+        g.addColorStop(0.2, `rgba(${p.hue},${0.7 * fade})`);
+        g.addColorStop(0.6, `rgba(${p.hue},${0.2 * fade})`);
         g.addColorStop(1, `rgba(${p.hue},0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(x, y, 16, 0, Math.PI * 2);
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `rgba(${p.hue},${0.95 * fade})`;
+        // bright core
+        ctx.fillStyle = `rgba(255,255,255,${0.95 * fade})`;
         ctx.beginPath();
-        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
         ctx.fill();
       }
     };
@@ -356,15 +380,15 @@ const NexusField = () => {
       else if (edge === 1) { sx = W + 10; sy = Math.random() * H; angle = Math.PI * 0.8 + Math.random() * 0.4; }
       else if (edge === 2) { sx = Math.random() * W; sy = H + 10; angle = -Math.PI * 0.4 + Math.random() * 0.2; }
       else                 { sx = -10; sy = Math.random() * H; angle = -Math.PI * 0.1 + Math.random() * 0.2; }
-      const speed = 4 + Math.random() * 3;
+      const speed = 5 + Math.random() * 4;
       shootingStars.push({
         x: sx, y: sy,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 0, maxLife: 90 + Math.random() * 40,
+        life: 0, maxLife: 100 + Math.random() * 50,
         trail: [],
       });
-      if (shootingStars.length > 2) shootingStars.shift();
+      if (shootingStars.length > 3) shootingStars.shift();
     };
 
     const drawStars = () => {
@@ -374,26 +398,33 @@ const NexusField = () => {
         s.y += s.vy;
         s.life++;
         s.trail.push({ x: s.x, y: s.y });
-        if (s.trail.length > 14) s.trail.shift();
+        if (s.trail.length > 18) s.trail.shift();
         if (s.life >= s.maxLife) { shootingStars.splice(k, 1); continue; }
 
         const lifeFrac = 1 - s.life / s.maxLife;
+        // Draw trailing glow
         for (let i = 0; i < s.trail.length; i++) {
           const pt = s.trail[i];
           const frac = i / s.trail.length;
-          const a = frac * lifeFrac * 0.7;
-          ctx.fillStyle = `rgba(255,248,230,${a})`;
+          const a = frac * lifeFrac * 0.8;
+          if (a < 0.01) continue;
+          const starGrad = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, 1 + frac * 2.5);
+          starGrad.addColorStop(0, `rgba(255,255,240,${a})`);
+          starGrad.addColorStop(0.5, `rgba(251,191,36,${a * 0.5})`);
+          starGrad.addColorStop(1, `rgba(251,191,36,0)`);
+          ctx.fillStyle = starGrad;
           ctx.beginPath();
-          ctx.arc(pt.x, pt.y, 0.6 + frac * 1.8, 0, Math.PI * 2);
+          ctx.arc(pt.x, pt.y, 1 + frac * 2.5, 0, Math.PI * 2);
           ctx.fill();
         }
-        // head
-        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 8);
-        g.addColorStop(0, `rgba(255,248,230,${0.9 * lifeFrac})`);
+        // Bright head with bloom
+        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, 12);
+        g.addColorStop(0, `rgba(255,255,255,${0.95 * lifeFrac})`);
+        g.addColorStop(0.3, `rgba(251,191,36,${0.6 * lifeFrac})`);
         g.addColorStop(1, `rgba(251,191,36,0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(s.x, s.y, 8, 0, Math.PI * 2);
+        ctx.arc(s.x, s.y, 12, 0, Math.PI * 2);
         ctx.fill();
       }
     };
@@ -431,13 +462,24 @@ const NexusField = () => {
     // --- pointer halo ---
     const drawPointer = () => {
       if (!ptr.active) return;
-      const g = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, 36);
-      g.addColorStop(0, "rgba(251,191,36,0.35)");
-      g.addColorStop(0.3, "rgba(251,191,36,0.10)");
-      g.addColorStop(1, "rgba(251,191,36,0)");
-      ctx.fillStyle = g;
+      // Outer glow ring
+      const g2 = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, 52);
+      g2.addColorStop(0, "rgba(251,191,36,0.45)");
+      g2.addColorStop(0.25, "rgba(56,189,248,0.20)");
+      g2.addColorStop(0.6, "rgba(167,139,250,0.08)");
+      g2.addColorStop(1, "rgba(251,191,36,0)");
+      ctx.fillStyle = g2;
       ctx.beginPath();
-      ctx.arc(ptr.x, ptr.y, 36, 0, Math.PI * 2);
+      ctx.arc(ptr.x, ptr.y, 52, 0, Math.PI * 2);
+      ctx.fill();
+      // Inner bright core
+      const g1 = ctx.createRadialGradient(ptr.x, ptr.y, 0, ptr.x, ptr.y, 12);
+      g1.addColorStop(0, "rgba(255,255,255,0.7)");
+      g1.addColorStop(0.5, "rgba(251,191,36,0.5)");
+      g1.addColorStop(1, "rgba(251,191,36,0)");
+      ctx.fillStyle = g1;
+      ctx.beginPath();
+      ctx.arc(ptr.x, ptr.y, 12, 0, Math.PI * 2);
       ctx.fill();
     };
 
@@ -550,7 +592,7 @@ const NexusField = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ filter: "blur(0.3px)" }} aria-hidden="true" />;
 };
 
 export default NexusField;

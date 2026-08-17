@@ -92,10 +92,10 @@ const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
 // floating service chips orbiting the character
 const ORBITS = [
-  { icon: FaUniversity, label: "200+ Partner Colleges", pos: "right-2 top-6", accent: "#A78BFA" },
-  { icon: FaPassport, label: "98% Visa Success", pos: "left-2 top-10", accent: "#34D399" },
-  { icon: FaHandHoldingUsd, label: "0% BSCC Loan", pos: "right-2 top-[42%]", accent: "#FBBF24" },
-  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-2 bottom-14", accent: "#38BDF8" },
+  { icon: FaUniversity, label: "200+ Partner Colleges", pos: "right-1 sm:right-2 top-4 sm:top-6", accent: "#A78BFA" },
+  { icon: FaPassport, label: "98% Visa Success", pos: "left-1 sm:left-2 top-8 sm:top-12", accent: "#34D399" },
+  { icon: FaHandHoldingUsd, label: "0% BSCC Loan", pos: "right-1 sm:right-2 bottom-[30%]", accent: "#FBBF24" },
+  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-1 sm:left-2 bottom-[28%]", accent: "#38BDF8" },
 ];
 
 // education ecosystem network (viewBox 100x100)
@@ -177,22 +177,23 @@ const StudentPerformer = () => {
     if (!holder || reducedRef.current) return;
     for (let i = 0; i < count; i += 1) {
       const el = document.createElement("div");
-      const size = 3 + Math.random() * 4;
-      const round = Math.random() < 0.5;
-      el.style.cssText = `position:absolute;left:50%;top:56%;width:${size}px;height:${size * (round ? 1 : 1.7)}px;background:${CONFETTI_COLORS[i % CONFETTI_COLORS.length]};border-radius:${round ? "50%" : "2px"};pointer-events:none;opacity:0;will-change:transform;`;
+      const size = 3 + Math.random() * 5;
+      const round = Math.random() < 0.4;
+      const colors = [...CONFETTI_COLORS, "#ffffff"];
+      el.style.cssText = `position:absolute;left:50%;top:52%;width:${size}px;height:${size * (round ? 1 : 1.8)}px;background:${colors[i % colors.length]};border-radius:${round ? "50%" : "2px"};pointer-events:none;opacity:0;will-change:transform;box-shadow:0 0 ${size}px ${colors[i % colors.length]}44;`;
       holder.appendChild(el);
       gsap.to(el, {
-        x: (Math.random() - 0.5) * 260,
-        y: -(30 + Math.random() * 130),
-        rotation: (Math.random() - 0.5) * 560,
+        x: (Math.random() - 0.5) * 300,
+        y: -(40 + Math.random() * 150),
+        rotation: (Math.random() - 0.5) * 620,
         opacity: 1,
-        duration: 0.35 + Math.random() * 0.3,
+        duration: 0.3 + Math.random() * 0.3,
         ease: "power2.out",
         onComplete: () => gsap.to(el, {
-          y: 50 + Math.random() * 90,
-          rotation: (Math.random() - 0.5) * 220,
+          y: 60 + Math.random() * 100,
+          rotation: (Math.random() - 0.5) * 240,
           opacity: 0,
-          duration: 0.6,
+          duration: 0.7,
           ease: "power1.in",
           onComplete: () => el.remove(),
         }),
@@ -522,15 +523,45 @@ const StudentPerformer = () => {
       onMouseEnter={() => { hoverRef.current = true; setIsHovered(true); }}
       onMouseLeave={() => { hoverRef.current = false; setIsHovered(false); }}
       onClick={handleClick}
-      className="group relative rounded-3xl border border-white/[0.12] bg-gradient-to-b from-premium-charcoal/70 to-premium-dark/80 backdrop-blur-md shadow-2xl shadow-black/60 overflow-hidden cursor-pointer"
+      className="group relative rounded-3xl overflow-hidden cursor-pointer"
+      style={{
+        background: "linear-gradient(180deg, rgba(14,20,38,0.85), rgba(8,12,22,0.92))",
+        boxShadow: "0 40px 80px -30px rgba(0,0,0,0.8), 0 0 60px -20px rgba(56,189,248,0.15), inset 0 1px 0 rgba(255,255,255,0.06)",
+      }}
+    >
+      {/* Animated gradient border ring */}
+      <div className="absolute inset-0 rounded-3xl pointer-events-none z-30"
+        style={{
+          padding: "1px",
+          background: "conic-gradient(from 0deg, rgba(56,189,248,0.4), rgba(167,139,250,0.3), rgba(251,191,36,0.3), rgba(56,189,248,0.4))",
+          WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          WebkitMaskComposite: "xor",
+          mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+          maskComposite: "exclude",
+          animation: "spin 8s linear infinite",
+          filter: "blur(1px)",
+        }}
+      />
+      {/* Inner glow overlay on hover */}
+      <div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-30"
+        style={{
+          background: "radial-gradient(ellipse at 50% 40%, rgba(56,189,248,0.06), transparent 60%)",
+        }}
+      />
     >
       {/* Top hairline */}
       <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-brand-400/50 to-transparent z-30 pointer-events-none" />
 
       {/* ---- Mission-control HUD: story speech + scene dots ---- */}
-      <div className="relative z-30 px-4 sm:px-5 py-3 border-b border-white/5 bg-premium-dark/60">
-        <div className="flex items-center gap-3 min-h-[40px]">
-          <div className="flex flex-col items-center shrink-0 rounded-xl border border-brand-500/30 bg-brand-500/10 px-2 py-1.5 min-w-[54px]">
+      <div className="relative z-30 px-4 sm:px-5 py-3 border-b border-white/[0.04] backdrop-blur-xl"
+        style={{
+          background: "linear-gradient(180deg, rgba(10,15,28,0.7), rgba(8,12,22,0.85))",
+        }}
+      >
+        <div className="flex items-center gap-3 min-h-[42px]">
+          <div className="flex flex-col items-center shrink-0 rounded-xl border border-brand-500/25 bg-brand-500/8 px-2.5 py-1.5 min-w-[56px]"
+            style={{ boxShadow: "0 0 16px rgba(56,189,248,0.1)" }}
+          >
             <span className="font-mono text-[12px] font-bold text-brand-300 tabular-nums leading-none">
               {formatTime(countdown)}
             </span>
@@ -546,7 +577,7 @@ const StudentPerformer = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.28, ease: "easeOut" }}
-                className="text-[11px] sm:text-sm leading-snug text-neutral-200 font-medium min-h-[40px] flex items-center"
+                className="text-[11px] sm:text-sm leading-snug text-neutral-200 font-medium min-h-[42px] flex items-center"
               >
                 <span className="relative flex h-2 w-2 mr-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success-400 opacity-75" />
@@ -559,7 +590,7 @@ const StudentPerformer = () => {
           </div>
         </div>
         {/* scene dots (clickable chapter jump + 10s rotation hold) */}
-        <div className="flex items-center gap-1.5 mt-2" role="tablist" aria-label="Story chapters">
+        <div className="flex items-center gap-1.5 mt-2.5" role="tablist" aria-label="Story chapters">
           {STORY.map((s, i) => (
             <button
               key={i}
@@ -569,12 +600,12 @@ const StudentPerformer = () => {
               aria-label={`${s.label}: ${s.status}`}
               tabIndex={i === scene ? 0 : -1}
               onClick={() => jumpToScene(i)}
-              className="h-1 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70"
+              className="h-1 rounded-full transition-all duration-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/70 hover:opacity-80"
               style={{
-                background: i === scene ? s.accent : "rgba(255,255,255,0.08)",
+                background: i === scene ? s.accent : "rgba(255,255,255,0.06)",
                 width: i === scene ? undefined : "0.5rem",
                 flex: i === scene ? 1 : undefined,
-                boxShadow: i === scene ? `0 0 8px ${s.accent}66` : undefined,
+                boxShadow: i === scene ? `0 0 10px ${s.accent}55` : undefined,
               }}
             />
           ))}
@@ -589,21 +620,31 @@ const StudentPerformer = () => {
         aria-label="Hero story stage — press arrow keys to switch chapters"
         onFocus={() => { pauseUntilRef.current = Date.now() + 10000; }}
         onKeyDown={onStageKeyDown}
-        className="relative h-[300px] sm:h-[390px] md:h-[450px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 rounded-2xl"
+        className="relative h-[340px] sm:h-[440px] md:h-[500px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 rounded-b-2xl overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, rgba(10,16,30,0.3) 0%, rgba(6,10,20,0.6) 100%)",
+        }}
       >
-        {/* particle field — subdued so the abstract 3D reads as hero focal point */}
-        <div className="absolute inset-0 opacity-[0.08] pointer-events-none">
+        {/* particle field — enhanced visibility so the abstract 3D reads as hero focal point */}
+        <div className="absolute inset-0 opacity-[0.18] pointer-events-none">
           <NexusField />
         </div>
 
-        {/* education ecosystem network */}
+        {/* education ecosystem network — enhanced visibility */}
         <svg
-          className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none z-0"
+          className="absolute inset-0 w-full h-full opacity-[0.12] pointer-events-none z-0"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <g fill="none" stroke="rgba(56,189,248,0.35)" strokeWidth="0.5">
+          <defs>
+            <linearGradient id="netGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(56,189,248,0.5)" />
+              <stop offset="50%" stopColor="rgba(167,139,250,0.4)" />
+              <stop offset="100%" stopColor="rgba(251,191,36,0.3)" />
+            </linearGradient>
+          </defs>
+          <g fill="none" stroke="url(#netGrad)" strokeWidth="0.6">
             {NET_LINES.map(([a, b], i) => (
               <path
                 key={i}
@@ -612,9 +653,9 @@ const StudentPerformer = () => {
               />
             ))}
           </g>
-          <g fill="rgba(56,189,248,0.5)">
+          <g fill="rgba(56,189,248,0.65)">
             {NET_NODES.map(([x, y], i) => (
-              <circle key={i} cx={x} cy={y} r={1.1} />
+              <circle key={i} cx={x} cy={y} r={1.4} />
             ))}
           </g>
         </svg>
@@ -622,38 +663,38 @@ const StudentPerformer = () => {
         {/* success rays (graduation + success chapters) */}
         <div
           ref={rayBurstRef}
-          className="absolute inset-x-0 mx-auto top-1/2 w-[135%] aspect-square opacity-0 pointer-events-none z-0"
+          className="absolute inset-x-0 mx-auto top-[45%] w-[140%] aspect-square opacity-0 pointer-events-none z-0"
           style={{
-            background: "repeating-conic-gradient(rgba(251,191,36,0.10) 0deg 7deg, transparent 7deg 23deg)",
-            WebkitMaskImage: "radial-gradient(circle, black 8%, transparent 66%)",
-            maskImage: "radial-gradient(circle, black 8%, transparent 66%)",
+            background: "repeating-conic-gradient(rgba(251,191,36,0.08) 0deg 6deg, transparent 6deg 22deg)",
+            WebkitMaskImage: "radial-gradient(circle, black 6%, transparent 60%)",
+            maskImage: "radial-gradient(circle, black 6%, transparent 60%)",
           }}
         />
 
         {/* chapter-reactive back glow */}
         <div
           ref={backGlowRef}
-          className="absolute inset-x-0 mx-auto bottom-0 w-[85%] h-[68%] pointer-events-none z-0 transition-[background] duration-700"
+          className="absolute inset-x-0 mx-auto bottom-0 w-[90%] h-[80%] pointer-events-none z-0 transition-[background] duration-700"
           style={{
-            background: `radial-gradient(ellipse at center bottom, ${accent}33, rgba(167,139,250,0.06) 42%, transparent 70%)`,
-            filter: "blur(10px)",
+            background: `radial-gradient(ellipse at center bottom, ${accent}40, rgba(167,139,250,0.08) 45%, transparent 72%)`,
+            filter: "blur(12px)",
           }}
         />
 
-        {/* cinematic vignette — draws eye to portrait character */}
+        {/* cinematic vignette — draws eye to portrait character, softer center */}
         <div
           className="absolute inset-0 pointer-events-none z-[6]"
           style={{
-            background: "radial-gradient(ellipse 72% 68% at 50% 58%, transparent 35%, rgba(6,10,20,0.55) 100%)",
+            background: "radial-gradient(ellipse 80% 75% at 50% 48%, transparent 40%, rgba(6,10,20,0.65) 100%)",
           }}
         />
 
         {/* light sweep (hover) */}
         <div
           ref={sweepRef}
-          className="absolute -left-[70%] inset-y-0 w-[60%] z-[5] pointer-events-none opacity-70"
+          className="absolute -left-[70%] inset-y-0 w-[55%] z-[5] pointer-events-none opacity-60"
           style={{
-            background: "linear-gradient(105deg, transparent 0%, rgba(56,189,248,0.05) 45%, rgba(167,139,250,0.09) 55%, transparent 100%)",
+            background: "linear-gradient(105deg, transparent 0%, rgba(56,189,248,0.04) 40%, rgba(167,139,250,0.08) 52%, rgba(251,191,36,0.04) 60%, transparent 100%)",
             transform: "skewX(-14deg)",
           }}
         />
@@ -669,20 +710,20 @@ const StudentPerformer = () => {
               <div
                 className="relative rounded-xl p-px"
                 style={{
-                  background: `linear-gradient(135deg, ${o.accent}59, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.03))`,
-                  boxShadow: `0 18px 44px -18px ${o.accent}55, 0 8px 22px -12px rgba(0,0,0,0.7)`,
+                  background: `linear-gradient(135deg, ${o.accent}65, rgba(255,255,255,0.12) 42%, rgba(255,255,255,0.04))`,
+                  boxShadow: `0 20px 50px -18px ${o.accent}50, 0 8px 24px -12px rgba(0,0,0,0.75)`,
                 }}
               >
                 <div
                   className="rounded-[11px] px-2.5 py-1.5 flex items-center gap-1.5"
                   style={{
-                    background: "linear-gradient(180deg, rgba(14,20,38,0.78), rgba(8,12,22,0.86))",
-                    backdropFilter: "blur(14px)",
-                    WebkitBackdropFilter: "blur(14px)",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                    background: "linear-gradient(180deg, rgba(12,18,32,0.82), rgba(6,10,18,0.90))",
+                    backdropFilter: "blur(16px)",
+                    WebkitBackdropFilter: "blur(16px)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
                   }}
                 >
-                  <o.icon className="text-[13px]" style={{ color: o.accent, filter: `drop-shadow(0 0 6px ${o.accent}88)` }} />
+                  <o.icon className="text-[13px]" style={{ color: o.accent, filter: `drop-shadow(0 0 8px ${o.accent}90)` }} />
                   <span className="text-[9px] font-semibold text-neutral-200 whitespace-nowrap">{o.label}</span>
                 </div>
               </div>
@@ -697,27 +738,29 @@ const StudentPerformer = () => {
             ref={(el) => { docRefs.current[i] = el; }}
             className={`absolute z-20 pointer-events-none opacity-0 ${pos}`}
           >
-            <div className="w-11 h-14 rounded-md bg-gradient-to-br from-white to-slate-200 border border-white/50 shadow-lg shadow-black/40 rotate-6">
-              <div className="mt-2 px-2 space-y-1">
-                <div className="h-1 rounded bg-brand-400/70 w-6" />
+            <div className="w-12 h-15 rounded-lg bg-gradient-to-br from-white to-slate-100 border border-white/60 shadow-xl shadow-black/50 rotate-6"
+              style={{ boxShadow: "0 8px 24px -6px rgba(56,189,248,0.25), 0 4px 12px -4px rgba(0,0,0,0.5)" }}
+            >
+              <div className="mt-2.5 px-2 space-y-1">
+                <div className="h-1 rounded bg-brand-400/80 w-6" />
                 <div className="h-1 rounded bg-slate-300 w-7" />
                 <div className="h-1 rounded bg-slate-300 w-5" />
-                <div className="h-1 rounded bg-emerald-400/60 w-6 mt-2" />
+                <div className="h-1 rounded bg-emerald-400/70 w-6 mt-2" />
               </div>
             </div>
           </div>
         ))}
 
         {/* admission approval stamp — step 2 */}
-        <div ref={stampRef} className="absolute z-20 pointer-events-none opacity-0 right-4 top-[36%]">
+        <div ref={stampRef} className="absolute z-20 pointer-events-none opacity-0 right-3 sm:right-5 top-[34%]">
           <div
-            className="px-3.5 py-2 rounded-xl border-[3px] font-display font-black tracking-[0.18em] text-sm rotate-[-12deg]"
+            className="px-4 py-2.5 rounded-xl border-[3px] font-display font-black tracking-[0.18em] text-sm rotate-[-12deg]"
             style={{
-              borderColor: "rgba(52,211,153,0.85)",
+              borderColor: "rgba(52,211,153,0.9)",
               color: "#34D399",
-              background: "linear-gradient(180deg, rgba(6,20,26,0.7), rgba(4,14,20,0.85))",
-              backdropFilter: "blur(12px)",
-              boxShadow: "0 0 40px rgba(52,211,153,0.4), inset 0 1px 0 rgba(255,255,255,0.08)",
+              background: "linear-gradient(180deg, rgba(6,18,24,0.75), rgba(4,12,18,0.88))",
+              backdropFilter: "blur(14px)",
+              boxShadow: "0 0 50px rgba(52,211,153,0.45), 0 0 20px rgba(52,211,153,0.25), inset 0 1px 0 rgba(255,255,255,0.10)",
             }}
           >
             APPROVED
@@ -725,12 +768,12 @@ const StudentPerformer = () => {
         </div>
 
         {/* scholarship gold coin — step 3 */}
-        <div ref={coinRef} className="absolute z-20 pointer-events-none opacity-0 right-6 top-[24%]">
+        <div ref={coinRef} className="absolute z-20 pointer-events-none opacity-0 right-4 sm:right-7 top-[22%]">
           <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-black text-emerald-950 border border-yellow-200/70"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl font-black text-emerald-950 border border-yellow-200/70"
             style={{
-              background: "radial-gradient(circle at 35% 30%, #FDE68A, #D97706 58%, #92400E)",
-              boxShadow: "0 0 34px rgba(251,191,36,0.6), inset 0 2px 4px rgba(255,255,255,0.5), inset 0 -3px 6px rgba(0,0,0,0.35)",
+              background: "radial-gradient(circle at 35% 30%, #FDE68A, #D97706 55%, #92400E)",
+              boxShadow: "0 0 44px rgba(251,191,36,0.65), 0 0 18px rgba(251,191,36,0.35), inset 0 2px 4px rgba(255,255,255,0.55), inset 0 -3px 6px rgba(0,0,0,0.35)",
             }}
           >
             ₹
@@ -738,33 +781,33 @@ const StudentPerformer = () => {
         </div>
 
         {/* story badge — live chapter widget */}
-        <div ref={storyBadgeRef} className="absolute left-3 top-4 z-20 pointer-events-none">
+        <div ref={storyBadgeRef} className="absolute left-2 sm:left-3 top-3 sm:top-4 z-20 pointer-events-none">
           <div
             className="relative rounded-2xl p-px"
             style={{
-              background: `linear-gradient(135deg, ${accent}77, rgba(255,255,255,0.10) 45%, rgba(255,255,255,0.03))`,
-              boxShadow: `0 18px 44px -16px ${accent}66`,
+              background: `linear-gradient(135deg, ${accent}80, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.04))`,
+              boxShadow: `0 20px 50px -16px ${accent}55, 0 0 20px -8px ${accent}33`,
             }}
           >
             <div
               className="rounded-[15px] px-2.5 py-2 flex items-center gap-2"
               style={{
-                background: "linear-gradient(180deg, rgba(14,20,38,0.74), rgba(8,12,22,0.88))",
-                backdropFilter: "blur(14px)",
-                WebkitBackdropFilter: "blur(14px)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                background: "linear-gradient(180deg, rgba(12,18,32,0.78), rgba(6,10,18,0.90))",
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
               }}
             >
               <span
                 key={scene}
-                className="story-pop relative w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
+                className="story-pop relative w-7 h-7 shrink-0 rounded-lg flex items-center justify-center leading-none"
                 style={{
                   background: `linear-gradient(160deg, ${accent}2e, ${accent}14)`,
                   color: accent,
                   boxShadow: `inset 0 0 0 1px ${accent}33, 0 0 14px ${accent}44`,
                 }}
               >
-                <SceneIcon className="text-[13px]" />
+                <SceneIcon className="text-[13px] block" />
               </span>
               <span className="leading-tight">
                 <span className="block text-[8px] uppercase tracking-[0.18em] text-neutral-500">{STORY[scene].label}</span>
@@ -787,20 +830,20 @@ const StudentPerformer = () => {
         <div
           ref={flashRef}
           className="absolute inset-0 pointer-events-none z-[4] opacity-0"
-          style={{ background: "radial-gradient(circle at 50% 55%, rgba(255,255,255,0.14), transparent 55%)" }}
+          style={{ background: "radial-gradient(circle at 50% 52%, rgba(255,255,255,0.18), transparent 50%)" }}
         />
 
         {/* character aura — synced to chapter accent */}
         <div
           ref={auraRef}
-          className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[75%] h-[58%] pointer-events-none z-[4] transition-[background] duration-700"
-          style={{ background: `radial-gradient(ellipse at center bottom, ${accent}28, transparent 68%)` }}
+          className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 w-[85%] h-[75%] pointer-events-none z-[4] transition-[background] duration-700"
+          style={{ background: `radial-gradient(ellipse at center, ${accent}35, transparent 70%)` }}
         />
 
         {/* character — premium 3D portrait graduate */}
         <div
           ref={svgWrapRef}
-          className="absolute inset-0 flex items-end justify-center pb-0 z-10"
+          className="absolute inset-0 flex items-center justify-center z-10 px-2 pt-2"
         >
           <Suspense fallback={null}>
             <Student3D
@@ -818,11 +861,15 @@ const StudentPerformer = () => {
         </div>
 
         {/* scene progress */}
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/5 z-30">
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/[0.04] z-30">
           <div
             key={scene}
-            className="quote-progress h-full bg-gradient-to-r from-brand-500 via-brand-400 to-brand-300"
-            style={{ "--quote-duration": `${SCENE_SECONDS}s` }}
+            className="quote-progress h-full rounded-full"
+            style={{
+              "--quote-duration": `${SCENE_SECONDS}s`,
+              background: `linear-gradient(90deg, ${accent}, ${accent}cc, ${accent}66)`,
+              boxShadow: `0 0 12px ${accent}66, 0 0 4px ${accent}44`,
+            }}
           />
         </div>
       </div>
