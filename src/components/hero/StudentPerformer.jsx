@@ -92,10 +92,10 @@ const CONFETTI_COLORS = ["#38BDF8", "#A78BFA", "#FBBF24", "#F472B6", "#34D399"];
 
 // floating service chips orbiting the character
 const ORBITS = [
-  { icon: FaUniversity, label: "200+ Partner Colleges", pos: "right-1 sm:right-2 top-4 sm:top-6", accent: "#A78BFA" },
-  { icon: FaPassport, label: "98% Visa Success", pos: "left-1 sm:left-2 top-8 sm:top-12", accent: "#34D399" },
-  { icon: FaHandHoldingUsd, label: "0% BSCC Loan", pos: "right-1 sm:right-2 bottom-[30%]", accent: "#FBBF24" },
-  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-1 sm:left-2 bottom-[28%]", accent: "#38BDF8" },
+  { icon: FaUniversity, label: "200+ Colleges", pos: "right-2 sm:right-3 top-3 sm:top-5", accent: "#A78BFA" },
+  { icon: FaPassport, label: "98% Visa", pos: "left-2 sm:left-3 top-6 sm:top-10", accent: "#34D399" },
+  { icon: FaHandHoldingUsd, label: "BSCC Loan", pos: "right-2 sm:right-3 bottom-[32%]", accent: "#FBBF24" },
+  { icon: FaGlobeAsia, label: "Study Abroad", pos: "left-2 sm:left-3 bottom-[30%]", accent: "#38BDF8" },
 ];
 
 // education ecosystem network (viewBox 100x100)
@@ -624,8 +624,8 @@ const StudentPerformer = () => {
           background: "linear-gradient(180deg, rgba(10,16,30,0.3) 0%, rgba(6,10,20,0.6) 100%)",
         }}
       >
-        {/* particle field — enhanced visibility so the abstract 3D reads as hero focal point */}
-        <div className="absolute inset-0 opacity-[0.18] pointer-events-none">
+        {/* particle field — subtle background depth */}
+        <div className="absolute inset-0 opacity-[0.12] pointer-events-none">
           <NexusField />
         </div>
 
@@ -684,7 +684,7 @@ const StudentPerformer = () => {
         <div
           className="absolute inset-0 pointer-events-none z-[6]"
           style={{
-            background: "radial-gradient(ellipse 80% 75% at 50% 48%, transparent 40%, rgba(6,10,20,0.65) 100%)",
+            background: "radial-gradient(ellipse 85% 80% at 50% 46%, transparent 50%, rgba(6,10,20,0.50) 100%)",
           }}
         />
 
@@ -698,6 +698,35 @@ const StudentPerformer = () => {
           }}
         />
 
+        {/* horizontal scan-line — subtle cyberpunk effect */}
+        <div className="absolute inset-x-0 pointer-events-none z-[5] overflow-hidden" style={{ height: "100%" }}>
+          <div
+            className="absolute inset-x-0 h-px opacity-[0.06]"
+            style={{
+              background: "linear-gradient(90deg, transparent 5%, rgba(56,189,248,0.6) 30%, rgba(167,139,250,0.4) 50%, rgba(56,189,248,0.6) 70%, transparent 95%)",
+              animation: "scanline 4s linear infinite",
+            }}
+          />
+        </div>
+
+        {/* floor reflection glow — anchors character to stage */}
+        <div
+          className="absolute left-1/2 bottom-[12%] -translate-x-1/2 w-[60%] h-[18%] pointer-events-none z-[3]"
+          style={{
+            background: `radial-gradient(ellipse at center, ${accent}25, ${accent}10 40%, transparent 70%)`,
+            filter: "blur(10px)",
+          }}
+        />
+
+        {/* vertical data stream particles — left side */}
+        <div className="absolute left-3 inset-y-0 w-px pointer-events-none z-[2] overflow-hidden opacity-[0.08]">
+          <div className="data-stream-track h-full w-full" />
+        </div>
+        {/* vertical data stream particles — right side */}
+        <div className="absolute right-3 inset-y-0 w-px pointer-events-none z-[2] overflow-hidden opacity-[0.08]">
+          <div className="data-stream-track h-full w-full" style={{ animationDelay: "1.5s" }} />
+        </div>
+
         {/* floating service chips — premium glass */}
         {ORBITS.map((o, i) => (
           <div
@@ -707,23 +736,23 @@ const StudentPerformer = () => {
           >
             <div ref={(el) => { orbitRefs.current[i] = el; }}>
               <div
-                className="relative rounded-xl p-px"
+                className="relative rounded-lg p-px"
                 style={{
-                  background: `linear-gradient(135deg, ${o.accent}65, rgba(255,255,255,0.12) 42%, rgba(255,255,255,0.04))`,
-                  boxShadow: `0 20px 50px -18px ${o.accent}50, 0 8px 24px -12px rgba(0,0,0,0.75)`,
+                  background: `linear-gradient(135deg, ${o.accent}55, rgba(255,255,255,0.10) 42%, rgba(255,255,255,0.03))`,
+                  boxShadow: `0 14px 36px -16px ${o.accent}45, 0 6px 18px -10px rgba(0,0,0,0.7)`,
                 }}
               >
                 <div
-                  className="rounded-[11px] px-2.5 py-1.5 flex items-center gap-1.5"
+                  className="rounded-[7px] px-2 py-1 flex items-center gap-1.5"
                   style={{
-                    background: "linear-gradient(180deg, rgba(12,18,32,0.82), rgba(6,10,18,0.90))",
-                    backdropFilter: "blur(16px)",
-                    WebkitBackdropFilter: "blur(16px)",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3)",
+                    background: "linear-gradient(180deg, rgba(12,18,32,0.85), rgba(6,10,18,0.92))",
+                    backdropFilter: "blur(14px)",
+                    WebkitBackdropFilter: "blur(14px)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(0,0,0,0.3)",
                   }}
                 >
-                  <o.icon className="text-[13px]" style={{ color: o.accent, filter: `drop-shadow(0 0 8px ${o.accent}90)` }} />
-                  <span className="text-[9px] font-semibold text-neutral-200 whitespace-nowrap">{o.label}</span>
+                  <o.icon className="text-[11px]" style={{ color: o.accent, filter: `drop-shadow(0 0 6px ${o.accent}80)` }} />
+                  <span className="text-[8px] font-semibold text-neutral-200 whitespace-nowrap">{o.label}</span>
                 </div>
               </div>
             </div>
@@ -835,14 +864,14 @@ const StudentPerformer = () => {
         {/* character aura — synced to chapter accent */}
         <div
           ref={auraRef}
-          className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 w-[85%] h-[75%] pointer-events-none z-[4] transition-[background] duration-700"
-          style={{ background: `radial-gradient(ellipse at center, ${accent}35, transparent 70%)` }}
+          className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 w-[80%] h-[70%] pointer-events-none z-[4] transition-[background] duration-700"
+          style={{ background: `radial-gradient(ellipse at center, ${accent}30, transparent 65%)` }}
         />
 
         {/* character — premium 3D portrait graduate */}
         <div
           ref={svgWrapRef}
-          className="absolute inset-0 flex items-center justify-center z-10 px-2 pt-2"
+          className="absolute inset-0 flex items-center justify-center z-10"
         >
           <Suspense fallback={null}>
             <Student3D

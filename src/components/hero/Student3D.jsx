@@ -410,12 +410,12 @@ const CameraRig = () => {
     const t = state.clock.elapsedTime;
     const cam = state.camera;
     const tx = Math.sin(t * 0.22) * 0.04 + state.pointer.x * 0.12;
-    const ty = 1.45 + Math.cos(t * 0.18) * 0.03 - state.pointer.y * 0.06;
-    const tz = 6.2 + Math.sin(t * 0.15) * 0.05;
+    const ty = 1.20 + Math.cos(t * 0.18) * 0.025 - state.pointer.y * 0.05;
+    const tz = 6.6 + Math.sin(t * 0.15) * 0.04;
     cam.position.x = THREE.MathUtils.damp(cam.position.x, tx, 2.2, dt);
     cam.position.y = THREE.MathUtils.damp(cam.position.y, ty, 2.2, dt);
     cam.position.z = THREE.MathUtils.damp(cam.position.z, tz, 2, dt);
-    cam.lookAt(0, 1.15, 0);
+    cam.lookAt(0, 1.05, 0);
   });
   return null;
 };
@@ -986,7 +986,7 @@ const SceneContainer = (props) => {
       <Canvas
         frameloop={visible ? "always" : "never"}
         dpr={isMobile ? [1, 1.5] : [1, 2]}
-        camera={{ position: [0, 1.65, 6.2], fov: 32 }}
+        camera={{ position: [0, 1.40, 6.6], fov: 34 }}
         gl={{
           antialias: true,
           alpha: true,
@@ -1055,22 +1055,22 @@ const SceneContainer = (props) => {
 
         {/* Additive halo glow behind character */}
         <Glow
-          position={[0, 1.20, -0.6]}
-          scale={7.5}
+          position={[0, 1.05, -0.6]}
+          scale={7}
           color={accent}
-          opacity={0.5}
+          opacity={0.45}
         />
         <Glow
-          position={[0, 1.20, -0.6]}
-          scale={4.5}
+          position={[0, 1.05, -0.6]}
+          scale={4.2}
           color="#7DD3FC"
-          opacity={0.5}
+          opacity={0.45}
         />
         <Glow
-          position={[0, 0.90, -0.6]}
-          scale={3}
+          position={[0, 0.80, -0.6]}
+          scale={2.8}
           color="#A78BFA"
-          opacity={0.35}
+          opacity={0.30}
         />
 
         <EnvironmentProps />

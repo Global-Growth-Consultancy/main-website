@@ -592,7 +592,7 @@ const NexusField = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ filter: "blur(0.3px)" }} aria-hidden="true" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" aria-hidden="true" />;
 };
 
 export default NexusField;
