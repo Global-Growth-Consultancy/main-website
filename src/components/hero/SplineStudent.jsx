@@ -38,7 +38,7 @@ const SPLINE_SCENE_URL =
 // Adjust for your own scene — leave empty to keep all scene text.
 const HIDE_TEXT_NAMES = [/^text/i];
 
-const PARALLAX = 14;
+const PARALLAX = 8;
 
 // Breathing room around the robot once it is framed into the stage.
 const STAGE_FRAME_MARGIN = 1.12;
@@ -278,15 +278,15 @@ const SplineStudent = (props) => {
       if (r.width === 0) return;
       const x = (e.clientX - r.left) / r.width - 0.5;
       const y = (e.clientY - r.top) / r.height - 0.5;
-      const dx = Math.round(x * PARALLAX);
-      const dy = Math.round(y * PARALLAX * 0.7);
-      el.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+      const dx = x * PARALLAX;
+      const dy = y * PARALLAX * 0.7;
+      el.style.transform = `translate3d(${dx.toFixed(2)}px, ${dy.toFixed(2)}px, 0)`;
     };
     const reset = () => {
       el.style.transform = "translate3d(0px, 0px, 0px)";
     };
-    parent.addEventListener("mousemove", handler);
-    parent.addEventListener("mouseleave", reset);
+    parent.addEventListener("mousemove", handler, { passive: true });
+    parent.addEventListener("mouseleave", reset, { passive: true });
     return () => {
       parent.removeEventListener("mousemove", handler);
       parent.removeEventListener("mouseleave", reset);
@@ -443,7 +443,7 @@ const SplineStudent = (props) => {
         <div
           ref={innerRef}
           className="absolute inset-0 will-change-transform"
-          style={{ transform: "translate3d(0px, 0px, 0px)" }}
+          style={{ transform: "translate3d(0px, 0px, 0px)", transition: "transform 0.15s ease-out" }}
         >
           {status === "loading" && <LoadingShimmer />}
           <SplineErrorBoundary
