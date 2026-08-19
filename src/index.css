@@ -91,8 +91,8 @@
 
   /* ------------------------------------------------------------------
    * LUX CARD SYSTEM — premium education consultancy panels.
-   * Clearly elevated above the dark navy canvas with visible surface,
-   * refined border, deep shadow, and warm brand-blue accents.
+   * Solid hex-surface cards that clearly separate from the dark canvas.
+   * Background: #0A0F1C. Cards: #151F33 → #1A2640 (visible, solid).
    * Education-focused: trustworthy, professional, student-friendly.
    * ------------------------------------------------------------------ */
   .card-lux {
@@ -100,16 +100,16 @@
     overflow: hidden;
     border-radius: 1.1rem;
     padding: 1.25rem;
-    border: 1px solid rgba(165, 180, 200, 0.18);
+    border: 1px solid #243352;
     background:
-      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.07), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(180, 195, 215, 0.13), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.03)) padding-box;
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.06), transparent 70%) padding-box,
+      linear-gradient(180deg, #1A2640 0%, #162035 55%, #151F33 100%) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-      0 8px 32px -8px rgba(0, 0, 0, 0.5),
-      0 24px 48px -20px rgba(0, 0, 0, 0.35);
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease, border-color 0.4s ease, background 0.5s ease;
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 0 0 1px rgba(0, 0, 0, 0.15) inset,
+      0 8px 24px -6px rgba(0, 0, 0, 0.55),
+      0 2px 8px -2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease, border-color 0.4s ease, background 0.4s ease;
   }
 
   @media (min-width: 640px) {
@@ -146,15 +146,15 @@
 
   .card-lux:hover {
     transform: translateY(-6px) scale(1.008);
-    border-color: rgba(14, 165, 233, 0.35);
+    border-color: #2E4470;
     background:
-      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.12), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(180, 195, 215, 0.16), rgba(148, 163, 184, 0.08) 55%, rgba(255, 255, 255, 0.04)) padding-box;
+      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.1), transparent 70%) padding-box,
+      linear-gradient(180deg, #1E2E4A 0%, #1A2842 55%, #182540 100%) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-      0 16px 48px -12px rgba(0, 0, 0, 0.6),
-      0 0 40px -16px rgba(14, 165, 233, 0.2);
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 0 0 1px rgba(0, 0, 0, 0.15) inset,
+      0 16px 40px -10px rgba(0, 0, 0, 0.65),
+      0 0 30px -12px rgba(14, 165, 233, 0.15);
   }
 
   .card-lux:hover::after {
@@ -163,24 +163,24 @@
 
   /* Gold accent variant — flagship / high-value cards */
   .card-lux--accent {
-    border-color: rgba(251, 191, 36, 0.2);
+    border-color: #3D3520;
     background:
-      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.07), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(180, 195, 215, 0.12), rgba(148, 163, 184, 0.06) 55%, rgba(255, 255, 255, 0.03)) padding-box;
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.06), transparent 70%) padding-box,
+      linear-gradient(180deg, #1A2538 0%, #182235 55%, #162030 100%) padding-box;
   }
 
   .card-lux--accent:hover {
-    border-color: rgba(252, 211, 77, 0.4);
+    border-color: #5C4F28;
     background:
-      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.12), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(180, 195, 215, 0.15), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.04)) padding-box;
+      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.1), transparent 70%) padding-box,
+      linear-gradient(180deg, #1E2A40 0%, #1C2838 55%, #1A2535 100%) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.14),
-      0 16px 48px -12px rgba(0, 0, 0, 0.6),
-      0 0 40px -16px rgba(251, 191, 36, 0.2);
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 16px 40px -10px rgba(0, 0, 0, 0.65),
+      0 0 30px -12px rgba(251, 191, 36, 0.15);
   }
 
-  /* Icon chip — brand-blue gradient, warm & trustworthy */
+  /* Icon chip — solid brand-blue, warm & trustworthy */
   .lux-icon {
     display: inline-flex;
     align-items: center;
@@ -188,19 +188,19 @@
     width: 3rem;
     height: 3rem;
     border-radius: 0.9rem;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(3, 105, 161, 0.18));
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    background: linear-gradient(135deg, #0C4A6E, #0A3D5C);
+    border: 1px solid #155E85;
     color: #7dd3fc;
-    box-shadow: 0 8px 24px -10px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 16px -4px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
 
   .card-lux:hover .lux-icon {
     color: #e0f2fe;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(3, 105, 161, 0.24));
-    border-color: rgba(56, 189, 248, 0.5);
+    background: linear-gradient(135deg, #0E5A82, #0C4A6E);
+    border-color: #1A7AAA;
     transform: translateY(-2px) scale(1.06);
-    box-shadow: 0 12px 32px -10px rgba(14, 165, 233, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 24px -6px rgba(14, 165, 233, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
 
   /* Step / number chip */
@@ -211,20 +211,20 @@
     min-width: 2.5rem;
     height: 2.5rem;
     border-radius: 9999px;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(3, 105, 161, 0.16));
-    border: 1px solid rgba(56, 189, 248, 0.28);
+    background: linear-gradient(135deg, #0C4A6E, #0A3D5C);
+    border: 1px solid #155E85;
     color: #7dd3fc;
     font-weight: 700;
     font-size: 1rem;
-    box-shadow: 0 6px 20px -10px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px -4px rgba(14, 165, 233, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition: color 0.35s ease, background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
 
   .card-lux:hover .lux-step {
     color: #e0f2fe;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(3, 105, 161, 0.22));
+    background: linear-gradient(135deg, #0E5A82, #0C4A6E);
     transform: scale(1.08);
-    box-shadow: 0 10px 28px -10px rgba(14, 165, 233, 0.5);
+    box-shadow: 0 6px 20px -4px rgba(14, 165, 233, 0.45);
   }
 
   /* Gradient hairline */
@@ -337,19 +337,19 @@
     position: relative;
     overflow: hidden;
     border-radius: 1.3rem;
-    border: 1px solid rgba(165, 180, 200, 0.14);
+    border: 1px solid #243352;
     background:
       radial-gradient(120% 80% at 50% 0%, rgba(14, 165, 233, 0.06), transparent 55%),
-      linear-gradient(180deg, rgba(18, 24, 38, 0.95), rgba(10, 15, 28, 0.98));
-    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5), 0 20px 40px -16px rgba(0, 0, 0, 0.3);
+      linear-gradient(180deg, #162038, #131C30, #111A2B);
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.55), 0 2px 8px -2px rgba(0, 0, 0, 0.3);
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
   }
 
   .faq-aura-card:hover {
     transform: translateY(-5px);
     box-shadow:
-      0 16px 48px -12px rgba(0, 0, 0, 0.6),
-      0 0 40px -16px rgba(14, 165, 233, 0.2);
+      0 16px 40px -10px rgba(0, 0, 0, 0.65),
+      0 0 30px -12px rgba(14, 165, 233, 0.15);
   }
 
   /* rotating aurora border ring */
@@ -478,11 +478,16 @@
 
 @layer utilities {
   .glass {
-    @apply bg-surface-100 backdrop-blur-xl border border-white/10;
+    background: linear-gradient(135deg, #1A2640, #162035);
+    border: 1px solid #243352;
+    backdrop-filter: blur(12px);
   }
 
   .glass-premium {
-    @apply bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl border border-white/10 shadow-2xl;
+    background: linear-gradient(135deg, #1E2E4A, #182540, #151F33);
+    border: 1px solid #2E4470;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.55);
   }
 
   .text-gradient {
@@ -514,38 +519,35 @@
     @apply absolute left-1/2 -translate-x-1/2 w-[min(72%,640px)] h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent;
   }
 
-  /* Education consultancy card variants */
+  /* Education consultancy card variants — solid hex surfaces */
   .card-surface {
-    background: rgba(180, 195, 215, 0.12) !important;
-    border-color: rgba(165, 180, 200, 0.22) !important;
+    background: linear-gradient(180deg, #1A2640, #162035) !important;
+    border-color: #243352 !important;
   }
 
   .card-elevated {
-    background: rgba(180, 195, 215, 0.16) !important;
-    border-color: rgba(165, 180, 200, 0.28) !important;
+    background: linear-gradient(180deg, #1E2E4A, #1A2842) !important;
+    border-color: #2E4470 !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 12px 40px -10px rgba(0, 0, 0, 0.55),
-      0 4px 16px -6px rgba(0, 0, 0, 0.3) !important;
+      0 12px 40px -10px rgba(0, 0, 0, 0.6),
+      0 4px 16px -6px rgba(0, 0, 0, 0.35) !important;
   }
 
   .card-featured {
     background:
-      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.08), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(180, 195, 215, 0.14), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.03)) padding-box !important;
-    border-color: rgba(251, 191, 36, 0.25) !important;
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.06), transparent 70%) padding-box,
+      linear-gradient(180deg, #1A2538, #182235, #162030) padding-box !important;
+    border-color: #3D3520 !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 12px 40px -10px rgba(0, 0, 0, 0.55),
-      0 0 24px -8px rgba(251, 191, 36, 0.12) !important;
+      0 12px 40px -10px rgba(0, 0, 0, 0.6),
+      0 0 20px -8px rgba(251, 191, 36, 0.1) !important;
   }
 
   .card-featured:hover {
-    border-color: rgba(251, 191, 36, 0.4) !important;
+    border-color: #5C4F28 !important;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.15),
-      0 20px 50px -14px rgba(0, 0, 0, 0.6),
-      0 0 36px -12px rgba(251, 191, 36, 0.18) !important;
+      0 20px 50px -14px rgba(0, 0, 0, 0.65),
+      0 0 30px -10px rgba(251, 191, 36, 0.15) !important;
   }
 
   .card-hover {

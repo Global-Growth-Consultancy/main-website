@@ -60,7 +60,7 @@ const GGCAdvantage = () => {
             {/* Header */}
             <div className="grid grid-cols-3 gap-0 mb-4">
               <div />
-              <div className="px-5 py-4 rounded-l-2xl border border-white/12 bg-white/[0.04] flex items-center gap-2.5">
+              <div className="px-5 py-4 rounded-l-2xl border border-[#243352] bg-[#162035] flex items-center gap-2.5">
                 <FaTimes className="text-neutral-500 text-sm flex-shrink-0" />
                 <span className="text-sm font-semibold text-neutral-300">Doing It Yourself</span>
               </div>
@@ -84,7 +84,7 @@ const GGCAdvantage = () => {
                   <div className="px-5 py-4 flex items-center">
                     <span className="text-sm font-semibold text-white">{row.aspect}</span>
                   </div>
-                  <div className="px-5 py-4 bg-white/[0.04] border-t border-white/8 flex items-center text-sm text-neutral-500 leading-relaxed">
+                  <div className="px-5 py-4 bg-[#162035] border-t border-[#243352] flex items-center text-sm text-neutral-500 leading-relaxed">
                     {row.diy}
                   </div>
                   <div className="px-5 py-4 bg-brand-500/6 border-t border-brand-500/10 flex items-center text-sm text-neutral-300 leading-relaxed">

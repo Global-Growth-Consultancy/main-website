@@ -105,10 +105,9 @@ const GlassCard = ({ children, className = "", hover = true, ...props }) => {
     <motion.div
       ref={ref}
       onMouseMove={onMove}
-      className={`relative rounded-2xl border border-white/[0.06] overflow-hidden ${hover ? "group" : ""} ${className}`}
+      className={`relative rounded-2xl border border-[#243352] overflow-hidden ${hover ? "group" : ""} ${className}`}
       style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))",
-        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        background: "linear-gradient(180deg, #1A2640, #162035)",
       }}
       {...props}
     >

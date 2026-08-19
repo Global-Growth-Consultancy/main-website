@@ -80,8 +80,8 @@ const PremiumHero = () => {
 
   // ── Parallax depth: each layer drifts at a different rate (no opacity fade, no blur) ──
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const robotY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+  const robotY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
   const subtleScale = useTransform(scrollYProgress, [0, 1], [1, 0.97]);
 
   // Robot 3D tilt based on scroll
@@ -266,11 +266,10 @@ const PremiumHero = () => {
                 className="absolute left-2 sm:left-6 bottom-4 sm:bottom-8 z-40"
               >
                 <div
-                  className="rounded-2xl px-4 py-3 border border-white/15 shadow-2xl transform-gpu"
+                  className="rounded-2xl px-4 py-3 border border-[#2E4470] shadow-2xl transform-gpu"
                   style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-                    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
+                    background: "linear-gradient(135deg, #1E2E4A, #1A2842)",
+                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)",
                   }}
                 >
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
@@ -293,11 +292,10 @@ const PremiumHero = () => {
                 className="absolute right-2 sm:right-6 top-3 sm:top-5 z-40"
               >
                 <div
-                  className="rounded-2xl px-4 py-3 border border-white/15 shadow-2xl transform-gpu"
+                  className="rounded-2xl px-4 py-3 border border-[#2E4470] shadow-2xl transform-gpu"
                   style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-                    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.2), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
+                    background: "linear-gradient(135deg, #1E2E4A, #1A2842)",
+                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.2), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)",
                   }}
                 >
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
@@ -320,15 +318,15 @@ const PremiumHero = () => {
         {/* ── Stat strip ── */}
         <motion.div
           variants={fadeUp} custom={3} initial="hidden" animate="show"
-          className="mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4"
+          className="relative z-20 mt-14 sm:mt-16 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4"
         >
           {statChips.map((chip, i) => (
             <motion.div
               key={i}
               className="relative flex items-center gap-3 rounded-2xl border border-white/[0.10] px-3 py-2.5 sm:px-4 sm:py-3.5 overflow-hidden"
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-                backdropFilter: "blur(8px)",
+                background: "linear-gradient(135deg, #1A2640, #162035)",
+                boxShadow: "0 4px 16px -4px rgba(0, 0, 0, 0.4)",
               }}
               whileHover={{
                 scale: 1.04,
@@ -368,13 +366,14 @@ const PremiumHero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden sm:block relative z-10 border-t border-white/[0.06] py-4 bg-gradient-to-r from-premium-dark/60 via-premium-navy/80 to-premium-dark/60 backdrop-blur-md overflow-hidden group"
+        className="hidden sm:block relative z-20 border-t border-[#243352] py-4 overflow-hidden group"
+        style={{ background: "linear-gradient(to right, #0D1117, #0A0F1C 50%, #0D1117)" }}
       >
         <div className="absolute left-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to right, rgba(10,15,28,1), transparent)" }}
+          style={{ background: "linear-gradient(to right, #0D1117, transparent)" }}
         />
         <div className="absolute right-0 top-0 bottom-0 w-28 sm:w-40 z-10 pointer-events-none"
-          style={{ background: "linear-gradient(to left, rgba(10,15,28,1), transparent)" }}
+          style={{ background: "linear-gradient(to left, #0D1117, transparent)" }}
         />
         <div className="flex w-max whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
           {[0, 1, 2].map((dup) => (
