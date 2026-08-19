@@ -56,7 +56,7 @@ const TrustBadge = ({ icon: Icon, text }) => (
     initial={{ opacity: 0, scale: 0.8 }}
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
-    className="flex items-center gap-3 px-4 py-2 sm:px-6 sm:py-3 rounded-full border border-white/10 bg-white/[0.03] shadow-lg shadow-black/20 backdrop-blur-sm"
+    className="flex items-center gap-3 px-4 py-2 sm:px-6 sm:py-3 rounded-full border border-white/12 bg-white/[0.05] shadow-lg shadow-black/20 backdrop-blur-sm"
   >
     <Icon className="text-brand-400" />
     <span className="text-xs sm:text-sm font-medium text-neutral-300">{text}</span>

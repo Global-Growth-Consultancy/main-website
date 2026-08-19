@@ -282,7 +282,7 @@ const ProcessRail = () => {
       <div className="flex justify-between mt-4">
         {steps.map((s, i) => (
           <div key={i} className="flex flex-col items-center gap-1.5">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-500/15 border border-brand-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-500/12 border border-brand-500/18 flex items-center justify-center">
               <s.icon className="text-brand-400 text-xs sm:text-sm" />
             </div>
             <span className="text-[10px] sm:text-xs text-neutral-400">{s.label}</span>
@@ -298,7 +298,7 @@ const ProcessRail = () => {
 // ------------------------------------------------------------------
 const BSCCVisualizer = () => {
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/40">
+    <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-premium-charcoal/60 backdrop-blur-sm shadow-2xl shadow-black/40">
       {/* Animated gradient border glow */}
       <motion.div
         className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-premium-gold/70 to-transparent"

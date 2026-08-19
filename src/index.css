@@ -90,25 +90,25 @@
   }
 
   /* ------------------------------------------------------------------
-   * LUX CARD SYSTEM — elevated illuminated panels.
-   * Cards read as raised panels: clearly lighter than the navy canvas,
-   * crisp refined border, glassy bevel + deep shadow for tangible depth,
-   * subtle cursor spotlight, one sheen sweep on hover, gentle lift.
-   * transform / opacity / background only.
+   * LUX CARD SYSTEM — premium education consultancy panels.
+   * Clearly elevated above the dark navy canvas with visible surface,
+   * refined border, deep shadow, and warm brand-blue accents.
+   * Education-focused: trustworthy, professional, student-friendly.
    * ------------------------------------------------------------------ */
   .card-lux {
     position: relative;
     overflow: hidden;
     border-radius: 1.1rem;
     padding: 1.25rem;
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid rgba(165, 180, 200, 0.18);
     background:
-      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(56, 189, 248, 0.1), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(148, 163, 184, 0.1), rgba(148, 163, 184, 0.04) 55%, rgba(255, 255, 255, 0.02)) padding-box;
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.07), transparent 70%) padding-box,
+      linear-gradient(180deg, rgba(180, 195, 215, 0.13), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.03)) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-      0 30px 55px -35px rgba(0, 0, 0, 0.85);
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+      0 8px 32px -8px rgba(0, 0, 0, 0.5),
+      0 24px 48px -20px rgba(0, 0, 0, 0.35);
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease, border-color 0.4s ease, background 0.5s ease;
   }
 
@@ -138,7 +138,7 @@
     left: 0;
     width: 55%;
     height: 140%;
-    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.06), transparent);
     transform: translateX(-130%) skewX(-16deg);
     transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
@@ -146,41 +146,41 @@
 
   .card-lux:hover {
     transform: translateY(-6px) scale(1.008);
-    border-color: rgba(125, 211, 252, 0.4);
+    border-color: rgba(14, 165, 233, 0.35);
     background:
-      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(56, 189, 248, 0.15), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(148, 163, 184, 0.13), rgba(148, 163, 184, 0.05) 55%, rgba(255, 255, 255, 0.03)) padding-box;
+      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(14, 165, 233, 0.12), transparent 70%) padding-box,
+      linear-gradient(180deg, rgba(180, 195, 215, 0.16), rgba(148, 163, 184, 0.08) 55%, rgba(255, 255, 255, 0.04)) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.25),
-      0 36px 70px -36px rgba(0, 0, 0, 0.9),
-      0 0 60px -26px rgba(56, 189, 248, 0.3);
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+      0 16px 48px -12px rgba(0, 0, 0, 0.6),
+      0 0 40px -16px rgba(14, 165, 233, 0.2);
   }
 
   .card-lux:hover::after {
     transform: translateX(210%) skewX(-16deg);
   }
 
-  /* Gold accent variant — reserved for flagship / high-value cards */
+  /* Gold accent variant — flagship / high-value cards */
   .card-lux--accent {
-    border-color: rgba(251, 191, 36, 0.22);
+    border-color: rgba(251, 191, 36, 0.2);
     background:
-      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.08), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(148, 163, 184, 0.1), rgba(148, 163, 184, 0.04) 55%, rgba(255, 255, 255, 0.02)) padding-box;
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.07), transparent 70%) padding-box,
+      linear-gradient(180deg, rgba(180, 195, 215, 0.12), rgba(148, 163, 184, 0.06) 55%, rgba(255, 255, 255, 0.03)) padding-box;
   }
 
   .card-lux--accent:hover {
-    border-color: rgba(252, 211, 77, 0.45);
+    border-color: rgba(252, 211, 77, 0.4);
     background:
-      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.14), transparent 70%) padding-box,
-      linear-gradient(180deg, rgba(148, 163, 184, 0.13), rgba(148, 163, 184, 0.05) 55%, rgba(255, 255, 255, 0.03)) padding-box;
+      radial-gradient(360px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.12), transparent 70%) padding-box,
+      linear-gradient(180deg, rgba(180, 195, 215, 0.15), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.04)) padding-box;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 36px 70px -36px rgba(0, 0, 0, 0.9),
-      0 0 60px -26px rgba(251, 191, 36, 0.26);
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 16px 48px -12px rgba(0, 0, 0, 0.6),
+      0 0 40px -16px rgba(251, 191, 36, 0.2);
   }
 
-  /* Refined icon chip — vivid cyan→violet gradient, glows */
+  /* Icon chip — brand-blue gradient, warm & trustworthy */
   .lux-icon {
     display: inline-flex;
     align-items: center;
@@ -188,22 +188,22 @@
     width: 3rem;
     height: 3rem;
     border-radius: 0.9rem;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(124, 58, 237, 0.2));
-    border: 1px solid rgba(125, 211, 252, 0.35);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.22), rgba(3, 105, 161, 0.18));
+    border: 1px solid rgba(56, 189, 248, 0.3);
     color: #7dd3fc;
-    box-shadow: 0 12px 30px -14px rgba(56, 189, 248, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    box-shadow: 0 8px 24px -10px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.14);
     transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
 
   .card-lux:hover .lux-icon {
     color: #e0f2fe;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.32), rgba(124, 58, 237, 0.26));
-    border-color: rgba(125, 211, 252, 0.55);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(3, 105, 161, 0.24));
+    border-color: rgba(56, 189, 248, 0.5);
     transform: translateY(-2px) scale(1.06);
-    box-shadow: 0 16px 38px -14px rgba(56, 189, 248, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 32px -10px rgba(14, 165, 233, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.18);
   }
 
-  /* Refined number / step chip */
+  /* Step / number chip */
   .lux-step {
     display: inline-flex;
     align-items: center;
@@ -211,26 +211,26 @@
     min-width: 2.5rem;
     height: 2.5rem;
     border-radius: 9999px;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(124, 58, 237, 0.18));
-    border: 1px solid rgba(125, 211, 252, 0.32);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(3, 105, 161, 0.16));
+    border: 1px solid rgba(56, 189, 248, 0.28);
     color: #7dd3fc;
     font-weight: 700;
     font-size: 1rem;
-    box-shadow: 0 10px 26px -14px rgba(56, 189, 248, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    box-shadow: 0 6px 20px -10px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     transition: color 0.35s ease, background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   }
 
   .card-lux:hover .lux-step {
     color: #e0f2fe;
-    background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(124, 58, 237, 0.24));
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.28), rgba(3, 105, 161, 0.22));
     transform: scale(1.08);
-    box-shadow: 0 14px 34px -14px rgba(56, 189, 248, 0.6);
+    box-shadow: 0 10px 28px -10px rgba(14, 165, 233, 0.5);
   }
 
   /* Gradient hairline */
   .lux-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.35), transparent);
+    background: linear-gradient(90deg, transparent, rgba(14, 165, 233, 0.3), transparent);
   }
 
   /* ------------------------------------------------------------------
@@ -337,19 +337,19 @@
     position: relative;
     overflow: hidden;
     border-radius: 1.3rem;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(165, 180, 200, 0.14);
     background:
-      radial-gradient(120% 80% at 50% 0%, rgba(56, 189, 248, 0.06), transparent 55%),
-      linear-gradient(180deg, rgba(14, 19, 31, 0.92), rgba(8, 11, 18, 0.96));
-    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.85);
+      radial-gradient(120% 80% at 50% 0%, rgba(14, 165, 233, 0.06), transparent 55%),
+      linear-gradient(180deg, rgba(18, 24, 38, 0.95), rgba(10, 15, 28, 0.98));
+    box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.5), 0 20px 40px -16px rgba(0, 0, 0, 0.3);
     transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
   }
 
   .faq-aura-card:hover {
     transform: translateY(-5px);
     box-shadow:
-      0 40px 80px -36px rgba(0, 0, 0, 0.9),
-      0 0 60px -20px rgba(56, 189, 248, 0.35);
+      0 16px 48px -12px rgba(0, 0, 0, 0.6),
+      0 0 40px -16px rgba(14, 165, 233, 0.2);
   }
 
   /* rotating aurora border ring */
@@ -362,9 +362,9 @@
     background: conic-gradient(
       from var(--angle),
       transparent 0deg,
-      rgba(56, 189, 248, 0.95) 70deg,
-      rgba(167, 139, 250, 0.85) 130deg,
-      rgba(251, 191, 36, 0.9) 200deg,
+      rgba(14, 165, 233, 0.9) 70deg,
+      rgba(3, 105, 161, 0.8) 130deg,
+      rgba(251, 191, 36, 0.85) 200deg,
       transparent 290deg,
       transparent 360deg
     );
@@ -386,7 +386,7 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(56, 189, 248, 0.1), transparent 70%);
+    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(14, 165, 233, 0.08), transparent 70%);
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
@@ -401,22 +401,22 @@
     background: conic-gradient(
       from var(--angle),
       transparent 0deg,
-      rgba(251, 191, 36, 0.95) 70deg,
-      rgba(56, 189, 248, 0.85) 130deg,
-      rgba(251, 191, 36, 0.9) 200deg,
+      rgba(251, 191, 36, 0.9) 70deg,
+      rgba(14, 165, 233, 0.8) 130deg,
+      rgba(251, 191, 36, 0.85) 200deg,
       transparent 290deg,
       transparent 360deg
     );
   }
 
   .faq-aura-card--gold::after {
-    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(251, 191, 36, 0.1), transparent 70%);
+    background: radial-gradient(240px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(251, 191, 36, 0.08), transparent 70%);
   }
 
   .faq-aura-card--gold:hover {
     box-shadow:
-      0 40px 80px -36px rgba(0, 0, 0, 0.9),
-      0 0 60px -20px rgba(251, 191, 36, 0.35);
+      0 16px 48px -12px rgba(0, 0, 0, 0.6),
+      0 0 40px -16px rgba(251, 191, 36, 0.2);
   }
 
   .progress-fill {
@@ -512,6 +512,40 @@
 
   .section-divider {
     @apply absolute left-1/2 -translate-x-1/2 w-[min(72%,640px)] h-px bg-gradient-to-r from-transparent via-brand-500/40 to-transparent;
+  }
+
+  /* Education consultancy card variants */
+  .card-surface {
+    background: rgba(180, 195, 215, 0.12) !important;
+    border-color: rgba(165, 180, 200, 0.22) !important;
+  }
+
+  .card-elevated {
+    background: rgba(180, 195, 215, 0.16) !important;
+    border-color: rgba(165, 180, 200, 0.28) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 12px 40px -10px rgba(0, 0, 0, 0.55),
+      0 4px 16px -6px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .card-featured {
+    background:
+      radial-gradient(340px circle at var(--spot-x, 50%) var(--spot-y, 12%), rgba(251, 191, 36, 0.08), transparent 70%) padding-box,
+      linear-gradient(180deg, rgba(180, 195, 215, 0.14), rgba(148, 163, 184, 0.07) 55%, rgba(255, 255, 255, 0.03)) padding-box !important;
+    border-color: rgba(251, 191, 36, 0.25) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 12px 40px -10px rgba(0, 0, 0, 0.55),
+      0 0 24px -8px rgba(251, 191, 36, 0.12) !important;
+  }
+
+  .card-featured:hover {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 20px 50px -14px rgba(0, 0, 0, 0.6),
+      0 0 36px -12px rgba(251, 191, 36, 0.18) !important;
   }
 
   .card-hover {

@@ -270,7 +270,7 @@ const PremiumHero = () => {
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                     backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                    boxShadow: "0 20px 50px -20px rgba(56,189,248,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
+                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
                   }}
                 >
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
@@ -297,12 +297,12 @@ const PremiumHero = () => {
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                     backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                    boxShadow: "0 20px 50px -20px rgba(167,139,250,0.25), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
+                    boxShadow: "0 20px 50px -20px rgba(14,165,233,0.2), 0 8px 24px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10)",
                   }}
                 >
                   <div className="flex items-center gap-3" style={{ transform: "translateZ(20px)" }}>
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-500/25 flex items-center justify-center shrink-0"
-                      style={{ boxShadow: "0 0 16px rgba(56,189,248,0.3)" }}
+                      style={{ boxShadow: "0 0 16px rgba(14,165,233,0.3)" }}
                     >
                       <FaCheckCircle className="text-brand-400 text-sm sm:text-base block" />
                     </div>
@@ -325,15 +325,15 @@ const PremiumHero = () => {
           {statChips.map((chip, i) => (
             <motion.div
               key={i}
-              className="relative flex items-center gap-3 rounded-2xl border border-white/[0.08] px-3 py-2.5 sm:px-4 sm:py-3.5 overflow-hidden"
+              className="relative flex items-center gap-3 rounded-2xl border border-white/[0.10] px-3 py-2.5 sm:px-4 sm:py-3.5 overflow-hidden"
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+                background: "linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
                 backdropFilter: "blur(8px)",
               }}
               whileHover={{
                 scale: 1.04,
-                borderColor: "rgba(56,189,248,0.35)",
-                boxShadow: "0 20px 40px -20px rgba(56,189,248,0.2), 0 0 30px -10px rgba(56,189,248,0.15)",
+                borderColor: "rgba(14,165,233,0.35)",
+                boxShadow: "0 20px 40px -20px rgba(14,165,233,0.2), 0 0 30px -10px rgba(14,165,233,0.15)",
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
@@ -344,8 +344,8 @@ const PremiumHero = () => {
                 : "bg-accent-500/18 text-accent-300"
               }`}
                 style={{
-                  boxShadow: chip.tint === "brand" ? "0 0 14px rgba(56,189,248,0.2)"
-                    : chip.tint === "violet" ? "0 0 14px rgba(167,139,250,0.2)"
+                  boxShadow: chip.tint === "brand" ? "0 0 14px rgba(14,165,233,0.2)"
+                    : chip.tint === "violet" ? "0 0 14px rgba(14,165,233,0.15)"
                     : chip.tint === "success" ? "0 0 14px rgba(52,211,153,0.2)"
                     : "0 0 14px rgba(251,191,36,0.2)"
                 }}

@@ -89,7 +89,7 @@ const StreamRoadmap = () => {
               className={`group inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full border text-sm transition-all duration-300 ${
                 active === index
                   ? "border-brand-400/50 bg-brand-500/15 text-white shadow-lg shadow-brand-500/20"
-                  : "border-white/10 bg-white/[0.03] text-neutral-400 hover:text-white hover:border-white/25"
+                   : "border-white/12 bg-white/[0.05] text-neutral-400 hover:text-white hover:border-white/25"
               }`}
             >
               <s.icon className={`text-sm ${active === index ? "text-brand-300" : "text-neutral-500 group-hover:text-brand-400"}`} />
@@ -153,7 +153,7 @@ const StreamRoadmap = () => {
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-6 rounded-xl border border-premium-gold/25 bg-premium-gold/5 p-4">
+                    <div className="mt-6 rounded-xl border border-accent-400/25 bg-accent-400/8 p-4">
                       <p className="flex items-start gap-2.5 text-xs text-neutral-300 leading-relaxed">
                         <FaHandHoldingUsd className="text-accent-400 text-base flex-shrink-0 mt-0.5" />
                         <span>{stream.funding}</span>

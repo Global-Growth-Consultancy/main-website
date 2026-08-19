@@ -198,7 +198,7 @@ const BSCCPage = () => {
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border border-brand-500/20 bg-brand-500/5 p-5">
+              <div className="mt-6 rounded-2xl border border-brand-500/25 bg-brand-500/8 p-5">
                 <p className="text-sm text-neutral-300 leading-relaxed">
                   <span className="text-brand-300 font-semibold">Objective:</span> ensure that no student of Bihar
                   misses higher education because of money. The scheme's impact is visible — the Bihar Education
@@ -315,7 +315,7 @@ const BSCCPage = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-t border-b border-white/10 bg-surface-100/50">
+                      <tr className="border-t border-b border-white/10 bg-surface-100/60">
                         <th className="px-6 py-3 text-left text-neutral-300 font-medium">Loan Amount</th>
                         <th className="px-6 py-3 text-left text-neutral-300 font-medium">Tenure</th>
                         <th className="px-6 py-3 text-right text-neutral-300 font-medium">EMI</th>
@@ -337,7 +337,7 @@ const BSCCPage = () => {
                     </tbody>
                   </table>
                 </div>
-                <div className="px-6 py-4 bg-surface-100/30">
+                <div className="px-6 py-4 bg-surface-100/40">
                   <p className="text-xs text-neutral-500">
                     Indicative figures based on published guidelines. Final tenure is stated on your sanction letter.
                   </p>

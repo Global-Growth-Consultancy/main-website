@@ -136,7 +136,7 @@ const CollegesPage = () => {
             <div className="relative grid grid-cols-5 gap-6">
               {admissionSteps.map((step, index) => (
                 <div key={index} className="flex justify-center">
-                  <span className="lux-step relative z-10 shadow-[0_0_20px_-6px_rgba(56,189,248,0.5)]">
+                  <span className="lux-step relative z-10 shadow-[0_0_20px_-6px_rgba(14,165,233,0.5)]">
                     {index + 1}
                   </span>
                 </div>

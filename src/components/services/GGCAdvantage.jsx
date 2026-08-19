@@ -60,11 +60,11 @@ const GGCAdvantage = () => {
             {/* Header */}
             <div className="grid grid-cols-3 gap-0 mb-4">
               <div />
-              <div className="px-5 py-4 rounded-l-2xl border border-white/10 bg-white/[0.02] flex items-center gap-2.5">
+              <div className="px-5 py-4 rounded-l-2xl border border-white/12 bg-white/[0.04] flex items-center gap-2.5">
                 <FaTimes className="text-neutral-500 text-sm flex-shrink-0" />
                 <span className="text-sm font-semibold text-neutral-300">Doing It Yourself</span>
               </div>
-              <div className="px-5 py-4 rounded-r-2xl border border-brand-500/30 bg-brand-500/10 flex items-center gap-2.5">
+              <div className="px-5 py-4 rounded-r-2xl border border-brand-500/25 bg-brand-500/8 flex items-center gap-2.5">
                 <FaCheck className="text-brand-400 text-sm flex-shrink-0" />
                 <span className="text-sm font-semibold text-white">With GGC</span>
               </div>
@@ -84,10 +84,10 @@ const GGCAdvantage = () => {
                   <div className="px-5 py-4 flex items-center">
                     <span className="text-sm font-semibold text-white">{row.aspect}</span>
                   </div>
-                  <div className="px-5 py-4 bg-white/[0.02] border-t border-white/5 flex items-center text-sm text-neutral-500 leading-relaxed">
+                  <div className="px-5 py-4 bg-white/[0.04] border-t border-white/8 flex items-center text-sm text-neutral-500 leading-relaxed">
                     {row.diy}
                   </div>
-                  <div className="px-5 py-4 bg-brand-500/5 border-t border-brand-500/10 flex items-center text-sm text-neutral-300 leading-relaxed">
+                  <div className="px-5 py-4 bg-brand-500/6 border-t border-brand-500/10 flex items-center text-sm text-neutral-300 leading-relaxed">
                     {row.ggc}
                   </div>
                 </motion.div>
